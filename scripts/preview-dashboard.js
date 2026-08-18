@@ -16,6 +16,19 @@ settings.welcome.channelId = '1';
 settings.welcome.rulesChannelId = '2';
 settings.welcome.introsChannelId = '3';
 settings.notifications.defaultChannelId = '4';
+settings.levels.enabled = true;
+settings.levels.rewards = { 5: '23', 10: '20' };
+settings.automod.enabled = true;
+settings.moderation.modLogChannelId = '7';
+settings.starboard = { enabled: true, channelId: '7', emoji: '⭐', threshold: 3 };
+settings.roleMenus.panels = [
+  { id: 'notifs', title: 'Notification roles', description: 'Tap to hear about drops.', exclusive: false,
+    roles: [
+      { roleId: '20', label: 'YouTube', emoji: '📺', description: 'new uploads' },
+      { roleId: '21', label: 'TikTok', emoji: '🎵', description: 'new posts' },
+      { roleId: '22', label: 'Live', emoji: '🔴', description: 'streams' },
+    ] },
+];
 settings.notifications.accounts = settings.notifications.accounts.map((a, i) => ({
   ...a,
   mentionRoleId: i % 2 ? '' : '20',
@@ -46,6 +59,16 @@ app.get('/api/state', (_req, res) =>
       ],
     },
     polls,
+    giveaways,
+    leaderboard: [
+      { userId: '1', name: 'lunaaa', level: 24, xp: 41_200, messages: 3120 },
+      { userId: '2', name: 'notch', level: 19, xp: 26_800, messages: 2011 },
+      { userId: '3', name: 'mike', level: 11, xp: 9_400, messages: 870 },
+    ],
+    cases: [
+      { id: 14, action: 'warn', userId: '4', userTag: 'spammer', moderatorTag: 'mike', reason: 'posted an invite', at: Date.now() - 3_600_000 },
+      { id: 13, action: 'timeout', userId: '5', userTag: 'shouty', moderatorTag: 'automod', reason: 'wrote mostly in capitals', at: Date.now() - 7_200_000 },
+    ],
     pollLimits: { question: 300, answer: 55, answers: 10, minHours: 1, maxHours: 768 },
     status: { uptimeMs: 7_200_000, ping: 42, watching: 3 },
   })
@@ -54,6 +77,10 @@ app.get('/api/state', (_req, res) =>
 let polls = [
   { messageId: '900001', channelId: '8', question: 'What should I film next?', authorId: '1', endsAt: Date.now() + 46_800_000 },
   { messageId: '900002', channelId: '7', question: 'New intro music?', authorId: '1', endsAt: Date.now() + 3_600_000 },
+];
+
+let giveaways = [
+  { messageId: '800001', channelId: '8', prize: 'Signed poster', entrants: ['1', '2', '3'], winnerCount: 1, endsAt: Date.now() + 7_200_000, ended: false },
 ];
 
 app.post('/api/settings', (req, res) => res.json({ ok: true, settings: req.body.patch }));
@@ -68,6 +95,16 @@ app.post('/api/action/:name', (req, res) => {
       ...polls,
     ];
     return res.json({ ok: true, message: 'Poll posted (preview).' });
+  }
+  if (name === 'giveaway-create') {
+    giveaways = [{ messageId: String(Date.now()), channelId: req.body.channelId ?? '8',
+      prize: req.body.prize, entrants: [], winnerCount: Number(req.body.winners) || 1,
+      endsAt: Date.now() + (Number(req.body.minutes) || 60) * 60_000, ended: false }, ...giveaways];
+    return res.json({ ok: true, message: 'Giveaway posted (preview).' });
+  }
+  if (name === 'giveaway-end' || name === 'giveaway-cancel') {
+    giveaways = giveaways.filter((g) => g.messageId !== req.body?.messageId);
+    return res.json({ ok: true, message: 'Done (preview).' });
   }
   if (name === 'poll-end') {
     polls = polls.filter((p) => p.messageId !== req.body?.messageId);

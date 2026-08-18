@@ -131,6 +131,12 @@ button, input, select, textarea { font-family: inherit; }
 
 /* nav with a pill that slides between items */
 .nav { position: relative; display: grid; gap: 3px; }
+.nav__group {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: #5D5772; padding: 14px 12px 5px; user-select: none;
+}
+.nav__group:first-child { padding-top: 2px; }
+@media (max-width: 880px) { .nav__group { display: none; } }
 .nav__pill {
   position: absolute; left: 0; width: 100%;
   border-radius: var(--r-sm);
@@ -607,6 +613,10 @@ const svg = (d) => {
 };
 
 const ICONS = {
+  roles: '<path d="M12 2 4 6v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V6l-8-4Z"/><path d="m9 12 2 2 4-4"/>',
+  levels: '<path d="M4 20h16"/><path d="M7 20V9M12 20V4M17 20v-7"/>',
+  giveaways: '<rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 13h18"/><path d="M12 8S9.5 3 7.5 4.5 9 8 12 8Zm0 0s2.5-5 4.5-3.5S15 8 12 8Z"/>',
+  moderation: '<path d="M12 2 4 6v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V6l-8-4Z"/><path d="M12 9v4M12 16h.01"/>',
   welcome: '<path d="M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
   notifications: '<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
   polls: '<path d="M7 20V10M12 20V4M17 20v-6"/>',
@@ -615,12 +625,21 @@ const ICONS = {
 };
 
 const TABS = [
+  { group: 'Community' },
   { id: 'welcome', label: 'Welcome', title: 'Welcome', blurb: 'What happens the moment somebody joins your server.' },
+  { id: 'roles', label: 'Roles', title: 'Self-assign roles', blurb: 'Panels where members pick up their own roles — one tap, no mods involved.' },
+  { id: 'levels', label: 'Levels', title: 'Levels & XP', blurb: 'Members earn XP for talking, climb levels, and unlock roles on the way.' },
+  { group: 'Content' },
   { id: 'notifications', label: 'Notifications', title: 'Notifications', blurb: 'Watch your accounts and announce every new post, once.' },
   { id: 'polls', label: 'Polls', title: 'Polls', blurb: "Discord's own polls — post one from here, watch it run, close it early." },
+  { id: 'giveaways', label: 'Giveaways', title: 'Giveaways', blurb: 'One button to enter, a timer, and a fair draw at the end.' },
+  { group: 'Safety' },
+  { id: 'moderation', label: 'Moderation', title: 'Moderation', blurb: 'Automod rules, the escalation ladder, and the case log.' },
+  { group: 'Brand' },
   { id: 'links', label: 'Links', title: 'Links', blurb: 'The links behind /socials and the welcome buttons.' },
   { id: 'look', label: 'Appearance', title: 'Appearance', blurb: 'The accent bar down the left of every embed the bot sends.' },
 ];
+const TAB_LIST = TABS.filter((t) => t.id);
 
 let state = null, draft = null, activeTab = 'welcome';
 
@@ -1030,7 +1049,304 @@ function renderLook(root) {
   );
 }
 
-const PANELS = { welcome: renderWelcome, notifications: renderNotifications, polls: renderPolls, links: renderLinks, look: renderLook };
+
+function renderRoles(root) {
+  const menus = (draft.roleMenus ??= {});
+  menus.panels ??= [];
+
+  const cards = menus.panels.map((panel, pi) => {
+    const roleRows = (panel.roles ?? []).map((entry, ri) =>
+      el('div', { className: 'grid2', style: 'align-items:end' }, [
+        selectField({
+          label: 'Role', value: entry.roleId, options: roleOptions(), blank: '— pick a role —',
+          onChange: (v) => edit((d) => (d.roleMenus.panels[pi].roles[ri].roleId = v)),
+        }),
+        textField({ label: 'Button text', value: entry.label ?? '', placeholder: 'YouTube',
+          onInput: (v) => edit((d) => (d.roleMenus.panels[pi].roles[ri].label = v)) }),
+        textField({ label: 'Emoji', hint: 'Optional', value: entry.emoji ?? '', placeholder: '📺',
+          onInput: (v) => edit((d) => (d.roleMenus.panels[pi].roles[ri].emoji = v)) }),
+        (() => {
+          const btn = el('button', { className: 'btn btn--danger', textContent: 'Remove role' });
+          btn.addEventListener('click', () => { edit((d) => d.roleMenus.panels[pi].roles.splice(ri, 1)); renderActive(); });
+          return el('div', { className: 'field' }, [el('label', { textContent: ' ' }), btn]);
+        })(),
+      ])
+    );
+
+    const addRole = el('button', { className: 'btn', textContent: 'Add a role' });
+    addRole.addEventListener('click', () => {
+      edit((d) => (d.roleMenus.panels[pi].roles ??= []).push({ roleId: '', label: '', emoji: '', description: '' }));
+      renderActive();
+    });
+
+    const channelPick = el('select', { style: 'max-width:200px' });
+    channelPick.append(el('option', { value: '', textContent: '— post in… —' }));
+    for (const c of state.guild.channels) channelPick.append(el('option', { value: c.id, textContent: `#${c.name}` }));
+    const postBtn = el('button', { className: 'btn btn--primary', textContent: 'Post panel' });
+    postBtn.addEventListener('click', () => {
+      if (!channelPick.value) return toast('Pick a channel first.', 'error');
+      action('rolemenu-post', postBtn, { panelId: panel.id, channelId: channelPick.value });
+    });
+
+    const del = el('button', { className: 'btn btn--danger', textContent: 'Delete panel' });
+    del.addEventListener('click', () => { edit((d) => d.roleMenus.panels.splice(pi, 1)); renderActive(); });
+
+    return el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', {}, [el('span', { className: 'pill', textContent: panel.id }), document.createTextNode(` ${panel.title || 'Untitled panel'}`)]),
+        el('p', { textContent: `${(panel.roles ?? []).length} role(s) on this panel` }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        textField({ label: 'Heading', value: panel.title ?? '', placeholder: 'Pick your roles',
+          onInput: (v) => edit((d) => (d.roleMenus.panels[pi].title = v)) }),
+        textField({ label: 'Description', value: panel.description ?? '', placeholder: 'Tap to hear about drops.',
+          onInput: (v) => edit((d) => (d.roleMenus.panels[pi].description = v)) }),
+      ]),
+      toggleField({
+        label: 'One role at a time', hint: 'Picking a second role from this panel drops the first — good for regions or colours',
+        checked: Boolean(panel.exclusive), onChange: (v) => edit((d) => (d.roleMenus.panels[pi].exclusive = v)),
+      }),
+      el('div', { className: 'divider' }),
+      ...(roleRows.length ? roleRows : [el('div', { className: 'empty', textContent: 'No roles on this panel yet.' })]),
+      el('div', { className: 'row' }, [addRole, channelPick, postBtn, del]),
+    ]);
+  });
+
+  const newId = el('input', { type: 'text', placeholder: 'notifs', style: 'max-width:180px' });
+  const create = el('button', { className: 'btn btn--primary', textContent: 'Create panel' });
+  create.addEventListener('click', () => {
+    const id = newId.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    if (!id) return toast('Give the panel a short id, like "notifs".', 'error');
+    if (menus.panels.some((p) => p.id === id)) return toast(`A panel called "${id}" already exists.`, 'error');
+    edit((d) => d.roleMenus.panels.push({ id, title: 'Pick your roles', description: '', exclusive: false, roles: [] }));
+    renderActive();
+  });
+
+  root.replaceChildren(
+    el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', { textContent: 'How this works' }),
+        el('p', { textContent: 'Build a panel, add roles to it, then post it into a channel. Members tap a button to give themselves that role, and tap again to drop it. Save your changes before posting.' }),
+      ]),
+      el('div', { className: 'row' }, [newId, create]),
+      el('span', { className: 'hint', textContent: 'My role has to sit above any role I hand out — Server Settings → Roles.' }),
+    ]),
+    ...(cards.length ? cards : [el('div', { className: 'empty', textContent: 'No panels yet. Name one above and create it.' })])
+  );
+}
+
+function renderLevels(root) {
+  const lv = (draft.levels ??= {});
+  lv.rewards ??= {};
+
+  const rewardRows = Object.entries(lv.rewards).map(([level, roleId]) =>
+    el('div', { className: 'grid2', style: 'align-items:end' }, [
+      textField({ label: 'At level', value: level, onInput: (v) => edit((d) => {
+        const next = { ...d.levels.rewards };
+        delete next[level];
+        if (v.trim()) next[v.trim()] = roleId;
+        d.levels.rewards = next;
+      }) }),
+      selectField({ label: 'Give this role', value: roleId, options: roleOptions(),
+        onChange: (v) => edit((d) => (d.levels.rewards[level] = v)) }),
+      (() => {
+        const btn = el('button', { className: 'btn btn--danger', textContent: 'Remove' });
+        btn.addEventListener('click', () => { edit((d) => delete d.levels.rewards[level]); renderActive(); });
+        return el('div', { className: 'field' }, [el('label', { textContent: ' ' }), btn]);
+      })(),
+    ])
+  );
+
+  const addReward = el('button', { className: 'btn', textContent: 'Add a reward' });
+  addReward.addEventListener('click', () => {
+    const used = Object.keys(lv.rewards).map(Number);
+    const next = used.length ? Math.max(...used) + 5 : 5;
+    edit((d) => (d.levels.rewards[String(next)] = ''));
+    renderActive();
+  });
+
+  const board = state.leaderboard ?? [];
+  const MEDALS = ['🥇', '🥈', '🥉'];
+
+  root.replaceChildren(
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'XP' }), el('p', { textContent: 'Members earn XP for messages, at most once per cooldown so spam earns nothing.' })]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Track XP and levels', checked: Boolean(lv.enabled), onChange: (v) => edit((d) => (d.levels.enabled = v)) }),
+        toggleField({ label: 'Announce level-ups', checked: lv.announce !== false, onChange: (v) => edit((d) => (d.levels.announce = v)) }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        textField({ label: 'Min XP per message', value: String(lv.minPerMessage ?? 15), onInput: (v) => edit((d) => (d.levels.minPerMessage = Number(v) || 0)) }),
+        textField({ label: 'Max XP per message', value: String(lv.maxPerMessage ?? 25), onInput: (v) => edit((d) => (d.levels.maxPerMessage = Number(v) || 0)) }),
+        textField({ label: 'Cooldown (seconds)', value: String(lv.cooldownSeconds ?? 60), onInput: (v) => edit((d) => (d.levels.cooldownSeconds = Number(v) || 0)) }),
+        selectField({ label: 'Announce in', hint: 'Blank posts wherever they levelled up', value: lv.announceChannelId, options: channelOptions(), blank: '— the channel they were in —', onChange: (v) => edit((d) => (d.levels.announceChannelId = v)) }),
+      ]),
+      (() => {
+        const f = textField({ label: 'Level-up message', hint: '{user} {level} {name}', value: lv.announceTemplate ?? '', placeholder: '{user} just hit **level {level}** 💜', onInput: (v) => edit((d) => (d.levels.announceTemplate = v)) });
+        f.classList.add('wide');
+        return el('div', { className: 'grid2' }, [f]);
+      })(),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Role rewards' }), el('p', { textContent: 'Hand out a role when somebody reaches a level. They keep it.' })]),
+      ...(rewardRows.length ? rewardRows : [el('div', { className: 'empty', textContent: 'No rewards set.' })]),
+      el('div', { className: 'row' }, [addReward]),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Top members' }), el('p', { textContent: 'Same ranking as /leaderboard.' })]),
+      board.length
+        ? el('div', { style: 'display:grid;gap:10px' }, board.map((row, i) =>
+            el('div', { className: 'stat' }, [
+              el('span', { className: 'stat__label', textContent: `${MEDALS[i] ?? `${i + 1}.`} ${row.name}` }),
+              el('span', { className: 'stat__value', textContent: `level ${row.level} · ${row.xp.toLocaleString()} XP` }),
+            ])))
+        : el('div', { className: 'empty', textContent: 'Nobody has earned XP yet.' }),
+    ])
+  );
+}
+
+function renderGiveaways(root) {
+  const form = (renderGiveaways.form ??= { prize: '', details: '', minutes: 60, winners: 1, channelId: '', requiredRoleId: '', pingRoleId: '' });
+
+  const post = el('button', { className: 'btn btn--primary', textContent: 'Start the giveaway' });
+  post.addEventListener('click', async () => {
+    if (!form.prize.trim()) return toast('Say what the prize is.', 'error');
+    if (!form.channelId) return toast('Pick a channel.', 'error');
+    if (!(await action('giveaway-create', post, form))) return;
+    form.prize = ''; form.details = '';
+    await reloadState();
+    renderActive();
+  });
+
+  const running = (state.giveaways ?? []).map((g) => {
+    const end = el('button', { className: 'btn', textContent: 'Draw now' });
+    end.addEventListener('click', async () => {
+      if (!(await action('giveaway-end', end, { messageId: g.messageId }))) return;
+      await reloadState(); renderActive();
+    });
+    const cancel = el('button', { className: 'btn btn--danger', textContent: 'Cancel' });
+    cancel.addEventListener('click', async () => {
+      if (!(await action('giveaway-cancel', cancel, { messageId: g.messageId }))) return;
+      await reloadState(); renderActive();
+    });
+    return el('div', { className: 'poll-row' }, [
+      el('span', { className: 'pill pill--live', textContent: 'live' }),
+      el('div', { className: 'poll-row__main' }, [
+        el('div', { className: 'poll-row__q', textContent: g.prize }),
+        el('div', { className: 'poll-row__meta', textContent: `#${chanName(g.channelId) ?? '?'} · ${g.entrants.length} entered · ${g.winnerCount} winner(s) · ends in ${relative(g.endsAt)}` }),
+      ]),
+      end, cancel,
+    ]);
+  });
+
+  root.replaceChildren(
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'New giveaway' }), el('p', { textContent: 'Members enter with one button. The draw happens on its own when the timer runs out.' })]),
+      textField({ label: 'Prize', value: form.prize, placeholder: 'Signed poster', onInput: (v) => (form.prize = v) }),
+      textField({ label: 'Details', hint: 'Optional line under the prize', value: form.details, placeholder: 'Shipped anywhere', onInput: (v) => (form.details = v) }),
+      el('div', { className: 'grid2' }, [
+        selectField({ label: 'Post in', value: form.channelId, options: channelOptions(), blank: '— pick a channel —', onChange: (v) => (form.channelId = v) }),
+        selectField({
+          label: 'Runs for', value: String(form.minutes), blank: null,
+          options: [{ id: '10', name: '10 minutes' }, { id: '60', name: '1 hour' }, { id: '360', name: '6 hours' },
+                    { id: '1440', name: '24 hours' }, { id: '4320', name: '3 days' }, { id: '10080', name: '1 week' }],
+          onChange: (v) => (form.minutes = Number(v)),
+        }),
+        textField({ label: 'Winners', value: String(form.winners), onInput: (v) => (form.winners = Number(v) || 1) }),
+        selectField({ label: 'Only this role may enter', value: form.requiredRoleId, options: roleOptions(), blank: '— anyone —', onChange: (v) => (form.requiredRoleId = v) }),
+        selectField({ label: 'Ping', value: form.pingRoleId, options: roleOptions(), blank: '— nobody —', onChange: (v) => (form.pingRoleId = v) }),
+      ]),
+      el('div', { className: 'row' }, [post]),
+    ]),
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Running now' }), el('p', { textContent: 'Draw now ends it early. Cancel closes it without picking anyone.' })]),
+      ...(running.length ? running : [el('div', { className: 'empty', textContent: 'No giveaways running.' })]),
+    ])
+  );
+}
+
+function renderModeration(root) {
+  const am = (draft.automod ??= {});
+  am.escalation ??= {};
+  draft.moderation ??= {};
+  draft.starboard ??= {};
+
+  const cases = state.cases ?? [];
+  const ACTION_EMOJI = { warn: '⚠️', timeout: '🔇', untimeout: '🔊', kick: '👢', ban: '🔨', unban: '🕊️', automod: '🤖' };
+
+  root.replaceChildren(
+    el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', { textContent: 'Automod' }),
+        el('p', { textContent: 'Rules run in order and the first match wins. Anyone who can manage messages is exempt, as is any role you list below.' }),
+      ]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Run automod', checked: Boolean(am.enabled), onChange: (v) => edit((d) => (d.automod.enabled = v)) }),
+        toggleField({ label: 'Delete Discord invites', checked: am.blockInvites !== false, onChange: (v) => edit((d) => (d.automod.blockInvites = v)) }),
+        toggleField({ label: 'Delete every link', hint: 'Heavy-handed — usually only for locked-down channels', checked: Boolean(am.blockLinks), onChange: (v) => edit((d) => (d.automod.blockLinks = v)) }),
+        toggleField({ label: 'Delete repeated messages', checked: am.blockRepeats !== false, onChange: (v) => edit((d) => (d.automod.blockRepeats = v)) }),
+        toggleField({ label: 'DM the member what happened', checked: am.notifyMember !== false, onChange: (v) => edit((d) => (d.automod.notifyMember = v)) }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        textField({ label: 'Max mentions in one message', value: String(am.maxMentions ?? 5), onInput: (v) => edit((d) => (d.automod.maxMentions = Number(v) || 0)) }),
+        textField({ label: 'Shouting threshold (% caps)', value: String(am.maxCapsPercent ?? 70), onInput: (v) => edit((d) => (d.automod.maxCapsPercent = Number(v) || 0)) }),
+        selectField({ label: 'Mod-log channel', value: draft.moderation.modLogChannelId, options: channelOptions(), onChange: (v) => edit((d) => (d.moderation.modLogChannelId = v)) }),
+        selectField({ label: 'Exempt role', value: (am.exemptRoleIds ?? [])[0] ?? '', options: roleOptions(), blank: '— none —', onChange: (v) => edit((d) => (d.automod.exemptRoleIds = v ? [v] : [])) }),
+      ]),
+      areaField({
+        label: 'Blocked words', hint: 'One per line. Matched anywhere in the message, case-insensitively.',
+        value: (am.blockedWords ?? []).join('\n'), placeholder: 'slur\nscam-site.example',
+        onInput: (v) => edit((d) => (d.automod.blockedWords = v.split('\n').map((w) => w.trim()).filter(Boolean))),
+      }),
+      el('span', { className: 'hint', textContent: 'Content rules need the Message Content intent — see docs/SETUP.md. Without it, only the mention limit applies.' }),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Escalation' }), el('p', { textContent: 'What repeated automod hits lead to. Counted across all their cases.' })]),
+      el('div', { className: 'grid2' }, [
+        textField({ label: 'Timeout after N hits', value: String(am.escalation.timeoutAt ?? 3), onInput: (v) => edit((d) => (d.automod.escalation.timeoutAt = Number(v) || 0)) }),
+        textField({ label: 'Timeout length (minutes)', value: String(am.escalation.timeoutMinutes ?? 60), onInput: (v) => edit((d) => (d.automod.escalation.timeoutMinutes = Number(v) || 0)) }),
+        textField({ label: 'Kick after N hits', hint: '0 turns it off', value: String(am.escalation.kickAt ?? 6), onInput: (v) => edit((d) => (d.automod.escalation.kickAt = Number(v) || 0)) }),
+      ]),
+      el('div', { className: 'divider' }),
+      el('div', { className: 'grid2' }, [
+        textField({ label: 'Minimum account age (days)', hint: '0 lets anyone in', value: String(am.minAccountAgeDays ?? 0), onInput: (v) => edit((d) => (d.automod.minAccountAgeDays = Number(v) || 0)) }),
+        selectField({ label: 'Quarantine role', hint: 'Given instead of kicking a too-new account', value: am.quarantineRoleId, options: roleOptions(), blank: '— kick them instead —', onChange: (v) => edit((d) => (d.automod.quarantineRoleId = v)) }),
+      ]),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Starboard' }), el('p', { textContent: 'Enough stars on a message and it gets copied to a channel of fame.' })]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Run the starboard', checked: Boolean(draft.starboard.enabled), onChange: (v) => edit((d) => (d.starboard.enabled = v)) }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        selectField({ label: 'Starboard channel', value: draft.starboard.channelId, options: channelOptions(), onChange: (v) => edit((d) => (d.starboard.channelId = v)) }),
+        textField({ label: 'Emoji', value: draft.starboard.emoji ?? '⭐', onInput: (v) => edit((d) => (d.starboard.emoji = v)) }),
+        textField({ label: 'Stars needed', value: String(draft.starboard.threshold ?? 3), onInput: (v) => edit((d) => (d.starboard.threshold = Number(v) || 1)) }),
+      ]),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Recent cases' }), el('p', { textContent: 'The last ten actions, automod and manual alike.' })]),
+      cases.length
+        ? el('div', { style: 'display:grid;gap:12px' }, cases.map((c) =>
+            el('div', { className: 'stat' }, [
+              el('span', { className: 'stat__label', textContent: `${ACTION_EMOJI[c.action] ?? '•'} #${c.id} ${c.userTag} — ${c.reason}` }),
+              el('span', { className: 'stat__value', style: 'color:var(--muted);font-weight:500', textContent: c.moderatorTag }),
+            ])))
+        : el('div', { className: 'empty', textContent: 'Nothing on record yet.' }),
+    ])
+  );
+}
+
+const PANELS = {
+  welcome: renderWelcome, roles: renderRoles, levels: renderLevels,
+  notifications: renderNotifications, polls: renderPolls, giveaways: renderGiveaways,
+  moderation: renderModeration, links: renderLinks, look: renderLook,
+};
 
 const stat = (label, value, cls = '') =>
   el('div', { className: 'stat' }, [
@@ -1087,7 +1403,7 @@ function renderRail() {
 
 /** Render the active panel, then restart the stagger so its cards fly in. */
 function renderActive() {
-  const tab = TABS.find((t) => t.id === activeTab);
+  const tab = TAB_LIST.find((t) => t.id === activeTab);
   $('#pageTitle').textContent = tab.title;
   $('#pageBlurb').textContent = tab.blurb;
 
@@ -1147,6 +1463,9 @@ async function reloadState() {
   if (!fresh) return;
   const wasDirty = dirty();
   state.polls = fresh.polls;
+  state.giveaways = fresh.giveaways;
+  state.leaderboard = fresh.leaderboard;
+  state.cases = fresh.cases;
   state.status = fresh.status;
   if (!wasDirty) { state.settings = fresh.settings; draft = clone(fresh.settings); }
 }
@@ -1186,6 +1505,7 @@ async function boot() {
   const nav = $('#nav');
   let current = null;
   for (const tab of TABS) {
+    if (tab.group) { nav.append(el('div', { className: 'nav__group', textContent: tab.group })); continue; }
     const button = el('button', { role: 'tab' }, [svg(ICONS[tab.id]), el('span', { textContent: tab.label })]);
     button.setAttribute('aria-selected', String(tab.id === activeTab));
     button.addEventListener('click', () => {
@@ -1208,7 +1528,9 @@ async function boot() {
 
   // Keep running polls and the status line fresh, without disturbing an edit.
   setInterval(() => {
-    reloadState().then(() => { if (activeTab === 'polls' && !dirty()) renderActive(); });
+    reloadState().then(() => {
+      if (!dirty() && ['polls', 'giveaways', 'levels', 'moderation'].includes(activeTab)) renderActive();
+    });
   }, 30_000);
 
   renderActive();

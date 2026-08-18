@@ -59,14 +59,14 @@ is written so you can hand it straight to a dev as a ticket.
 
 | | Feature | What it does |
 |---|---|---|
-| 🟡 | **XP & levels** | Message/voice XP, level-up embeds, role rewards at 5/10/25/50 |
-| 🟡 | **Leaderboard** | `/top` for the week, month and all-time |
+| 🟢 | **XP & levels** | Message XP with a cooldown, level-up embeds, role rewards at any level |
+| 🟢 | **Leaderboard** | `/leaderboard` and `/rank`, plus the top ten on the dashboard |
 | 🟡 | **Daily streaks** | Check in once a day, keep a streak, earn currency |
 | 🟡 | **Server currency** | Earn coins from activity; spend them in the shop |
 | ⚪ | **Shop & inventory** | Custom colour roles, name colours, one-day VIP, shoutout raffles |
 | ⚪ | **First-comment race** | Points for the first 10 people to react to an upload post |
 | ⚪ | **Watch-party scheduler** | Countdown + auto-VC creation for premieres |
-| ⚪ | **Giveaways** | Entry by reaction/button, weighted entries for boosters & subs, auto-draw & reroll |
+| 🟢 | **Giveaways** | Button entry, role-gating, auto-draw on a timer, reroll and cancel |
 | 🟢 | **Polls** | `/poll create` — Discord's native poll: radio buttons, Vote button, hidden results until close, multi-select, 1h–2w duration |
 | ⚪ | **Q&A / AMA queue** | Members submit questions, mods upvote, the creator gets a ranked list |
 | ⚪ | **Fan-art gallery** | Post in `#fan-art` → auto-thread, auto-crosspost the best to a showcase channel |
@@ -74,14 +74,14 @@ is written so you can hand it straight to a dev as a ticket.
 | ⚪ | **Birthday board** | Opt-in birthdays, morning shoutout, temporary 🎂 role |
 | ⚪ | **Confession/anon box** | Modal → anonymised post in a moderated channel |
 | ⚪ | **Counting / word games** | Cheap always-on activity channels |
-| ⚪ | **Reminder bot** | `/remindme` for streams and drops |
+| 🟢 | **Reminders** | `/remindme` with natural durations, surviving restarts |
 
 ## 4. Roles & self-service
 
 | | Feature | What it does |
 |---|---|---|
-| 🟡 | **Reaction / button role menus** | Notification roles, pronouns, region, interests |
-| 🟡 | **Notification role picker** | One panel that maps 1:1 to the platforms the watcher supports |
+| 🟢 | **Button role menus** | Multiple panels, optional exclusive mode, built from Discord or the dashboard |
+| 🟢 | **Notification role picker** | A role panel mapping 1:1 to the watched platforms |
 | ⚪ | **Level-gated channels** | `#deep-chat` unlocks at level 10 — kills drive-by spam |
 | ⚪ | **Booster perks** | Auto custom-colour role, private lounge, boost thank-you post |
 | ⚪ | **Temporary roles** | Event roles that expire automatically |
@@ -91,17 +91,17 @@ is written so you can hand it straight to a dev as a ticket.
 
 | | Feature | What it does |
 |---|---|---|
-| 🟡 | **Automod rules** | Invite links, mass mentions, zalgo, wall-of-caps, slur filter |
+| 🟢 | **Automod rules** | Invites, links, mass mentions, shouting, repeats and a word list |
 | 🟡 | **Raid mode** | Auto-lock joins when N accounts join in M seconds |
-| 🟡 | **New-account gate** | Accounts younger than X days get held in a quarantine role |
-| 🟡 | **Warn / mute / kick / ban with reasons** | Case numbers, DM notice, mod-log embed |
-| ⚪ | **Strike escalation** | 3 warns = 1h timeout, 5 = 24h, 7 = ban, all configurable |
+| 🟢 | **New-account gate** | Accounts under X days are quarantined or bounced before the welcome fires |
+| 🟢 | **Warn / timeout / kick / ban** | Numbered cases, DM notice, mod-log embed, rank checks |
+| 🟢 | **Strike escalation** | Configurable warn → timeout → kick ladder, counted across cases |
 | ⚪ | **Scam-link scanner** | Checks URLs against a phishing list before they render |
 | ⚪ | **Impersonation watch** | Flags new members whose name/avatar mimics the creator or a mod |
 | ⚪ | **Slowmode autopilot** | Raises slowmode automatically when a channel spikes after an upload |
 | ⚪ | **Ticket system** | Private support/business-enquiry threads with transcripts |
 | ⚪ | **Report button** | Right-click a message → report to mods |
-| ⚪ | **Mod-log everything** | Edits, deletes, nickname changes, role changes, joins/leaves |
+| 🟡 | **Mod-log everything** | Actions are logged today; edits, deletes and role changes are not yet |
 | ⚪ | **Appeal flow** | Banned users get a DM link to an appeal form |
 | ⚪ | **NSFW image filter** | Vision check on attachments in SFW channels |
 | ⚪ | **Age-gate for merch/18+ channels** | Verification role required |
@@ -131,7 +131,7 @@ is written so you can hand it straight to a dev as a ticket.
 | ⚪ | **Soundboard / VC clips** | Plays signature audio clips in voice |
 | ⚪ | **Meme generator** | `/meme` with the creator's face templates |
 | ⚪ | **Quote board** | React ⭐ to immortalise a message in `#hall-of-fame` |
-| ⚪ | **Starboard** | Same idea, threshold-based |
+| 🟢 | **Starboard** | Threshold-based, edits itself as the count changes, removes itself if it drops |
 | ⚪ | **8ball / roasts / compliments** | Cheap dopamine, keeps `#general` warm |
 | ⚪ | **AI chat character** | The bot answers in the creator's voice in one dedicated channel |
 | ⚪ | **Daily prompt** | "What are you working on today?" posted every morning |
@@ -157,11 +157,11 @@ is written so you can hand it straight to a dev as a ticket.
 
 ## Suggested build order
 
-1. **Now** — welcome ping, upload notifications, polls, the dashboard. *(All done. The notification role menu is the one gap: members still can't self-assign @YouTube Notifs.)*
-2. **Week 2** — verification gate + automod + mod-log. Do this before the server gets big enough to attract raids.
-3. **Week 3** — XP, levels, leaderboard, daily streaks. This is what turns a notification feed into a community.
-4. **Week 4** — giveaways, polls, watch parties, `/setup` wizard.
-5. **Later** — dashboard, membership tier sync, analytics digest, AI persona channel.
+1. **Done** — welcome, upload notifications, polls, role menus, levels, automod
+   and moderation, giveaways, starboard, reminders, and a dashboard covering all of it.
+2. **Next** — verification gate (button/captcha before anyone sees the server),
+   daily streaks and a currency to spend, and a tickets flow for business enquiries.
+3. **Later** — membership tier sync, analytics digest, watch parties, AI persona channel.
 
 ## Channel layout this assumes
 

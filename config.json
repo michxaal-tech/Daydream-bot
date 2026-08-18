@@ -10,7 +10,6 @@
     "footerIcon": "",
     "thumbnail": ""
   },
-
   "welcome": {
     "enabled": true,
     "channelId": "1539104688211886150",
@@ -26,31 +25,47 @@
     "showAccountAge": true,
     "sendDm": true,
     "autoRoleIds": [],
-    "reactWith": ["💜", "👋"],
+    "reactWith": [
+      "\ud83d\udc9c",
+      "\ud83d\udc4b"
+    ],
     "deleteAfterSeconds": 0,
     "greetings": [
-      "{user} just wandered into the daydream. 💜",
-      "look who showed up — welcome, {user}!",
+      "{user} just wandered into the daydream. \ud83d\udc9c",
+      "look who showed up \u2014 welcome, {user}!",
       "{user} is member **#{count}**. the vibes just went up.",
-      "new face alert: {user} 👋",
+      "new face alert: {user} \ud83d\udc4b",
       "{user} just joined the server. say hi, everyone."
     ],
     "buttons": {
       "enabled": true,
-      "//emoji": "Real emoji only, or a custom server emoji as <:name:id>. 𝕏 is a maths symbol, not an emoji — Discord rejects it.",
+      "//emoji": "Real emoji only, or a custom server emoji as <:name:id>. \ud835\udd4f is a maths symbol, not an emoji \u2014 Discord rejects it.",
       "links": [
-        { "label": "YouTube", "emoji": "📺", "url": "https://youtube.com/@yourhandle" },
-        { "label": "TikTok", "emoji": "🎵", "url": "https://tiktok.com/@yourhandle" },
-        { "label": "X", "emoji": "", "url": "https://x.com/yourhandle" }
+        {
+          "label": "YouTube",
+          "emoji": "\ud83d\udcfa",
+          "url": "https://youtube.com/@yourhandle"
+        },
+        {
+          "label": "TikTok",
+          "emoji": "\ud83c\udfb5",
+          "url": "https://tiktok.com/@yourhandle"
+        },
+        {
+          "label": "X",
+          "emoji": "",
+          "url": "https://x.com/yourhandle"
+        }
       ]
     },
     "goodbye": {
       "enabled": true,
       "channelId": "",
-      "messages": ["**{tag}** drifted off. ({count} left)"]
+      "messages": [
+        "**{tag}** drifted off. ({count} left)"
+      ]
     }
   },
-
   "notifications": {
     "enabled": true,
     "defaultChannelId": "UPLOADS_CHANNEL_ID",
@@ -65,7 +80,7 @@
         "webhookUrl": "",
         "mentionRoleId": "",
         "mentionEveryone": false,
-        "template": "🔔 {roleMention} new upload from **{author}** — go watch it 👇",
+        "template": "\ud83d\udd14 {roleMention} new upload from **{author}** \u2014 go watch it \ud83d\udc47",
         "enabled": true
       },
       {
@@ -75,7 +90,7 @@
         "postToChannelId": "",
         "webhookUrl": "",
         "mentionRoleId": "",
-        "template": "🎵 {roleMention} **{author}** just posted on TikTok",
+        "template": "\ud83c\udfb5 {roleMention} **{author}** just posted on TikTok",
         "enabled": true
       },
       {
@@ -87,7 +102,7 @@
         "mentionRoleId": "",
         "includeReplies": false,
         "includeRetweets": false,
-        "template": "𝕏 {roleMention} **{author}** posted",
+        "template": "\ud835\udd4f {roleMention} **{author}** posted",
         "enabled": true
       },
       {
@@ -97,7 +112,7 @@
         "postToChannelId": "",
         "webhookUrl": "",
         "mentionRoleId": "",
-        "template": "🔴 {roleMention} **{author}** is LIVE",
+        "template": "\ud83d\udd34 {roleMention} **{author}** is LIVE",
         "enabled": false
       },
       {
@@ -107,12 +122,11 @@
         "postToChannelId": "",
         "webhookUrl": "",
         "mentionRoleId": "",
-        "template": "📸 {roleMention} new post from **{author}**",
+        "template": "\ud83d\udcf8 {roleMention} new post from **{author}**",
         "enabled": false
       }
     ]
   },
-
   "socials": {
     "youtube": "https://youtube.com/@yourhandle",
     "tiktok": "https://tiktok.com/@yourhandle",
@@ -120,5 +134,50 @@
     "instagram": "https://instagram.com/yourhandle",
     "twitch": "https://twitch.tv/yourhandle",
     "business": "business@yourdomain.com"
+  },
+  "levels": {
+    "enabled": false,
+    "//": "XP per message, once per cooldown. Rewards map a level to a role id.",
+    "minPerMessage": 15,
+    "maxPerMessage": 25,
+    "cooldownSeconds": 60,
+    "announce": true,
+    "announceChannelId": "",
+    "announceTemplate": "{user} just hit **level {level}** \ud83d\udc9c",
+    "ignoredChannelIds": [],
+    "rewards": {}
+  },
+  "automod": {
+    "enabled": false,
+    "//content": "Invites, links, blocked words, shouting and repeats need ENABLE_MESSAGE_CONTENT=true.",
+    "blockInvites": true,
+    "blockLinks": false,
+    "blockRepeats": true,
+    "maxMentions": 5,
+    "maxCapsPercent": 70,
+    "blockedWords": [],
+    "exemptRoleIds": [],
+    "ignoredChannelIds": [],
+    "notifyMember": true,
+    "minAccountAgeDays": 0,
+    "quarantineRoleId": "",
+    "escalation": {
+      "timeoutAt": 3,
+      "timeoutMinutes": 60,
+      "kickAt": 6
+    }
+  },
+  "moderation": {
+    "modLogChannelId": ""
+  },
+  "starboard": {
+    "enabled": false,
+    "channelId": "",
+    "emoji": "\u2b50",
+    "threshold": 3
+  },
+  "roleMenus": {
+    "//": "Panels of self-assign roles. Build them with /rolemenu or the dashboard.",
+    "panels": []
   }
 }

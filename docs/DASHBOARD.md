@@ -50,19 +50,27 @@ value coming back means "leave it alone" rather than overwriting the real one.
 
 ## What's on it
 
+The nav is grouped: **Community**, **Content**, **Safety**, **Brand**.
+
 | Tab | What you can change |
 |---|---|
 | **Welcome** | Welcome/rules/intros/roles channels, greeting lines, ping · DM · goodbye · auto-role toggles, and a live preview that redraws as you type |
+| **Roles** | Build self-assign role panels, add roles with labels and optional emoji, mark a panel exclusive, and post it into a channel |
+| **Levels** | XP range and cooldown, level-up message and where it posts, role rewards per level, and the current top ten |
 | **Notifications** | Every watched account: handle, target channel, ping role, custom message, pause switch. Add and remove accounts, test any one of them |
 | **Polls** | Write a poll and watch it render as Discord's native poll before you post it. Pick the channel, the ping role and how long it runs. Polls already running are listed live, each with an End now button |
 | **Links** | The profile links behind `/socials` |
+| **Giveaways** | Start one — prize, duration, winner count, role gate, ping — then draw or cancel the running ones |
+| **Moderation** | Every automod rule, the escalation ladder, the new-account gate, the starboard, and the last ten cases |
 | **Appearance** | The accent bar — six presets or any hex — plus footer text |
 
 Every page has a **Save changes** bar that only appears when something actually
 differs from what's saved. Nothing is written until you press it.
 
-Polls are the exception: they post the moment you press **Post the poll**, since
-there is nothing to save — the poll goes straight to Discord.
+Polls and giveaways are the exception: they post the moment you press the
+button, since there is nothing to save — they go straight to Discord. Same for
+**Post panel** on the Roles tab, which uses whatever was last *saved*, so save
+before posting.
 
 ## Where the settings live
 

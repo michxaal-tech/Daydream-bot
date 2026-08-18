@@ -10,15 +10,28 @@ assertEnv();
 // Runtime settings sit on top of config.json — load before anything reads it.
 loadSettings();
 
+const intents = [
+  GatewayIntentBits.Guilds,
+  // Privileged — enable "Server Members Intent" in the Developer Portal or
+  // guildMemberAdd never fires and the welcome feature stays silent.
+  GatewayIntentBits.GuildMembers,
+  GatewayIntentBits.GuildMessages,
+  GatewayIntentBits.GuildMessageReactions,
+];
+
+// Also privileged, and asking for one you haven't enabled makes login fail —
+// so this is opt-in from both sides. Without it automod sees empty message
+// text and its content rules simply never match.
+if (env.messageContent) {
+  intents.push(GatewayIntentBits.MessageContent);
+  log.info('Message Content intent requested — automod content rules are active');
+} else {
+  log.info('Message Content intent off — automod content rules are inactive (set ENABLE_MESSAGE_CONTENT=true)');
+}
+
 const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    // Privileged — enable "Server Members Intent" in the Developer Portal or
-    // guildMemberAdd never fires and the welcome feature stays silent.
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMessages,
-  ],
-  partials: [Partials.GuildMember, Partials.Channel],
+  intents,
+  partials: [Partials.GuildMember, Partials.Channel, Partials.Message, Partials.Reaction, Partials.User],
 });
 
 client.commands = new Collection();

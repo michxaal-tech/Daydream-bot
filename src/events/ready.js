@@ -4,6 +4,8 @@ import { env } from '../lib/config.js';
 import { registerCommands } from '../lib/register-commands.js';
 import { startWatcher, enabledAccounts } from '../features/notifications/watcher.js';
 import { startDashboard } from '../web/server.js';
+import { restore as restoreGiveaways } from '../features/giveaways/index.js';
+import { restore as restoreReminders } from '../features/reminders/index.js';
 
 const log = logger('bot');
 
@@ -25,6 +27,8 @@ export default {
 
     client.stopWatcher = startWatcher(client);
     client.stopDashboard = startDashboard(client);
+    restoreGiveaways(client);
+    restoreReminders(client);
     log.info(`tracking: ${enabledAccounts().map((a) => `${a.platform}:${a.handle}`).join(', ') || 'nothing yet'}`);
   },
 };

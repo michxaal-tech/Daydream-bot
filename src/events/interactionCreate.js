@@ -1,11 +1,32 @@
 import { Events, MessageFlags } from 'discord.js';
 import { logger } from '../lib/logger.js';
+import { CUSTOM_ID as ROLE_MENU, handleButton as roleMenuButton } from '../features/roles/index.js';
+import { CUSTOM_ID as GIVEAWAY, handleButton as giveawayButton } from '../features/giveaways/index.js';
+
+/** Buttons that reply privately and edit their own message in place. */
+const BUTTONS = {
+  [ROLE_MENU]: roleMenuButton,
+  [GIVEAWAY]: giveawayButton,
+};
 
 const log = logger('cmd');
 
 export default {
   name: Events.InteractionCreate,
   async execute(interaction) {
+    if (interaction.isButton()) {
+      const handler = BUTTONS[interaction.customId.split(':')[0]];
+      if (!handler) return;
+      try {
+        return await interaction.reply({ content: await handler(interaction), flags: MessageFlags.Ephemeral });
+      } catch (err) {
+        log.error(`button ${interaction.customId} failed:`, err);
+        return interaction
+          .reply({ content: `⚠️ ${err.message}`, flags: MessageFlags.Ephemeral })
+          .catch(() => {});
+      }
+    }
+
     const command = interaction.client.commands.get(interaction.commandName);
     if (!command) return;
 

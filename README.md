@@ -1,6 +1,6 @@
 # Daydream Bot
 
-A Discord bot for a creator community. Four things work end-to-end today:
+A Discord bot for a creator community. Everything below works end-to-end:
 
 1. **Welcome** — pings every new member by name in `#welcome`, with a lavender
    embed, member count, social buttons and an optional DM.
@@ -9,9 +9,18 @@ A Discord bot for a creator community. Four things work end-to-end today:
    something new drops.
 3. **Polls** — Discord's native polls: radio buttons, a Vote button, results
    hidden until it closes. Multi-select and any duration from 1 hour to 2 weeks.
-4. **A dashboard** — sign in with Discord and run everything from a browser:
-   configure the bot, post and end polls, with live previews of both. Nothing
-   needs editing by hand.
+4. **Polls** — Discord's native polls, postable from Discord or the dashboard.
+5. **Self-assign roles** — button panels so members pick up `@YouTube Notifs`
+   themselves instead of asking a mod.
+6. **Levels & XP** — talk, earn XP, climb levels, unlock roles. `/rank`, `/leaderboard`.
+7. **Automod & moderation** — invites, links, mass mentions, shouting, repeats
+   and blocked words, with a warn → timeout → kick ladder, numbered cases and a
+   mod-log. `/mod warn|timeout|kick|ban|history`.
+8. **Giveaways** — one-button entry, a timer, a fair draw, reroll.
+9. **Starboard** — enough ⭐ and a message goes up on the board.
+10. **Reminders** — `/remindme set when:2h what:post the edit`.
+11. **A dashboard** — sign in with Discord and run all of it from a browser,
+    with live previews. Nothing needs editing by hand.
 
 Everything the bot sends uses one lavender accent bar (`#A78BFA`) on the left of
 the embed, so the server reads as one brand instead of a rainbow of vendor reds.
@@ -60,6 +69,12 @@ Then in Discord: `/welcome test` — it should ping you in `#welcome`.
 | `/setup show` | Manage Server | The whole current config |
 | `/poll create` | Everyone | Button poll with live results |
 | `/poll end` \| `/poll list` | Author or Manage Messages | Close early and reveal results, or list running polls |
+| `/rolemenu create\|add\|post` | Manage Roles | Build and post self-assign role panels |
+| `/rank` \| `/leaderboard` | Everyone | Your level, and the top of the server |
+| `/mod warn\|timeout\|kick\|ban` | Moderate Members | Actions, each with a numbered case |
+| `/mod history` \| `/mod cases` | Moderate Members | A member's record, or the server's |
+| `/giveaway start\|end\|reroll` | Manage Server | Run a giveaway |
+| `/remindme set\|list\|cancel` | Everyone | Nudge yourself later |
 | `/latest <platform>` | Everyone | Newest post from a platform, on demand |
 | `/socials` | Everyone | All links in one embed with buttons |
 | `/ping` | Everyone | Latency + uptime |
@@ -85,6 +100,13 @@ src/
     public/index.html          the dashboard itself
   features/
     polls/index.js             native Discord polls — option parsing and limits
+    levels/index.js            xp curve, rewards, leaderboard
+    moderation/automod.js      content rules and the escalation ladder
+    moderation/cases.js        numbered cases and the mod-log
+    roles/index.js             self-assign role panels
+    giveaways/index.js         entry, timers, the draw
+    starboard/index.js         ⭐ threshold and the board post
+    reminders/index.js         duration parsing and delivery
     welcome/
       render.js                builds the payload (pure — easy to unit test)
       index.js                 join/leave handling, auto-role, DM

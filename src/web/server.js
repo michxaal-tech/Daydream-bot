@@ -19,6 +19,10 @@ import { sendWelcome } from '../features/welcome/index.js';
 import { runCheck, announce } from '../features/notifications/watcher.js';
 import { getPlatform, platformIds } from '../features/notifications/platforms/index.js';
 import { createPoll, endPoll, openPolls, parseOptions, LIMITS } from '../features/polls/index.js';
+import { leaderboard, resetMember } from '../features/levels/index.js';
+import { allCases } from '../features/moderation/cases.js';
+import { active as activeGiveaways, createGiveaway, endGiveaway, cancelGiveaway } from '../features/giveaways/index.js';
+import { findPanel, renderPanel } from '../features/roles/index.js';
 import { SESSION_COOKIE, createSession, readSession, parseCookies, setCookie, clearCookie } from './session.js';
 
 const log = logger('web');
@@ -206,6 +210,13 @@ export function startDashboard(client) {
       },
       polls: openPolls(),
       pollLimits: LIMITS,
+      giveaways: activeGiveaways(),
+      leaderboard: leaderboard(10).map((row) => ({
+        userId: row.userId,
+        name: guild.members.cache.get(row.userId)?.displayName ?? `user ${row.userId.slice(-4)}`,
+        level: row.level, xp: row.xp, messages: row.messages,
+      })),
+      cases: allCases().slice(0, 10),
       status: {
         uptimeMs: client.uptime,
         ping: Math.round(client.ws.ping),
@@ -298,6 +309,54 @@ async function runAction(name, req, client) {
   if (name === 'poll-end') {
     const { message } = await endPoll(client, String(req.body?.messageId ?? ''));
     return `Closed. Results are on the poll in #${message.channel.name}.`;
+  }
+
+  if (name === 'giveaway-create') {
+    const { prize, minutes, winners, details, channelId, requiredRoleId, pingRoleId } = req.body ?? {};
+    if (!String(prize ?? '').trim()) throw new Error('Say what the prize is.');
+    const channel = await client.channels.fetch(channelId).catch(() => null);
+    if (!channel?.isTextBased()) throw new Error('Pick a channel to post in.');
+    assertCanPost(channel, await guild.members.fetchMe());
+
+    await createGiveaway(channel, {
+      prize, description: details ?? '',
+      minutes: Number(minutes) || 60,
+      winnerCount: Number(winners) || 1,
+      requiredRoleId: requiredRoleId || null,
+      mentionRoleId: pingRoleId || null,
+      host: { id: req.session.id, tag: req.session.tag },
+    });
+    return `Giveaway live in #${channel.name}.`;
+  }
+
+  if (name === 'giveaway-end') {
+    const result = await endGiveaway(client, String(req.body?.messageId ?? ''));
+    return result.winners.length
+      ? `Drawn: ${result.winners.length} winner(s).`
+      : 'Nobody had entered, so there was nothing to draw.';
+  }
+
+  if (name === 'giveaway-cancel') {
+    const cancelled = cancelGiveaway(String(req.body?.messageId ?? ''));
+    return `Cancelled "${cancelled.prize}" — no winners drawn.`;
+  }
+
+  if (name === 'rolemenu-post') {
+    const panel = findPanel(String(req.body?.panelId ?? ''));
+    if (!panel) throw new Error('No panel with that id.');
+    if (!(panel.roles ?? []).length) throw new Error('That panel has no roles on it yet.');
+    const channel = await client.channels.fetch(req.body?.channelId).catch(() => null);
+    if (!channel?.isTextBased()) throw new Error('Pick a channel to post it in.');
+    assertCanPost(channel, await guild.members.fetchMe());
+    await channel.send(renderPanel(panel));
+    return `Panel posted in #${channel.name}.`;
+  }
+
+  if (name === 'level-reset') {
+    const userId = String(req.body?.userId ?? '');
+    if (!/^\d{17,20}$/.test(userId)) throw new Error('That does not look like a user id.');
+    resetMember(userId);
+    return 'Their XP is back to zero.';
   }
 
   if (name === 'notify-test') {
