@@ -37,10 +37,11 @@
     ],
     "buttons": {
       "enabled": true,
+      "//emoji": "Real emoji only, or a custom server emoji as <:name:id>. 𝕏 is a maths symbol, not an emoji — Discord rejects it.",
       "links": [
         { "label": "YouTube", "emoji": "📺", "url": "https://youtube.com/@yourhandle" },
         { "label": "TikTok", "emoji": "🎵", "url": "https://tiktok.com/@yourhandle" },
-        { "label": "X", "emoji": "𝕏", "url": "https://x.com/yourhandle" }
+        { "label": "X", "emoji": "", "url": "https://x.com/yourhandle" }
       ]
     },
     "goodbye": {

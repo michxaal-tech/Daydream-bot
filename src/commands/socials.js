@@ -1,6 +1,6 @@
-import { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { SlashCommandBuilder, ActionRowBuilder } from 'discord.js';
 import { config } from '../lib/config.js';
-import { embed, PLATFORM_META } from '../lib/brand.js';
+import { embed, linkButton, PLATFORM_META } from '../lib/brand.js';
 
 const ORDER = ['youtube', 'tiktok', 'x', 'instagram', 'twitch'];
 
@@ -24,11 +24,7 @@ export default {
 
     const row = new ActionRowBuilder().addComponents(
       listed.slice(0, 5).map((k) =>
-        new ButtonBuilder()
-          .setStyle(ButtonStyle.Link)
-          .setLabel(PLATFORM_META[k]?.label ?? k)
-          .setEmoji(PLATFORM_META[k]?.emoji)
-          .setURL(socials[k])
+        linkButton({ label: PLATFORM_META[k]?.label ?? k, url: socials[k], emoji: PLATFORM_META[k]?.emoji })
       )
     );
 

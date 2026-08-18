@@ -2,7 +2,7 @@
  * Every embed the bot sends goes through here, so the lavender accent bar on
  * the left edge is consistent across replies, welcomes and upload webhooks.
  */
-import { EmbedBuilder } from 'discord.js';
+import { ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
 import { config } from './config.js';
 
 const hex = (value, fallback) => {
@@ -48,6 +48,33 @@ export function embed({ platform, variant = 'accent' } = {}) {
     e.setFooter({ text: footerText, iconURL: config.brand?.footerIcon || undefined });
   }
   return e;
+}
+
+/** `<:name:id>` / `a:name:id` — a custom server emoji Discord will accept. */
+const CUSTOM_EMOJI = /^<?a?:\w{2,32}:\d{17,20}>?$/;
+
+/**
+ * Discord rejects a button whose emoji isn't a real one, and rejects the whole
+ * message with it. `𝕏` (U+1D54F) is the usual culprit — it's a maths symbol
+ * that merely looks like the X logo. Anything unrecognised is dropped so the
+ * button still renders, minus its icon.
+ */
+export function safeEmoji(input) {
+  const raw = String(input ?? '').trim();
+  if (!raw) return null;
+  if (CUSTOM_EMOJI.test(raw)) return raw;
+  return /\p{Extended_Pictographic}/u.test(raw) ? raw : null;
+}
+
+/** A link button, with the emoji applied only when Discord will accept it. */
+export function linkButton({ label, url, emoji }) {
+  const button = new ButtonBuilder()
+    .setStyle(ButtonStyle.Link)
+    .setLabel(String(label ?? 'Open').slice(0, 80))
+    .setURL(url);
+  const safe = safeEmoji(emoji);
+  if (safe) button.setEmoji(safe);
+  return button;
 }
 
 export const PLATFORM_META = {

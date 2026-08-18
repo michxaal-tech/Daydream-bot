@@ -38,10 +38,6 @@
         },
         {
           "type": 2,
-          "emoji": {
-            "name": "𝕏",
-            "animated": false
-          },
           "style": 5,
           "label": "X",
           "url": "https://x.com/yourhandle"

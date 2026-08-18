@@ -1,5 +1,5 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { embed, PLATFORM_META } from '../../lib/brand.js';
+import { ActionRowBuilder } from 'discord.js';
+import { embed, linkButton, PLATFORM_META } from '../../lib/brand.js';
 import { config } from '../../lib/config.js';
 
 const nf = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 });
@@ -60,15 +60,13 @@ export function renderEmbed(account, post) {
 export function renderButtons(account, post) {
   const meta = PLATFORM_META[account.platform] ?? { label: account.platform, emoji: '🔗' };
   const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setStyle(ButtonStyle.Link)
-      .setLabel(post.kind === 'live' ? 'Watch the stream' : `Watch on ${meta.label}`)
-      .setURL(post.url)
+    linkButton({
+      label: post.kind === 'live' ? 'Watch the stream' : `Watch on ${meta.label}`,
+      url: post.url,
+    })
   );
   if (post.authorUrl && post.authorUrl !== post.url) {
-    row.addComponents(
-      new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Profile').setURL(post.authorUrl)
-    );
+    row.addComponents(linkButton({ label: 'Profile', url: post.authorUrl }));
   }
   return [row];
 }

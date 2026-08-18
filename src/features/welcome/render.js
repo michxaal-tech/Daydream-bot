@@ -1,5 +1,5 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, time, TimestampStyles } from 'discord.js';
-import { embed } from '../../lib/brand.js';
+import { ActionRowBuilder, time, TimestampStyles } from 'discord.js';
+import { embed, linkButton } from '../../lib/brand.js';
 import { config } from '../../lib/config.js';
 
 const ORDINAL = new Intl.PluralRules('en-US', { type: 'ordinal' });
@@ -87,16 +87,7 @@ export function buildWelcome(member, { cfg = config.welcome } = {}) {
 
   const links = cfg.buttons?.enabled === false ? [] : (cfg.buttons?.links ?? []);
   if (links.length) {
-    const row = new ActionRowBuilder().addComponents(
-      links.slice(0, 5).map((l) =>
-        new ButtonBuilder()
-          .setStyle(ButtonStyle.Link)
-          .setLabel(l.label)
-          .setURL(l.url)
-          .setEmoji(l.emoji || undefined)
-      )
-    );
-    payload.components = [row];
+    payload.components = [new ActionRowBuilder().addComponents(links.slice(0, 5).map(linkButton))];
   }
 
   return payload;
@@ -123,17 +114,7 @@ export function buildWelcomeDm(member, { cfg = config.welcome } = {}) {
   const payload = { embeds: [e] };
   const links = cfg.buttons?.links ?? [];
   if (links.length) {
-    payload.components = [
-      new ActionRowBuilder().addComponents(
-        links.slice(0, 5).map((l) =>
-          new ButtonBuilder()
-            .setStyle(ButtonStyle.Link)
-            .setLabel(l.label)
-            .setURL(l.url)
-            .setEmoji(l.emoji || undefined)
-        )
-      ),
-    ];
+    payload.components = [new ActionRowBuilder().addComponents(links.slice(0, 5).map(linkButton))];
   }
   return payload;
 }

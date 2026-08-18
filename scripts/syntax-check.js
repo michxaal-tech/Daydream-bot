@@ -48,6 +48,27 @@ check('accent bar is lavender', () => {
   assert.equal(COLORS.deep, 0x7c5cff);
 });
 
+check('an unacceptable button emoji is dropped, not sent to Discord', () => {
+  // 𝕏 (U+1D54F) is a maths symbol. Sent as a button emoji it fails the whole
+  // message with COMPONENT_INVALID_EMOJI, so it must never reach the payload.
+  const cfg = {
+    greetings: ['welcome {user}'],
+    buttons: {
+      links: [
+        { label: 'X', emoji: '𝕏', url: 'https://x.com/daydream' },
+        { label: 'YouTube', emoji: '📺', url: 'https://youtube.com/@daydream' },
+        { label: 'Custom', emoji: '<:xlogo:123456789012345678>', url: 'https://x.com/d' },
+      ],
+    },
+  };
+  const [row] = buildWelcome(fakeMember(), { cfg }).components;
+  const [x, yt, custom] = row.toJSON().components;
+  assert.equal(x.emoji, undefined, '𝕏 should have been dropped');
+  assert.equal(x.label, 'X', 'the button itself must survive');
+  assert.equal(yt.emoji.name, '📺');
+  assert.equal(custom.emoji.id, '123456789012345678', 'custom server emoji must pass through');
+});
+
 check('welcome payload puts the ping in content (the only place it pings)', () => {
   const member = fakeMember();
   const payload = buildWelcome(member);
