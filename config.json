@@ -13,7 +13,7 @@
 
   "welcome": {
     "enabled": true,
-    "channelId": "WELCOME_CHANNEL_ID",
+    "channelId": "1539104688211886150",
     "rulesChannelId": "RULES_CHANNEL_ID",
     "introsChannelId": "INTROS_CHANNEL_ID",
     "rolesChannelId": "ROLES_CHANNEL_ID",
