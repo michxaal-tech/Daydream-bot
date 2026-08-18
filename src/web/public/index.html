@@ -9,25 +9,29 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
+/* ══ tokens ═══════════════════════════════════════════════════════════════ */
 :root {
-  --bg:        #0A0910;
-  --bg-2:      #0F0D17;
-  --panel:     #15131F;
-  --raised:    #1C1929;
-  --line:      #262234;
-  --line-soft: #1E1B2A;
-  --ink:       #F1EFF7;
-  --ink-soft:  #B8B2C9;
-  --muted:     #7D7691;
+  --bg:        #09080F;
+  --bg-2:      #0E0C16;
+  --panel:     #14121E;
+  --raised:    #1B1826;
+  --line:      #262233;
+  --line-soft: #1D1A28;
+  --ink:       #F2F0F8;
+  --ink-soft:  #B9B3CA;
+  --muted:     #7C7590;
   --lav:       #A78BFA;
   --lav-soft:  #C4B5FD;
   --deep:      #7C5CFF;
   --good:      #52E0A0;
   --bad:       #FB7185;
   --warn:      #FBBF75;
-  --r-sm: 8px; --r: 12px; --r-lg: 16px;
+  --r-sm: 9px; --r: 13px; --r-lg: 17px;
   --sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* one easing everywhere: a gentle overshoot that reads as "settled", not bouncy */
+  --spring: cubic-bezier(.22, 1.15, .36, 1);
+  --swift:  cubic-bezier(.4, 0, .2, 1);
 }
 * { box-sizing: border-box; min-width: 0; }
 html, body { height: 100%; }
@@ -37,100 +41,150 @@ body {
   color: var(--ink);
   font: 15px/1.5 var(--sans);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
-/* one soft lavender bloom, top-left — the only decorative flourish */
-body::before {
+/* two slow-drifting blooms — the room's ambient light */
+body::before, body::after {
   content: "";
-  position: fixed; inset: 0;
-  background: radial-gradient(760px 460px at 8% -8%, rgba(124,92,255,.14), transparent 70%);
-  pointer-events: none; z-index: 0;
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(90px);
 }
+body::before {
+  width: 46vw; height: 46vw; top: -16vw; left: -8vw;
+  background: radial-gradient(circle, rgba(124,92,255,.20), transparent 68%);
+  animation: drift-a 24s ease-in-out infinite alternate;
+}
+body::after {
+  width: 38vw; height: 38vw; bottom: -14vw; right: -6vw;
+  background: radial-gradient(circle, rgba(167,139,250,.13), transparent 68%);
+  animation: drift-b 31s ease-in-out infinite alternate;
+}
+@keyframes drift-a { to { transform: translate3d(7vw, 5vw, 0) scale(1.15); } }
+@keyframes drift-b { to { transform: translate3d(-6vw, -4vw, 0) scale(1.2); } }
+
 h1, h2, h3 { margin: 0; letter-spacing: -.022em; font-weight: 700; }
 button, input, select, textarea { font-family: inherit; }
 [hidden] { display: none !important; }
 ::selection { background: rgba(167,139,250,.32); }
 :focus-visible { outline: 2px solid var(--lav); outline-offset: 2px; border-radius: 6px; }
 
-/* ── sign-in ───────────────────────────────────────────────────────────── */
+/* ══ entrances ════════════════════════════════════════════════════════════ */
+@keyframes rise     { from { opacity: 0; transform: translate3d(0, 14px, 0) scale(.985); } }
+@keyframes slide-in { from { opacity: 0; transform: translate3d(-16px, 0, 0); } }
+
+.stagger > * {
+  animation: rise .5s var(--spring) both;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+/* ══ sign-in ══════════════════════════════════════════════════════════════ */
 .login { position: relative; z-index: 1; min-height: 100dvh; display: grid; place-items: center; padding: 24px; }
-.login__card { max-width: 400px; display: grid; gap: 20px; justify-items: center; text-align: center; }
+.login__card {
+  max-width: 400px; display: grid; gap: 20px; justify-items: center; text-align: center;
+  animation: rise .7s var(--spring) both;
+}
 .mark {
-  width: 60px; height: 60px; border-radius: 18px;
+  width: 62px; height: 62px; border-radius: 19px;
   background: linear-gradient(155deg, var(--lav), var(--deep));
-  display: grid; place-items: center; font-size: 27px;
-  box-shadow: 0 18px 40px -16px rgba(124,92,255,.7);
+  display: grid; place-items: center; font-size: 28px;
+  box-shadow: 0 20px 46px -16px rgba(124,92,255,.75);
+  animation: breathe 4.5s ease-in-out infinite;
+}
+@keyframes breathe {
+  50% { transform: translateY(-5px) scale(1.03); box-shadow: 0 28px 56px -16px rgba(124,92,255,.95); }
 }
 .login h1 { font-size: 2rem; font-weight: 800; }
 .login p { margin: 0; color: var(--ink-soft); }
 
-/* ── shell ─────────────────────────────────────────────────────────────── */
-.shell { position: relative; z-index: 1; display: grid; grid-template-columns: 248px 1fr; min-height: 100dvh; }
-@media (max-width: 860px) { .shell { grid-template-columns: 1fr; } }
+/* ══ shell ════════════════════════════════════════════════════════════════ */
+.shell { position: relative; z-index: 1; display: grid; grid-template-columns: 250px 1fr; min-height: 100dvh; }
+@media (max-width: 880px) { .shell { grid-template-columns: 1fr; } }
 
 .side {
   border-right: 1px solid var(--line-soft);
   padding: 22px 16px;
   display: flex; flex-direction: column; gap: 26px;
   position: sticky; top: 0; height: 100dvh;
-  background: linear-gradient(180deg, rgba(21,19,31,.5), transparent 40%);
+  background: linear-gradient(180deg, rgba(20,18,30,.6), rgba(9,8,15,0) 42%);
+  animation: slide-in .6s var(--spring) both;
 }
-@media (max-width: 860px) {
+@media (max-width: 880px) {
   .side { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line-soft); gap: 18px; }
 }
 
 .brand { display: flex; align-items: center; gap: 11px; padding: 0 6px; }
 .brand__mark {
-  width: 34px; height: 34px; border-radius: 10px; flex: none;
+  width: 35px; height: 35px; border-radius: 11px; flex: none;
   background: linear-gradient(155deg, var(--lav), var(--deep));
   display: grid; place-items: center; font-size: 16px;
+  transition: transform .5s var(--spring);
 }
+.brand:hover .brand__mark { transform: rotate(-8deg) scale(1.08); }
 .brand__name { font-weight: 800; letter-spacing: -.03em; }
 .brand__sub { font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
 
-.nav { display: grid; gap: 3px; }
+/* nav with a pill that slides between items */
+.nav { position: relative; display: grid; gap: 3px; }
+.nav__pill {
+  position: absolute; left: 0; width: 100%;
+  border-radius: var(--r-sm);
+  background: linear-gradient(90deg, rgba(124,92,255,.26), rgba(124,92,255,.05));
+  box-shadow: inset 2px 0 0 var(--lav);
+  transition: transform .45s var(--spring), height .45s var(--spring), opacity .2s;
+  pointer-events: none;
+  opacity: 0;
+}
+.nav__pill[data-ready="true"] { opacity: 1; }
 .nav button {
+  position: relative; z-index: 1;
   display: flex; align-items: center; gap: 11px;
   width: 100%; text-align: left;
   background: none; border: 0; cursor: pointer;
   color: var(--muted); font-size: 14.5px; font-weight: 600;
   padding: 10px 12px; border-radius: var(--r-sm);
+  transition: color .25s var(--swift), transform .25s var(--spring);
 }
-.nav button svg { width: 17px; height: 17px; flex: none; opacity: .85; }
-.nav button:hover { color: var(--ink-soft); background: var(--line-soft); }
-.nav button[aria-selected="true"] {
-  color: var(--ink);
-  background: linear-gradient(90deg, rgba(124,92,255,.22), rgba(124,92,255,.05));
-  box-shadow: inset 2px 0 0 var(--lav);
-}
-@media (max-width: 860px) {
-  .nav { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; gap: 4px; padding-bottom: 2px; }
-  .nav button { padding: 9px 13px; }
-  .nav button[aria-selected="true"] { box-shadow: inset 0 -2px 0 var(--lav); }
+.nav button svg { width: 17px; height: 17px; flex: none; transition: transform .45s var(--spring); }
+.nav button:hover { color: var(--ink-soft); }
+.nav button:hover svg { transform: scale(1.15) rotate(-6deg); }
+.nav button:active { transform: scale(.97); }
+.nav button[aria-selected="true"] { color: var(--ink); }
+.nav button[aria-selected="true"] svg { color: var(--lav-soft); }
+@media (max-width: 880px) {
+  .nav { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; gap: 4px; }
+  .nav__pill { display: none; }
+  .nav button[aria-selected="true"] { background: rgba(124,92,255,.18); }
 }
 
 .side__foot { margin-top: auto; display: grid; gap: 12px; }
-@media (max-width: 860px) { .side__foot { margin-top: 0; } }
+@media (max-width: 880px) { .side__foot { margin-top: 0; } }
 .guild {
   display: flex; align-items: center; gap: 10px;
   padding: 10px; border-radius: var(--r); border: 1px solid var(--line-soft);
   background: var(--panel);
+  transition: border-color .3s var(--swift), transform .3s var(--spring);
 }
-.guild__icon {
-  width: 32px; height: 32px; border-radius: 9px; flex: none; object-fit: cover;
-  background: linear-gradient(155deg, #2A2440, #191527);
-}
+.guild:hover { border-color: rgba(167,139,250,.4); transform: translateY(-2px); }
+.guild__icon { width: 32px; height: 32px; border-radius: 9px; flex: none; object-fit: cover; background: linear-gradient(155deg, #2A2440, #191527); }
 .guild__name { font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .guild__meta { font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
-.linkish { background: none; border: 0; color: var(--muted); font-size: 13px; cursor: pointer; text-align: left; padding: 0 10px; }
+.linkish { background: none; border: 0; color: var(--muted); font-size: 13px; cursor: pointer; text-align: left; padding: 0 10px; transition: color .2s; }
 .linkish:hover { color: var(--lav); }
 
-/* ── content ───────────────────────────────────────────────────────────── */
-.content { padding: 34px 34px 130px; max-width: 900px; }
-@media (max-width: 640px) { .content { padding: 22px 18px 130px; } }
+/* ══ content ══════════════════════════════════════════════════════════════ */
+.content { padding: 34px 34px 132px; max-width: 920px; }
+@media (max-width: 640px) { .content { padding: 22px 18px 132px; } }
 
 .page-head { display: grid; gap: 6px; margin-bottom: 26px; }
-.page-head h1 { font-size: 1.75rem; font-weight: 800; }
+.page-head h1 { font-size: 1.8rem; font-weight: 800; }
 .page-head p { margin: 0; color: var(--muted); max-width: 62ch; font-size: 14.5px; }
+
+/* panel swap: old lifts away, new stack rises in */
+@keyframes panel-out { to { opacity: 0; transform: translate3d(0, -8px, 0); } }
+.panel--leaving { animation: panel-out .16s var(--swift) both; }
 
 .card {
   position: relative;
@@ -140,22 +194,18 @@ button, input, select, textarea { font-family: inherit; }
   padding: 22px;
   display: grid; gap: 18px;
   margin-bottom: 18px;
+  transition: border-color .3s var(--swift), transform .35s var(--spring);
 }
+.card:hover { border-color: #322C44; }
+.card > header { display: grid; gap: 3px; }
+.card h2 { font-size: 1.04rem; font-weight: 700; }
+.card header p { margin: 0; color: var(--muted); font-size: 13.5px; }
+.divider { height: 1px; background: var(--line-soft); }
 
-/* ── travelling glow ──────────────────────────────────────────────────────
-   A conic gradient rotated around each box: ::after is the soft bloom that
-   spills outside the edge, ::before the crisp line riding the border itself.
-   The mask trick leaves only a 1px ring of the gradient, so the fill stays
-   the card's own colour. Rotating an angle custom property (rather than the
-   element) keeps the corners square to the box instead of tumbling.        */
-@property --glow-angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
+/* travelling glow around every box */
+@property --glow-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
 @keyframes glow-orbit { to { --glow-angle: 360deg; } }
-
-.card::before, .card::after, .account::before, .account::after {
+.card::before, .card::after, .account::before, .account::after, .poll-row::before, .poll-row::after {
   content: "";
   position: absolute;
   border-radius: inherit;
@@ -170,34 +220,23 @@ button, input, select, textarea { font-family: inherit; }
   animation: glow-orbit 7s linear infinite;
   pointer-events: none;
 }
-/* the bloom, sitting behind the card's own background */
-.card::after, .account::after {
-  inset: -3px;
-  filter: blur(13px);
-  opacity: .75;
-  z-index: -1;
-}
-/* the ring: gradient masked down to the 1px border */
-.card::before, .account::before {
-  inset: 0;
-  padding: 1px;
+.card::after, .account::after, .poll-row::after { inset: -3px; filter: blur(13px); opacity: .7; z-index: -1; }
+.card::before, .account::before, .poll-row::before {
+  inset: 0; padding: 1px;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
           mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
+  -webkit-mask-composite: xor; mask-composite: exclude;
 }
 .account::before, .account::after { animation-duration: 9s; }
-/* offset each card so the glows aren't marching in lockstep down the page */
+.poll-row::before, .poll-row::after { animation-duration: 11s; }
 .card:nth-child(2n)::before, .card:nth-child(2n)::after { animation-delay: -2.3s; }
 .card:nth-child(3n)::before, .card:nth-child(3n)::after { animation-delay: -4.6s; }
 .account:nth-child(2n)::before, .account:nth-child(2n)::after { animation-delay: -3s; }
-.card > header { display: grid; gap: 3px; }
-.card h2 { font-size: 1.02rem; font-weight: 700; }
-.card header p { margin: 0; color: var(--muted); font-size: 13.5px; }
-.divider { height: 1px; background: var(--line-soft); }
+.poll-row:nth-child(2n)::before, .poll-row:nth-child(2n)::after { animation-delay: -5s; }
 
+/* ══ fields ═══════════════════════════════════════════════════════════════ */
 .field { display: grid; gap: 7px; }
-.field > label { font-size: 12.5px; font-weight: 700; color: var(--ink-soft); letter-spacing: .01em; }
+.field > label { font-size: 12.5px; font-weight: 700; color: var(--ink-soft); }
 .field small { color: var(--muted); font-size: 12.5px; }
 .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
 .grid2 > .wide { grid-column: 1 / -1; }
@@ -210,177 +249,183 @@ input[type=text], input[type=url], input[type=email], select, textarea {
   border-radius: 10px;
   padding: 10px 12px;
   font-size: 14.5px;
-  transition: border-color .12s, background .12s;
+  transition: border-color .2s var(--swift), background .2s var(--swift), box-shadow .3s var(--spring);
 }
 select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%237D7691' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%237C7590' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 11px center; background-size: 12px;
   padding-right: 32px;
 }
 textarea { min-height: 108px; resize: vertical; line-height: 1.65; font-size: 14px; }
 input:hover, select:hover, textarea:hover { border-color: #332E45; }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--lav); background: var(--panel); }
-input::placeholder, textarea::placeholder { color: #514B63; }
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: var(--lav); background: var(--panel);
+  box-shadow: 0 0 0 4px rgba(167,139,250,.14);
+}
+input::placeholder, textarea::placeholder { color: #4F4A61; }
 input.mono, textarea.mono { font-family: var(--mono); font-size: 13px; }
 
 .toggle { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; padding: 3px 0; }
 .toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
 .toggle .track {
-  width: 40px; height: 23px; border-radius: 999px; flex: none; margin-top: 1px;
-  background: #251F36; border: 1px solid var(--line);
-  position: relative; transition: background .15s, border-color .15s;
+  width: 41px; height: 23px; border-radius: 999px; flex: none; margin-top: 1px;
+  background: #251F36; border: 1px solid var(--line); position: relative;
+  transition: background .28s var(--swift), border-color .28s var(--swift);
 }
 .toggle .track::after {
   content: ""; position: absolute; top: 2px; left: 2px;
-  width: 17px; height: 17px; border-radius: 50%;
-  background: #6C6584; transition: transform .16s cubic-bezier(.3,1.4,.5,1), background .15s;
+  width: 17px; height: 17px; border-radius: 50%; background: #6C6584;
+  transition: transform .38s var(--spring), background .28s, width .2s var(--spring);
 }
+.toggle:active .track::after { width: 22px; }
 .toggle input:checked + .track { background: var(--deep); border-color: var(--deep); }
-.toggle input:checked + .track::after { transform: translateX(17px); background: #fff; }
+.toggle input:checked + .track::after { transform: translateX(18px); background: #fff; }
+.toggle input:checked:active + .track::after { transform: translateX(13px); }
 .toggle input:focus-visible + .track { outline: 2px solid var(--lav); outline-offset: 2px; }
 .toggle .label { font-size: 14.5px; font-weight: 600; }
 .toggle small { display: block; color: var(--muted); font-weight: 400; font-size: 12.5px; margin-top: 1px; }
 .toggles { display: grid; gap: 14px; }
 
+/* ══ buttons ══════════════════════════════════════════════════════════════ */
 .btn {
+  position: relative; overflow: hidden;
   font-size: 14px; font-weight: 600;
   border: 1px solid var(--line);
   background: var(--raised);
   color: var(--ink);
-  padding: 9px 15px; border-radius: 10px; cursor: pointer;
+  padding: 9px 16px; border-radius: 10px; cursor: pointer;
   display: inline-flex; align-items: center; gap: 8px;
-  transition: border-color .12s, background .12s, transform .06s;
+  transition: border-color .2s, background .2s, transform .18s var(--spring), box-shadow .3s;
 }
-.btn:hover { border-color: #3A3350; background: #221E32; }
-.btn:active { transform: translateY(1px); }
+.btn:hover { border-color: #3D3655; background: #221E32; transform: translateY(-1px); }
+.btn:active { transform: translateY(0) scale(.975); }
 .btn--primary {
-  background: linear-gradient(160deg, var(--lav), var(--deep));
-  border-color: transparent; color: #14101F;
-  box-shadow: 0 8px 22px -12px rgba(124,92,255,.9);
+  background: linear-gradient(135deg, var(--lav), var(--deep));
+  border-color: transparent; color: #120E1E;
+  box-shadow: 0 8px 22px -12px rgba(124,92,255,.95);
 }
-.btn--primary:hover { background: linear-gradient(160deg, #B9A3FF, #8A6DFF); border-color: transparent; }
+.btn--primary:hover { box-shadow: 0 14px 30px -12px rgba(124,92,255,1); border-color: transparent; }
+/* a highlight that sweeps across on hover */
+.btn--primary::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.42) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform .7s var(--swift);
+}
+.btn--primary:hover::after { transform: translateX(120%); }
 .btn--ghost { background: none; }
 .btn--danger { color: var(--bad); background: none; border-color: transparent; }
-.btn--danger:hover { background: rgba(251,113,133,.1); border-color: rgba(251,113,133,.3); }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn--danger:hover { background: rgba(251,113,133,.1); border-color: rgba(251,113,133,.32); }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .hint { color: var(--muted); font-size: 13px; }
 
 .pill {
   font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
   padding: 4px 9px; border-radius: 999px;
-  background: rgba(167,139,250,.14); color: var(--lav-soft);
-  font-family: var(--mono);
+  background: rgba(167,139,250,.14); color: var(--lav-soft); font-family: var(--mono);
 }
 .pill--off { background: #221F2E; color: var(--muted); }
+.pill--live { background: rgba(82,224,160,.14); color: var(--good); }
+.pill--live::before {
+  content: "●"; margin-right: 5px; font-size: 8px; vertical-align: 1px;
+  animation: blip 2s ease-in-out infinite;
+}
+@keyframes blip { 50% { opacity: .3; } }
 
-.account {
+/* ══ accounts / polls ═════════════════════════════════════════════════════ */
+.account, .poll-row {
   position: relative;
   border: 1px solid var(--line);
   border-radius: var(--r);
   background: var(--bg-2);
   margin-bottom: 14px;
+  transition: transform .35s var(--spring), border-color .3s;
 }
+.account:hover, .poll-row:hover { transform: translateY(-2px); }
 .account__head {
   display: flex; align-items: center; gap: 11px; flex-wrap: wrap;
-  padding: 14px 18px;
-  background: var(--raised);
+  padding: 14px 18px; background: var(--raised);
   border-bottom: 1px solid var(--line);
   border-radius: calc(var(--r) - 1px) calc(var(--r) - 1px) 0 0;
 }
 .account__title { font-weight: 700; font-size: 14.5px; }
 .account__body { padding: 18px; display: grid; gap: 16px; }
-.account--off { opacity: .62; }
+.account--off { opacity: .6; }
 
-/* ── live Discord preview ──────────────────────────────────────────────── */
-.preview {
-  --d-embed: #2B2D31;
-  background: #313338;
-  border-radius: var(--r);
-  padding: 16px;
-  font-size: 14.5px;
-  line-height: 1.375;
-  color: #DBDEE1;
-  overflow-x: auto;
+.poll-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 16px 18px; }
+.poll-row__main { flex: 1; min-width: 220px; display: grid; gap: 3px; }
+.poll-row__q { font-weight: 700; font-size: 14.5px; }
+.poll-row__meta { font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
+
+/* Discord's native poll, mocked so you can see it before posting */
+.pv { background: #313338; border-radius: var(--r); padding: 16px; color: #DBDEE1; font-size: 14.5px; overflow-x: auto; }
+.pv__q { color: #F2F3F5; font-weight: 700; font-size: 16px; margin-bottom: 2px; }
+.pv__sub { color: #949BA4; font-size: 13px; margin-bottom: 12px; }
+.pv__opt {
+  display: flex; align-items: center; gap: 12px;
+  background: #2B2D31; border: 1px solid #3A3D44; border-radius: 8px;
+  padding: 12px 14px; margin-bottom: 8px;
+  animation: rise .4s var(--spring) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
 }
-.pv-msg { display: grid; grid-template-columns: 40px minmax(0,1fr); gap: 15px; }
-.pv-av {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: linear-gradient(150deg, var(--lav), var(--deep));
-  display: grid; place-items: center; font-weight: 700; color: #fff; font-size: 15px;
-}
-.pv-head { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; flex-wrap: wrap; }
-.pv-name { color: #F2F3F5; font-weight: 600; }
-.pv-tag { background: #5865F2; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 4px; border-radius: 3px; text-transform: uppercase; }
-.pv-time { color: #949BA4; font-size: 12px; }
-.pv-text { margin-bottom: 7px; word-break: break-word; }
+.pv__opt span { flex: 1; }
+.pv__radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #80848E; flex: none; }
+.pv__vote { background: #5865F2; color: #fff; text-align: center; font-weight: 600; padding: 11px; border-radius: 8px; margin-top: 12px; }
+.pv__foot { display: flex; justify-content: space-between; color: #949BA4; font-size: 13px; margin-top: 10px; }
 .pv-mention { background: rgba(167,139,250,.2); color: #C7B4FF; border-radius: 3px; padding: 0 2px; font-weight: 500; }
-.pv-embed {
-  max-width: 480px;
-  background: var(--d-embed);
-  border-radius: 4px;
-  border-left: 4px solid var(--lav);
-  padding: 12px 15px 15px;
-  display: grid; gap: 8px;
-}
-.pv-author { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: #F2F3F5; }
-.pv-author i { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(150deg,#F0ABFC,#A78BFA); flex: none; }
-.pv-title { color: #F2F3F5; font-weight: 600; font-size: 15px; }
-.pv-desc { font-size: 14px; white-space: pre-wrap; word-break: break-word; }
-.pv-fields { display: flex; flex-wrap: wrap; gap: 8px 30px; }
-.pv-field dt { font-size: 13.5px; font-weight: 600; color: #F2F3F5; margin: 0 0 2px; }
-.pv-field dd { margin: 0; font-size: 13.5px; }
-.pv-foot { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #949BA4; }
-.pv-foot i { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(150deg,var(--lav),var(--deep)); }
-.pv-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-.pv-btn { background: #4E5058; color: #fff; font-size: 14px; font-weight: 500; padding: 7px 15px; border-radius: 3px; }
-.pv-reacts { display: flex; gap: 6px; margin-top: 8px; }
-.pv-react { background: rgba(167,139,250,.14); border: 1px solid rgba(167,139,250,.42); border-radius: 8px; padding: 2px 8px; font-size: 13px; color: #C7B4FF; }
 
-/* ── save bar / toast ──────────────────────────────────────────────────── */
+/* ══ save bar / toast ═════════════════════════════════════════════════════ */
 .savebar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
   display: flex; align-items: center; gap: 12px; justify-content: flex-end;
   padding: 13px 22px;
-  background: rgba(10,9,16,.9);
-  backdrop-filter: blur(14px);
+  background: rgba(9,8,15,.92);
+  backdrop-filter: blur(16px);
   border-top: 1px solid var(--line);
-  transform: translateY(120%); transition: transform .2s cubic-bezier(.3,1,.4,1);
+  transform: translateY(120%);
+  transition: transform .42s var(--spring);
 }
 .savebar[data-open="true"] { transform: none; }
 .savebar__note { margin-right: auto; color: var(--ink-soft); font-size: 13.5px; display: flex; align-items: center; gap: 9px; }
-.savebar__note i { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); flex: none; }
+.savebar__note i {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--warn); flex: none;
+  box-shadow: 0 0 0 0 rgba(251,191,117,.6);
+  animation: ping 2s ease-out infinite;
+}
+@keyframes ping { 70%, 100% { box-shadow: 0 0 0 9px rgba(251,191,117,0); } }
 
 .toast {
   position: fixed; left: 50%; bottom: 92px; z-index: 40;
-  transform: translateX(-50%) translateY(14px);
+  transform: translateX(-50%) translateY(18px) scale(.96);
   background: var(--raised); border: 1px solid var(--line);
   border-left: 3px solid var(--lav);
   padding: 12px 18px; border-radius: 11px;
   box-shadow: 0 22px 50px -22px #000;
-  opacity: 0; pointer-events: none;
-  transition: opacity .2s, transform .2s;
-  max-width: min(90vw, 460px); font-size: 14px;
+  opacity: 0; pointer-events: none; font-size: 14px;
+  transition: opacity .25s, transform .4s var(--spring);
+  max-width: min(90vw, 460px);
 }
-.toast[data-open="true"] { opacity: 1; transform: translateX(-50%); }
+.toast[data-open="true"] { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 .toast[data-kind="error"] { border-left-color: var(--bad); }
 .toast[data-kind="success"] { border-left-color: var(--good); }
 
-.empty {
-  color: var(--muted); font-size: 14px; text-align: center;
-  padding: 26px; border: 1px dashed var(--line); border-radius: var(--r); margin-bottom: 14px;
-}
+.empty { color: var(--muted); font-size: 14px; text-align: center; padding: 26px; border: 1px dashed var(--line); border-radius: var(--r); margin-bottom: 14px; }
 .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
 .swatch {
-  width: 38px; height: 38px; border-radius: 10px; cursor: pointer;
+  width: 38px; height: 38px; border-radius: 11px; cursor: pointer;
   border: 2px solid transparent; padding: 0;
+  transition: transform .3s var(--spring), box-shadow .3s;
 }
-.swatch[aria-pressed="true"] { border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,.14); }
+.swatch:hover { transform: translateY(-3px) scale(1.06); }
+.swatch[aria-pressed="true"] { border-color: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,.13); transform: scale(1.04); }
+
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
-  /* Hold the glow still rather than removing it — the edge stays lit, nothing moves. */
-  .card::before, .card::after, .account::before, .account::after { animation: none !important; }
+  *, *::before, *::after { transition-duration: .01ms !important; }
+  body::before, body::after, .mark, .savebar__note i, .pill--live::before,
+  .card::before, .card::after, .account::before, .account::after,
+  .poll-row::before, .poll-row::after, .stagger > *, .pv__opt, .side, .login__card { animation: none !important; }
 }
 </style>
 </head>
@@ -391,7 +436,7 @@ input.mono, textarea.mono { font-family: var(--mono); font-size: 13px; }
     <div class="mark">💜</div>
     <h1>Daydream Bot</h1>
     <p>Sign in with Discord to configure the bot. You'll need <strong>Manage Server</strong> in the server it runs in.</p>
-    <a class="btn btn--primary" href="/login" style="text-decoration:none;padding:11px 20px">Sign in with Discord</a>
+    <a class="btn btn--primary" href="/login" style="text-decoration:none;padding:12px 22px">Sign in with Discord</a>
   </div>
 </div>
 
@@ -405,7 +450,7 @@ input.mono, textarea.mono { font-family: var(--mono); font-size: 13px; }
       </div>
     </div>
 
-    <nav class="nav" role="tablist" id="nav"></nav>
+    <nav class="nav" role="tablist" id="nav"><span class="nav__pill" id="navPill"></span></nav>
 
     <div class="side__foot">
       <div class="guild">
@@ -424,7 +469,7 @@ input.mono, textarea.mono { font-family: var(--mono); font-size: 13px; }
       <h1 id="pageTitle">Welcome</h1>
       <p id="pageBlurb"></p>
     </div>
-    <div id="panel"></div>
+    <div id="panel" class="stagger"></div>
   </div>
 
   <div class="savebar" id="savebar">
@@ -435,7 +480,6 @@ input.mono, textarea.mono { font-family: var(--mono); font-size: 13px; }
 </div>
 
 <div class="toast" id="toast"></div>
-
 <script type="module">
 const $ = (s, r = document) => r.querySelector(s);
 const el = (tag, props = {}, kids = []) => {
@@ -444,20 +488,18 @@ const el = (tag, props = {}, kids = []) => {
   return node;
 };
 const svg = (d) => {
-  const node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  node.setAttribute('viewBox', '0 0 24 24');
-  node.setAttribute('fill', 'none');
-  node.setAttribute('stroke', 'currentColor');
-  node.setAttribute('stroke-width', '1.9');
-  node.setAttribute('stroke-linecap', 'round');
-  node.setAttribute('stroke-linejoin', 'round');
-  node.innerHTML = d;
-  return node;
+  const n = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  n.setAttribute('viewBox', '0 0 24 24'); n.setAttribute('fill', 'none');
+  n.setAttribute('stroke', 'currentColor'); n.setAttribute('stroke-width', '1.9');
+  n.setAttribute('stroke-linecap', 'round'); n.setAttribute('stroke-linejoin', 'round');
+  n.innerHTML = d;
+  return n;
 };
 
 const ICONS = {
   welcome: '<path d="M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
   notifications: '<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+  polls: '<path d="M7 20V10M12 20V4M17 20v-6"/>',
   links: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
   look: '<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2v-1a2 2 0 0 1 2-2h1a4 4 0 0 0 4-4 10 10 0 0 0-9-11Z"/>',
 };
@@ -465,6 +507,7 @@ const ICONS = {
 const TABS = [
   { id: 'welcome', label: 'Welcome', title: 'Welcome', blurb: 'What happens the moment somebody joins your server.' },
   { id: 'notifications', label: 'Notifications', title: 'Notifications', blurb: 'Watch your accounts and announce every new post, once.' },
+  { id: 'polls', label: 'Polls', title: 'Polls', blurb: "Discord's own polls — post one from here, watch it run, close it early." },
   { id: 'links', label: 'Links', title: 'Links', blurb: 'The links behind /socials and the welcome buttons.' },
   { id: 'look', label: 'Appearance', title: 'Appearance', blurb: 'The accent bar down the left of every embed the bot sends.' },
 ];
@@ -493,20 +536,32 @@ const dirty = () => JSON.stringify(draft) !== JSON.stringify(state.settings);
 const refreshSaveBar = () => { $('#savebar').dataset.open = String(dirty()); };
 const edit = (mutate) => { mutate(draft); refreshSaveBar(); };
 const chanName = (id) => state.guild.channels.find((c) => c.id === id)?.name;
-const roleName = (id) => state.guild.roles.find((r) => r.id === id)?.name;
+const relative = (ms) => {
+  const mins = Math.round((ms - Date.now()) / 60000);
+  if (mins <= 0) return 'any moment';
+  if (mins < 60) return `${mins} min`;
+  const hours = Math.round(mins / 60);
+  return hours < 48 ? `${hours}h` : `${Math.round(hours / 24)} days`;
+};
 
-// ── fields ────────────────────────────────────────────────────────────────
+// ══ fields ═════════════════════════════════════════════════════════════════
 function textField({ label, hint, value, placeholder, onInput, type = 'text', mono, live }) {
   const input = el('input', { type, value: value ?? '', placeholder: placeholder ?? '', className: mono ? 'mono' : '' });
   input.addEventListener('input', () => { onInput(input.value); if (live) live(); });
   return el('div', { className: 'field' }, [el('label', { textContent: label }), input, hint && el('small', { textContent: hint })]);
 }
 
+function areaField({ label, hint, value, placeholder, onInput, live, mono }) {
+  const area = el('textarea', { value: value ?? '', placeholder: placeholder ?? '', className: mono ? 'mono' : '' });
+  area.addEventListener('input', () => { onInput(area.value); if (live) live(); });
+  return el('div', { className: 'field' }, [el('label', { textContent: label }), area, hint && el('small', { textContent: hint })]);
+}
+
 function selectField({ label, hint, value, options, onChange, blank = '— none —', live }) {
   const select = el('select');
-  select.append(el('option', { value: '', textContent: blank }));
+  if (blank !== null) select.append(el('option', { value: '', textContent: blank }));
   for (const opt of options) select.append(el('option', { value: opt.id, textContent: opt.name }));
-  select.value = options.some((o) => o.id === value) ? value : '';
+  select.value = options.some((o) => String(o.id) === String(value)) ? String(value) : '';
   select.addEventListener('change', () => { onChange(select.value); if (live) live(); });
   return el('div', { className: 'field' }, [el('label', { textContent: label }), select, hint && el('small', { textContent: hint })]);
 }
@@ -527,16 +582,13 @@ const actionButton = (label, name, body = {}) => {
 const channelOptions = () => state.guild.channels.map((c) => ({ id: c.id, name: `#${c.name}` }));
 const roleOptions = () => state.guild.roles.map((r) => ({ id: r.id, name: `@${r.name}` }));
 
-// ── live preview of the welcome message ───────────────────────────────────
+// ══ live previews ══════════════════════════════════════════════════════════
 function welcomePreview() {
   const w = draft.welcome ?? {};
   const accent = /^#[0-9a-f]{6}$/i.test(draft.brand?.accent ?? '') ? draft.brand.accent : '#A78BFA';
   const line = (w.greetings?.[0] ?? 'welcome {user}!')
-    .replaceAll('{count}', '12,483')
-    .replaceAll('{ordinal}', '12,483rd')
-    .replaceAll('{server}', state.guild.name)
-    .replaceAll('{name}', 'lunaaa')
-    .replaceAll('{tag}', 'lunaaa');
+    .replaceAll('{count}', '12,483').replaceAll('{ordinal}', '12,483rd')
+    .replaceAll('{server}', state.guild.name).replaceAll('{name}', 'lunaaa').replaceAll('{tag}', 'lunaaa');
 
   const withMention = (text) => {
     const frag = document.createDocumentFragment();
@@ -546,52 +598,62 @@ function welcomePreview() {
     }
     return frag;
   };
-
   const pointers = [
     w.rulesChannelId && chanName(w.rulesChannelId) ? `📜 Read #${chanName(w.rulesChannelId)}` : null,
     w.rolesChannelId && chanName(w.rolesChannelId) ? `🎨 Grab your roles in #${chanName(w.rolesChannelId)}` : null,
     w.introsChannelId && chanName(w.introsChannelId) ? `👋 Say hi in #${chanName(w.introsChannelId)}` : null,
   ].filter(Boolean);
-
   const body = [];
   if (w.pingUser !== false) body.push('Hey @lunaaa — glad you made it.');
   if (pointers.length) body.push('', ...pointers);
-
   const links = (w.buttons?.links ?? []).filter((l) => l.url);
 
-  return el('div', { className: 'preview' }, [
-    el('div', { className: 'pv-msg' }, [
-      el('div', { className: 'pv-av', textContent: 'D' }),
+  return el('div', { className: 'pv' }, [
+    el('div', { style: 'display:grid;grid-template-columns:40px minmax(0,1fr);gap:15px' }, [
+      el('div', { style: 'width:40px;height:40px;border-radius:50%;background:linear-gradient(150deg,#A78BFA,#7C5CFF);display:grid;place-items:center;font-weight:700;color:#fff', textContent: 'D' }),
       el('div', {}, [
-        el('div', { className: 'pv-head' }, [
-          el('span', { className: 'pv-name', textContent: 'Daydream' }),
-          el('span', { className: 'pv-tag', textContent: 'App' }),
-          el('span', { className: 'pv-time', textContent: 'Today at 6:31 PM' }),
+        el('div', { style: 'display:flex;gap:8px;align-items:center;margin-bottom:3px;flex-wrap:wrap' }, [
+          el('span', { style: 'color:#F2F3F5;font-weight:600', textContent: 'Daydream' }),
+          el('span', { style: 'background:#5865F2;color:#fff;font-size:10px;font-weight:700;padding:2px 4px;border-radius:3px', textContent: 'APP' }),
+          el('span', { style: 'color:#949BA4;font-size:12px', textContent: 'Today at 6:31 PM' }),
         ]),
-        w.pingUser !== false ? el('div', { className: 'pv-text' }, [withMention(line)]) : el('div', { className: 'pv-text', textContent: line.replaceAll('{user}', 'lunaaa') }),
-        el('div', { className: 'pv-embed', style: `border-left-color:${accent}` }, [
-          el('div', { className: 'pv-author' }, [el('i'), document.createTextNode('lunaaa joined')]),
-          el('div', { className: 'pv-title', textContent: `Welcome to ${state.guild.name} 💜` }),
-          body.length ? el('div', { className: 'pv-desc' }, [withMention(body.join('\n'))]) : null,
-          el('div', { className: 'pv-fields' }, [
-            el('dl', { className: 'pv-field' }, [el('dt', { textContent: 'Member' }), el('dd', { textContent: "You're the 12,483rd member" })]),
-            el('dl', { className: 'pv-field' }, [el('dt', { textContent: 'Account created' }), el('dd', { textContent: '5 years ago' })]),
+        el('div', { style: 'margin-bottom:7px' }, [w.pingUser !== false ? withMention(line) : document.createTextNode(line.replaceAll('{user}', 'lunaaa'))]),
+        el('div', { style: `max-width:480px;background:#2B2D31;border-radius:4px;border-left:4px solid ${accent};padding:12px 15px 15px;display:grid;gap:8px` }, [
+          el('div', { style: 'color:#F2F3F5;font-weight:600;font-size:15px', textContent: `Welcome to ${state.guild.name} 💜` }),
+          body.length ? el('div', { style: 'font-size:14px;white-space:pre-wrap' }, [withMention(body.join('\n'))]) : null,
+          el('div', { style: 'display:flex;gap:30px;flex-wrap:wrap' }, [
+            el('div', {}, [el('div', { style: 'color:#F2F3F5;font-weight:600;font-size:13.5px', textContent: 'Member' }), el('div', { style: 'font-size:13.5px', textContent: "You're the 12,483rd member" })]),
+            el('div', {}, [el('div', { style: 'color:#F2F3F5;font-weight:600;font-size:13.5px', textContent: 'Account created' }), el('div', { style: 'font-size:13.5px', textContent: '5 years ago' })]),
           ]),
-          el('div', { className: 'pv-foot' }, [el('i'), document.createTextNode(draft.brand?.footerText || 'Daydream HQ')]),
+          el('div', { style: 'font-size:12px;color:#949BA4', textContent: draft.brand?.footerText || 'Daydream HQ' }),
         ]),
-        links.length
-          ? el('div', { className: 'pv-btns' }, links.slice(0, 5).map((l) =>
-              el('div', { className: 'pv-btn', textContent: `${l.emoji || ''} ${l.label}`.trim() })))
-          : null,
-        (w.reactWith ?? []).length
-          ? el('div', { className: 'pv-reacts' }, w.reactWith.map((e) => el('span', { className: 'pv-react', textContent: `${e} 2` })))
-          : null,
+        links.length ? el('div', { style: 'display:flex;gap:8px;margin-top:8px;flex-wrap:wrap' },
+          links.slice(0, 5).map((l) => el('div', { style: 'background:#4E5058;color:#fff;font-size:14px;padding:7px 15px;border-radius:3px', textContent: `${l.emoji || ''} ${l.label}`.trim() }))) : null,
       ]),
     ]),
   ]);
 }
 
-// ── panels ────────────────────────────────────────────────────────────────
+/** Mock of Discord's native poll, so you see it before it goes out. */
+function pollPreview({ question, options, hours, multi }) {
+  const opts = options.length ? options : ['your first option', 'your second option'];
+  return el('div', { className: 'pv' }, [
+    el('div', { className: 'pv__q', textContent: question || 'Your question goes here' }),
+    el('div', { className: 'pv__sub', textContent: multi ? 'Select one or more answers' : 'Select one answer' }),
+    ...opts.slice(0, 10).map((text, i) => {
+      const row = el('div', { className: 'pv__opt' }, [el('span', { textContent: text }), el('div', { className: 'pv__radio' })]);
+      row.style.setProperty('--i', i);
+      return row;
+    }),
+    el('div', { className: 'pv__vote', textContent: 'Vote' }),
+    el('div', { className: 'pv__foot' }, [
+      el('span', { textContent: '0 votes' }),
+      el('span', { textContent: `ends in ${hours >= 24 ? `${Math.round(hours / 24)} day${hours >= 48 ? 's' : ''}` : `${hours}h`}` }),
+    ]),
+  ]);
+}
+
+// ══ panels ═════════════════════════════════════════════════════════════════
 function renderWelcome(root) {
   const w = (draft.welcome ??= {});
   w.goodbye ??= {};
@@ -605,58 +667,129 @@ function renderWelcome(root) {
       preview,
       el('div', { className: 'row' }, [
         actionButton('Send me a real one', 'welcome-test'),
-        el('span', { className: 'hint', textContent: 'Posts in the welcome channel for real. Save your changes first.' }),
+        el('span', { className: 'hint', textContent: 'Posts in the welcome channel for real. Save first.' }),
       ]),
     ]),
-
     el('div', { className: 'card' }, [
-      el('header', {}, [el('h2', { textContent: 'Channels' }), el('p', { textContent: 'The greeting goes in the first one. The rest just become links inside it.' })]),
+      el('header', {}, [el('h2', { textContent: 'Channels' }), el('p', { textContent: 'The greeting goes in the first one. The rest become links inside it.' })]),
       el('div', { className: 'grid2' }, [
-        selectField({ label: 'Welcome channel', value: w.channelId, options: channelOptions(), live: repaint,
-          onChange: (v) => edit((d) => (d.welcome.channelId = v)) }),
-        selectField({ label: 'Rules channel', value: w.rulesChannelId, options: channelOptions(), live: repaint,
-          onChange: (v) => edit((d) => (d.welcome.rulesChannelId = v)) }),
-        selectField({ label: 'Intros channel', value: w.introsChannelId, options: channelOptions(), live: repaint,
-          onChange: (v) => edit((d) => (d.welcome.introsChannelId = v)) }),
-        selectField({ label: 'Roles channel', value: w.rolesChannelId, options: channelOptions(), live: repaint,
-          onChange: (v) => edit((d) => (d.welcome.rolesChannelId = v)) }),
+        selectField({ label: 'Welcome channel', value: w.channelId, options: channelOptions(), live: repaint, onChange: (v) => edit((d) => (d.welcome.channelId = v)) }),
+        selectField({ label: 'Rules channel', value: w.rulesChannelId, options: channelOptions(), live: repaint, onChange: (v) => edit((d) => (d.welcome.rulesChannelId = v)) }),
+        selectField({ label: 'Intros channel', value: w.introsChannelId, options: channelOptions(), live: repaint, onChange: (v) => edit((d) => (d.welcome.introsChannelId = v)) }),
+        selectField({ label: 'Roles channel', value: w.rolesChannelId, options: channelOptions(), live: repaint, onChange: (v) => edit((d) => (d.welcome.rolesChannelId = v)) }),
       ]),
     ]),
-
     el('div', { className: 'card' }, [
       el('header', {}, [el('h2', { textContent: 'Behaviour' })]),
       el('div', { className: 'toggles' }, [
-        toggleField({ label: 'Greet new members', hint: 'The master switch for everything on this page', checked: w.enabled !== false,
-          onChange: (v) => edit((d) => (d.welcome.enabled = v)) }),
-        toggleField({ label: 'Ping the new member', hint: 'A real @mention, so they actually get a notification', checked: w.pingUser !== false, live: repaint,
-          onChange: (v) => edit((d) => (d.welcome.pingUser = v)) }),
-        toggleField({ label: 'Send a welcome DM', hint: 'Skipped silently if their DMs are closed', checked: Boolean(w.sendDm),
-          onChange: (v) => edit((d) => (d.welcome.sendDm = v)) }),
-        toggleField({ label: 'Post when somebody leaves', hint: 'Plain text, no ping', checked: Boolean(w.goodbye?.enabled),
-          onChange: (v) => edit((d) => ((d.welcome.goodbye ??= {}).enabled = v)) }),
+        toggleField({ label: 'Greet new members', hint: 'The master switch for everything on this page', checked: w.enabled !== false, onChange: (v) => edit((d) => (d.welcome.enabled = v)) }),
+        toggleField({ label: 'Ping the new member', hint: 'A real @mention, so they actually get a notification', checked: w.pingUser !== false, live: repaint, onChange: (v) => edit((d) => (d.welcome.pingUser = v)) }),
+        toggleField({ label: 'Send a welcome DM', hint: 'Skipped silently if their DMs are closed', checked: Boolean(w.sendDm), onChange: (v) => edit((d) => (d.welcome.sendDm = v)) }),
+        toggleField({ label: 'Post when somebody leaves', hint: 'Plain text, no ping', checked: Boolean(w.goodbye?.enabled), onChange: (v) => edit((d) => ((d.welcome.goodbye ??= {}).enabled = v)) }),
       ]),
       el('div', { className: 'divider' }),
-      selectField({
-        label: 'Auto-role on join',
-        hint: 'My own role has to sit above this one in Server Settings → Roles',
-        value: w.autoRoleIds?.[0] ?? '', options: roleOptions(),
-        onChange: (v) => edit((d) => (d.welcome.autoRoleIds = v ? [v] : [])),
-      }),
+      selectField({ label: 'Auto-role on join', hint: 'My own role has to sit above this one in Server Settings → Roles', value: w.autoRoleIds?.[0] ?? '', options: roleOptions(), onChange: (v) => edit((d) => (d.welcome.autoRoleIds = v ? [v] : [])) }),
     ]),
-
     el('div', { className: 'card' }, [
       el('header', {}, [
         el('h2', { textContent: 'Greeting lines' }),
         el('p', { textContent: 'One per line — each member gets one at random. {user} is the mention, {count} the member number, {ordinal} makes it "12,483rd", {server} the server name.' }),
       ]),
-      (() => {
-        const area = el('textarea', { className: 'mono', value: (w.greetings ?? []).join('\n'), placeholder: 'welcome {user}! 💜\n{user} is member #{count}' });
-        area.addEventListener('input', () => {
-          edit((d) => (d.welcome.greetings = area.value.split('\n').map((l) => l.trim()).filter(Boolean)));
-          repaint();
-        });
-        return area;
-      })(),
+      areaField({
+        label: 'Lines', mono: true, value: (w.greetings ?? []).join('\n'),
+        placeholder: 'welcome {user}! 💜\n{user} is member #{count}',
+        onInput: (v) => edit((d) => (d.welcome.greetings = v.split('\n').map((l) => l.trim()).filter(Boolean))),
+        live: repaint,
+      }),
+    ])
+  );
+}
+
+function renderPolls(root) {
+  // Polls aren't part of `draft` — they post immediately rather than being saved.
+  const form = (renderPolls.form ??= { question: '', options: '', hours: 24, multi: false, channelId: '', pingRoleId: '' });
+  const preview = el('div');
+  const repaint = () =>
+    preview.replaceChildren(pollPreview({
+      question: form.question,
+      options: form.options.split('\n').map((l) => l.trim()).filter(Boolean),
+      hours: form.hours,
+      multi: form.multi,
+    }));
+  repaint();
+
+  const post = el('button', { className: 'btn btn--primary', textContent: 'Post the poll' });
+  post.addEventListener('click', async () => {
+    const options = form.options.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (!form.question.trim()) return toast('Give the poll a question first.', 'error');
+    if (options.length < 2) return toast('A poll needs at least two options — one per line.', 'error');
+    if (!form.channelId) return toast('Pick a channel to post it in.', 'error');
+
+    const ok = await action('poll-create', post, {
+      question: form.question, options: options.join('|'), hours: form.hours,
+      multi: form.multi, channelId: form.channelId, pingRoleId: form.pingRoleId,
+    });
+    if (!ok) return;
+    form.question = ''; form.options = '';
+    await reloadState();
+    renderActive();
+  });
+
+  const running = (state.polls ?? []).map((poll) => {
+    const end = el('button', { className: 'btn btn--danger', textContent: 'End now' });
+    end.addEventListener('click', async () => {
+      if (!(await action('poll-end', end, { messageId: poll.messageId }))) return;
+      await reloadState();
+      renderActive();
+    });
+    return el('div', { className: 'poll-row' }, [
+      el('span', { className: 'pill pill--live', textContent: 'live' }),
+      el('div', { className: 'poll-row__main' }, [
+        el('div', { className: 'poll-row__q', textContent: poll.question }),
+        el('div', { className: 'poll-row__meta', textContent: `#${chanName(poll.channelId) ?? '?'} · closes in ${relative(poll.endsAt)}` }),
+      ]),
+      end,
+    ]);
+  });
+
+  root.replaceChildren(
+    el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', { textContent: 'New poll' }),
+        el('p', { textContent: "Posts Discord's own poll — radio buttons, a Vote button, results hidden until it closes. Emoji are entirely optional." }),
+      ]),
+      textField({ label: 'Question', value: form.question, placeholder: 'What should I film next?', onInput: (v) => (form.question = v), live: repaint }),
+      areaField({
+        label: 'Options',
+        hint: `One per line, up to ${state.pollLimits?.answers ?? 10}. Start a line with an emoji to give it an icon — or don't.`,
+        value: form.options, placeholder: 'gaming\nfood\nq&a',
+        onInput: (v) => (form.options = v), live: repaint,
+      }),
+      el('div', { className: 'grid2' }, [
+        selectField({ label: 'Post in', value: form.channelId, options: channelOptions(), blank: '— pick a channel —', onChange: (v) => (form.channelId = v) }),
+        selectField({ label: 'Ping', value: form.pingRoleId, options: roleOptions(), blank: '— nobody —', onChange: (v) => (form.pingRoleId = v) }),
+        selectField({
+          label: 'Runs for', value: String(form.hours), blank: null,
+          options: [
+            { id: '1', name: '1 hour' }, { id: '4', name: '4 hours' }, { id: '8', name: '8 hours' },
+            { id: '24', name: '24 hours' }, { id: '72', name: '3 days' },
+            { id: '168', name: '1 week' }, { id: '336', name: '2 weeks' },
+          ],
+          onChange: (v) => (form.hours = Number(v)), live: repaint,
+        }),
+      ]),
+      toggleField({ label: 'Let people pick more than one', checked: form.multi, onChange: (v) => (form.multi = v), live: repaint }),
+      el('div', { className: 'divider' }),
+      el('div', { className: 'field' }, [el('label', { textContent: 'Preview' }), preview]),
+      el('div', { className: 'row' }, [post]),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', { textContent: 'Running now' }),
+        el('p', { textContent: 'Ending a poll early reveals the results to everyone straight away.' }),
+      ]),
+      ...(running.length ? running : [el('div', { className: 'empty', textContent: 'No polls running. Post one above.' })]),
     ])
   );
 }
@@ -672,10 +805,7 @@ function renderNotifications(root) {
         el('span', { className: `pill${off ? ' pill--off' : ''}`, textContent: account.platform }),
         el('span', { className: 'account__title', textContent: account.handle || 'not set yet' }),
         el('span', { style: 'flex:1' }),
-        toggleField({
-          label: off ? 'Paused' : 'Active', checked: !off,
-          onChange: (v) => { edit((d) => (d.notifications.accounts[index].enabled = v)); renderActive(); },
-        }),
+        toggleField({ label: off ? 'Paused' : 'Active', checked: !off, onChange: (v) => { edit((d) => (d.notifications.accounts[index].enabled = v)); renderActive(); } }),
       ]),
       el('div', { className: 'account__body' }, [
         el('div', { className: 'grid2' }, [
@@ -690,16 +820,12 @@ function renderNotifications(root) {
               if (account.platform === 'youtube') d.notifications.accounts[index].channelId = v;
             }),
           }),
-          selectField({ label: 'Post to', value: account.postToChannelId, options: channelOptions(), blank: '— the default channel —',
-            onChange: (v) => edit((d) => (d.notifications.accounts[index].postToChannelId = v)) }),
-          selectField({ label: 'Ping', value: account.mentionRoleId, options: roleOptions(), blank: '— nobody —',
-            onChange: (v) => edit((d) => (d.notifications.accounts[index].mentionRoleId = v)) }),
+          selectField({ label: 'Post to', value: account.postToChannelId, options: channelOptions(), blank: '— the default channel —', onChange: (v) => edit((d) => (d.notifications.accounts[index].postToChannelId = v)) }),
+          selectField({ label: 'Ping', value: account.mentionRoleId, options: roleOptions(), blank: '— nobody —', onChange: (v) => edit((d) => (d.notifications.accounts[index].mentionRoleId = v)) }),
           (() => {
-            const field = textField({ label: 'Message', hint: 'Placeholders: {roleMention} {author} {title} {url} {platform}',
-              value: account.template ?? '', placeholder: '🔔 {roleMention} new upload from {author}',
-              onInput: (v) => edit((d) => (d.notifications.accounts[index].template = v)) });
-            field.classList.add('wide');
-            return field;
+            const f = textField({ label: 'Message', hint: 'Placeholders: {roleMention} {author} {title} {url} {platform}', value: account.template ?? '', placeholder: '🔔 {roleMention} new upload from {author}', onInput: (v) => edit((d) => (d.notifications.accounts[index].template = v)) });
+            f.classList.add('wide');
+            return f;
           })(),
         ]),
         el('div', { className: 'row' }, [
@@ -719,10 +845,7 @@ function renderNotifications(root) {
   const addBtn = el('button', { className: 'btn btn--primary', textContent: 'Add account' });
   addBtn.addEventListener('click', () => {
     const platform = platformSelect.value;
-    edit((d) => d.notifications.accounts.push({
-      id: `${platform}-${Date.now().toString(36)}`, platform, handle: '',
-      enabled: true, postToChannelId: '', mentionRoleId: '',
-    }));
+    edit((d) => d.notifications.accounts.push({ id: `${platform}-${Date.now().toString(36)}`, platform, handle: '', enabled: true, postToChannelId: '', mentionRoleId: '' }));
     renderActive();
   });
 
@@ -730,12 +853,9 @@ function renderNotifications(root) {
     el('div', { className: 'card' }, [
       el('header', {}, [el('h2', { textContent: 'Watching' }), el('p', { textContent: 'Every account is polled on a timer. Anything new gets announced exactly once.' })]),
       el('div', { className: 'toggles' }, [
-        toggleField({ label: 'Watch for new posts', hint: 'The master switch — off pauses every account below', checked: n.enabled !== false,
-          onChange: (v) => edit((d) => (d.notifications.enabled = v)) }),
+        toggleField({ label: 'Watch for new posts', hint: 'The master switch — off pauses every account below', checked: n.enabled !== false, onChange: (v) => edit((d) => (d.notifications.enabled = v)) }),
       ]),
-      selectField({ label: 'Default channel', hint: 'Used by any account that has no channel of its own',
-        value: n.defaultChannelId, options: channelOptions(),
-        onChange: (v) => edit((d) => (d.notifications.defaultChannelId = v)) }),
+      selectField({ label: 'Default channel', hint: 'Used by any account that has no channel of its own', value: n.defaultChannelId, options: channelOptions(), onChange: (v) => edit((d) => (d.notifications.defaultChannelId = v)) }),
       el('div', { className: 'row' }, [actionButton('Check every feed now', 'notify-check')]),
     ]),
     ...(cards.length ? cards : [el('div', { className: 'empty', textContent: 'Nothing watched yet — add your first account below.' })]),
@@ -753,12 +873,10 @@ function renderLinks(root) {
     el('div', { className: 'card' }, [
       el('header', {}, [el('h2', { textContent: 'Profiles' }), el('p', { textContent: 'Shown by /socials, with a button for each one.' })]),
       el('div', { className: 'grid2' }, fields.map(([key, label]) =>
-        textField({ label, type: 'url', value: draft.socials[key] ?? '', placeholder: 'https://…',
-          onInput: (v) => edit((d) => (d.socials[key] = v)) })
+        textField({ label, type: 'url', value: draft.socials[key] ?? '', placeholder: 'https://…', onInput: (v) => edit((d) => (d.socials[key] = v)) })
       )),
       el('div', { className: 'divider' }),
-      textField({ label: 'Business email', type: 'email', value: draft.socials.business ?? '',
-        placeholder: 'business@yourdomain.com', onInput: (v) => edit((d) => (d.socials.business = v)) }),
+      textField({ label: 'Business email', type: 'email', value: draft.socials.business ?? '', placeholder: 'business@yourdomain.com', onInput: (v) => edit((d) => (d.socials.business = v)) }),
     ])
   );
 }
@@ -770,17 +888,15 @@ function renderLook(root) {
   repaint();
 
   const hexInput = el('input', { type: 'text', className: 'mono', value: draft.brand.accent ?? '#A78BFA', placeholder: '#A78BFA' });
-  const PRESETS = [
-    ['#A78BFA', 'Lavender'], ['#C4B5FD', 'Lilac'], ['#7C5CFF', 'Violet'],
-    ['#F0ABFC', 'Orchid'], ['#8B5CF6', 'Amethyst'], ['#5865F2', 'Blurple'],
-  ];
+  hexInput.addEventListener('input', () => { edit((d) => (d.brand.accent = hexInput.value)); repaint(); });
+
+  const PRESETS = [['#A78BFA', 'Lavender'], ['#C4B5FD', 'Lilac'], ['#7C5CFF', 'Violet'], ['#F0ABFC', 'Orchid'], ['#8B5CF6', 'Amethyst'], ['#5865F2', 'Blurple']];
   const swatches = el('div', { className: 'swatches' }, PRESETS.map(([hex, name]) => {
     const btn = el('button', { className: 'swatch', title: name, style: `background:${hex}`, ariaLabel: name });
     btn.setAttribute('aria-pressed', String((draft.brand.accent ?? '').toLowerCase() === hex.toLowerCase()));
     btn.addEventListener('click', () => { edit((d) => (d.brand.accent = hex)); renderActive(); });
     return btn;
   }));
-  hexInput.addEventListener('input', () => { edit((d) => (d.brand.accent = hexInput.value)); repaint(); });
 
   root.replaceChildren(
     el('div', { className: 'card' }, [
@@ -791,12 +907,11 @@ function renderLook(root) {
     ]),
     el('div', { className: 'card' }, [
       el('header', {}, [el('h2', { textContent: 'Footer' })]),
-      textField({ label: 'Footer text', value: draft.brand.footerText ?? '', placeholder: 'Daydream HQ',
-        onInput: (v) => edit((d) => (d.brand.footerText = v)) }),
+      textField({ label: 'Footer text', value: draft.brand.footerText ?? '', placeholder: 'Daydream HQ', onInput: (v) => edit((d) => (d.brand.footerText = v)) }),
       el('div', { className: 'toggles' }, [
         toggleField({
           label: 'Use each platform’s own colour',
-          hint: 'On, a YouTube post turns red and Twitch turns purple. Off keeps everything on your accent.',
+          hint: 'On, a YouTube post turns red and Twitch purple. Off keeps everything on your accent.',
           checked: Boolean(draft.brand.usePlatformColors),
           onChange: (v) => edit((d) => (d.brand.usePlatformColors = v)),
         }),
@@ -805,17 +920,46 @@ function renderLook(root) {
   );
 }
 
-const PANELS = { welcome: renderWelcome, notifications: renderNotifications, links: renderLinks, look: renderLook };
+const PANELS = { welcome: renderWelcome, notifications: renderNotifications, polls: renderPolls, links: renderLinks, look: renderLook };
 
+/** Render the active panel, then restart the stagger so its cards fly in. */
 function renderActive() {
   const tab = TABS.find((t) => t.id === activeTab);
   $('#pageTitle').textContent = tab.title;
   $('#pageBlurb').textContent = tab.blurb;
-  PANELS[activeTab]($('#panel'));
+
+  const panel = $('#panel');
+  PANELS[activeTab](panel);
+  for (const [i, child] of [...panel.children].entries()) child.style.setProperty('--i', i);
+
+  panel.classList.remove('stagger');
+  void panel.offsetWidth; // forces the animation to start over on new nodes
+  panel.classList.add('stagger');
+
   refreshSaveBar();
 }
 
-// ── actions ───────────────────────────────────────────────────────────────
+function switchTab(id, button) {
+  if (id === activeTab) return;
+  const panel = $('#panel');
+  panel.classList.add('panel--leaving');
+  movePill(button);
+  setTimeout(() => {
+    panel.classList.remove('panel--leaving');
+    activeTab = id;
+    renderActive();
+  }, 150);
+}
+
+function movePill(button) {
+  const pill = $('#navPill');
+  pill.style.transform = `translateY(${button.offsetTop}px)`;
+  pill.style.height = `${button.offsetHeight}px`;
+  pill.dataset.ready = 'true';
+}
+
+// ══ actions ════════════════════════════════════════════════════════════════
+/** Returns true when the action succeeded, so callers can chain on it. */
 async function action(name, button, body = {}) {
   const original = button.textContent;
   button.disabled = true;
@@ -823,12 +967,24 @@ async function action(name, button, body = {}) {
   try {
     const { message } = await api(`/api/action/${name}`, { method: 'POST', body: JSON.stringify(body) });
     toast(message, 'success');
+    return true;
   } catch (err) {
     toast(err.message, 'error');
+    return false;
   } finally {
     button.disabled = false;
     button.textContent = original;
   }
+}
+
+/** Refresh live data without stamping on anything half-edited. */
+async function reloadState() {
+  const fresh = await api('/api/state').catch(() => null);
+  if (!fresh) return;
+  const wasDirty = dirty();
+  state.polls = fresh.polls;
+  state.status = fresh.status;
+  if (!wasDirty) { state.settings = fresh.settings; draft = clone(fresh.settings); }
 }
 
 async function save() {
@@ -849,7 +1005,7 @@ async function save() {
   }
 }
 
-// ── boot ──────────────────────────────────────────────────────────────────
+// ══ boot ═══════════════════════════════════════════════════════════════════
 async function boot() {
   const me = await api('/api/me');
   if (!me.signedIn) { $('#login').hidden = false; return; }
@@ -864,22 +1020,32 @@ async function boot() {
   if (state.guild.icon) $('#guildIcon').src = state.guild.icon;
 
   const nav = $('#nav');
+  let current = null;
   for (const tab of TABS) {
     const button = el('button', { role: 'tab' }, [svg(ICONS[tab.id]), el('span', { textContent: tab.label })]);
     button.setAttribute('aria-selected', String(tab.id === activeTab));
     button.addEventListener('click', () => {
-      activeTab = tab.id;
-      for (const other of nav.children) other.setAttribute('aria-selected', String(other === button));
-      renderActive();
-      scrollTo({ top: 0, behavior: 'smooth' });
+      for (const other of nav.querySelectorAll('button')) other.setAttribute('aria-selected', String(other === button));
+      switchTab(tab.id, button);
     });
     nav.append(button);
+    if (tab.id === activeTab) current = button;
   }
+  requestAnimationFrame(() => current && movePill(current));
+  addEventListener('resize', () => {
+    const active = nav.querySelector('button[aria-selected="true"]');
+    if (active) movePill(active);
+  });
 
   $('#save').addEventListener('click', save);
   $('#discard').addEventListener('click', () => { draft = clone(state.settings); renderActive(); toast('Changes discarded.'); });
   $('#signOut').addEventListener('click', async () => { await api('/logout', { method: 'POST', body: '{}' }); location.reload(); });
   addEventListener('beforeunload', (event) => { if (dirty()) event.preventDefault(); });
+
+  // Keep running polls and the status line fresh, without disturbing an edit.
+  setInterval(() => {
+    reloadState().then(() => { if (activeTab === 'polls' && !dirty()) renderActive(); });
+  }, 30_000);
 
   renderActive();
 }
@@ -888,7 +1054,7 @@ boot().catch((err) => {
   document.body.innerHTML =
     `<div class="login"><div class="login__card"><div class="mark">⚠️</div>
      <h1>Couldn't load</h1><p>${err.message}</p>
-     <a class="btn btn--primary" href="/login" style="text-decoration:none;padding:11px 20px">Sign in again</a></div></div>`;
+     <a class="btn btn--primary" href="/login" style="text-decoration:none;padding:12px 22px">Sign in again</a></div></div>`;
 });
 </script>
 </body>

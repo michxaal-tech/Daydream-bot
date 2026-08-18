@@ -54,11 +54,15 @@ value coming back means "leave it alone" rather than overwriting the real one.
 |---|---|
 | **Welcome** | Welcome/rules/intros/roles channels, greeting lines, ping · DM · goodbye · auto-role toggles, and a live preview that redraws as you type |
 | **Notifications** | Every watched account: handle, target channel, ping role, custom message, pause switch. Add and remove accounts, test any one of them |
+| **Polls** | Write a poll and watch it render as Discord's native poll before you post it. Pick the channel, the ping role and how long it runs. Polls already running are listed live, each with an End now button |
 | **Links** | The profile links behind `/socials` |
 | **Appearance** | The accent bar — six presets or any hex — plus footer text |
 
 Every page has a **Save changes** bar that only appears when something actually
 differs from what's saved. Nothing is written until you press it.
+
+Polls are the exception: they post the moment you press **Post the poll**, since
+there is nothing to save — the poll goes straight to Discord.
 
 ## Where the settings live
 

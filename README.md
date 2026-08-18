@@ -9,8 +9,9 @@ A Discord bot for a creator community. Four things work end-to-end today:
    something new drops.
 3. **Polls** — Discord's native polls: radio buttons, a Vote button, results
    hidden until it closes. Multi-select and any duration from 1 hour to 2 weeks.
-4. **A dashboard** — sign in with Discord and configure everything in a browser,
-   with a live preview of the welcome message. Nothing needs editing by hand.
+4. **A dashboard** — sign in with Discord and run everything from a browser:
+   configure the bot, post and end polls, with live previews of both. Nothing
+   needs editing by hand.
 
 Everything the bot sends uses one lavender accent bar (`#A78BFA`) on the left of
 the embed, so the server reads as one brand instead of a rainbow of vendor reds.

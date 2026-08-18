@@ -11,12 +11,14 @@ import { randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { PermissionsBitField } from 'discord.js';
+import { assertCanPost } from '../lib/brand.js';
 import { config, env } from '../lib/config.js';
 import { updateSettings, getOverrides } from '../lib/settings.js';
 import { logger } from '../lib/logger.js';
 import { sendWelcome } from '../features/welcome/index.js';
 import { runCheck, announce } from '../features/notifications/watcher.js';
 import { getPlatform, platformIds } from '../features/notifications/platforms/index.js';
+import { createPoll, endPoll, openPolls, parseOptions, LIMITS } from '../features/polls/index.js';
 import { SESSION_COOKIE, createSession, readSession, parseCookies, setCookie, clearCookie } from './session.js';
 
 const log = logger('web');
@@ -202,6 +204,8 @@ export function startDashboard(client) {
           .map((r) => ({ id: r.id, name: r.name, position: r.position }))
           .sort((a, b) => b.position - a.position),
       },
+      polls: openPolls(),
+      pollLimits: LIMITS,
       status: {
         uptimeMs: client.uptime,
         ping: Math.round(client.ws.ping),
@@ -265,6 +269,35 @@ async function runAction(name, req, client) {
   if (name === 'notify-check') {
     const found = await runCheck(client);
     return found.length ? `Announced ${found.length} new post(s).` : 'Checked everything — nothing new.';
+  }
+
+  if (name === 'poll-create') {
+    const { question, options: raw, hours, multi, channelId, pingRoleId } = req.body ?? {};
+    if (!String(question ?? '').trim()) throw new Error('Give the poll a question.');
+
+    const options = parseOptions(raw ?? '');
+    if (options.length < 2) {
+      throw new Error('A poll needs at least two options, separated by |');
+    }
+
+    const channel = await client.channels.fetch(channelId).catch(() => null);
+    if (!channel?.isTextBased()) throw new Error('Pick a channel to post in.');
+    assertCanPost(channel, await guild.members.fetchMe());
+
+    const message = await createPoll(channel, {
+      question,
+      options,
+      hours: Number(hours) || 24,
+      multi: Boolean(multi),
+      mentionRoleId: pingRoleId || null,
+      author: { id: req.session.id, tag: req.session.tag },
+    });
+    return `Poll posted in #${channel.name}.`;
+  }
+
+  if (name === 'poll-end') {
+    const { message } = await endPoll(client, String(req.body?.messageId ?? ''));
+    return `Closed. Results are on the poll in #${message.channel.name}.`;
   }
 
   if (name === 'notify-test') {

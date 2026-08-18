@@ -146,7 +146,7 @@ is written so you can hand it straight to a dev as a ticket.
 | 🟢 | **`/setup` commands** | Channels, toggles, greetings, watched accounts, links and accent — all from inside Discord |
 | 🟢 | **Settings that survive redeploys** | Runtime changes merge over config.json in a mounted volume |
 | 🟡 | **Per-guild config in a DB** | SQLite/Postgres so the bot can serve multiple creators |
-| 🟢 | **Web dashboard** | Discord OAuth login, Manage-Server gated, live preview of the welcome message |
+| 🟢 | **Web dashboard** | Discord OAuth login, Manage-Server gated, live previews of the welcome message and of polls before posting |
 | ⚪ | **Health endpoint + uptime pings** | `/healthz` for Railway/Fly health checks |
 | ⚪ | **Sharding** | Needed past ~2,500 guilds |
 | ⚪ | **Rate-limit-aware queue** | Batches announcements when five platforms fire at once |
