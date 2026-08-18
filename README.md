@@ -22,6 +22,13 @@ A Discord bot for a creator community. Everything below works end-to-end:
 11. **A dashboard** — sign in with Discord and run all of it from a browser,
     with live previews. Nothing needs editing by hand.
 
+**Insights** — the part no other bot can do, because it holds uploads, joins,
+invites, XP and engagement in one place: which upload brought how many members,
+which invite link is working, when your server is actually awake (a 7×24
+heatmap), who your most invested members are, and a weekly recap that writes
+itself. Plus a first-hour club, live takeover, thumbnail A/B tests and a
+shoutout queue.
+
 Plus 25+ optional extras, every one off by default: a currency with daily
 streaks and a role shop, suggestions with voting, anonymous confessions,
 birthdays, AFK notices, sticky roles, the counting game, join-to-create voice
@@ -88,6 +95,9 @@ Then in Discord: `/welcome test` — it should ping you in `#welcome`.
 | `/fun 8ball\|flip\|roll\|choose\|wyr\|compliment` | Everyone | Small distractions |
 | `/info user\|server\|avatar\|timestamp` | Everyone | Lookups and timestamp building |
 | `/purge` | Manage Messages | Bulk-delete by count, author or text |
+| `/insights radar\|attribution\|superfans\|invites\|recap` | Manage Server | The numbers |
+| `/creator ab start\|close` | Manage Server | Thumbnail A/B tests |
+| `/creator shoutout submit\|queue\|next` | Everyone / staff | The shoutout queue |
 | `/latest <platform>` | Everyone | Newest post from a platform, on demand |
 | `/socials` | Everyone | All links in one embed with buttons |
 | `/ping` | Everyone | Latency + uptime |
@@ -126,6 +136,12 @@ src/
     autochannel/index.js       per-channel automation, temp voice, counters
     logging/index.js           message + member logs, invite attribution
     fun/index.js               dice, 8ball, timestamp parsing
+    analytics/index.js         buckets, drop radar, attribution, superfan score
+    analytics/recap.js         the weekly digest
+    firsthour/index.js         first-hour club
+    takeover/index.js          live takeover and revert
+    abtest/index.js            thumbnail A/B tests
+    shoutouts/index.js         the shoutout queue
     welcome/
       render.js                builds the payload (pure — easy to unit test)
       index.js                 join/leave handling, auto-role, DM

@@ -82,6 +82,52 @@ app.get('/api/state', (_req, res) =>
       { id: 14, action: 'warn', userId: '4', userTag: 'spammer', moderatorTag: 'mike', reason: 'posted an invite', at: Date.now() - 3_600_000 },
       { id: 13, action: 'timeout', userId: '5', userTag: 'shouty', moderatorTag: 'automod', reason: 'wrote mostly in capitals', at: Date.now() - 7_200_000 },
     ],
+    insights: {
+      messagesPerHour: Array.from({ length: 24 }, (_, i) => ({ label: String(i), value: Math.round(20 + 45 * Math.sin(i / 3.4) ** 2) })),
+      joinsPerDay: Array.from({ length: 30 }, (_, i) => ({ label: `d${i}`, value: Math.max(0, Math.round(6 + 9 * Math.sin(i / 4))) })),
+      grid: Array.from({ length: 7 }, (_, day) =>
+        Array.from({ length: 24 }, (_, hour) => Math.round(Math.max(0, 60 * Math.sin((hour - 4) / 4) * (day > 4 ? 1.4 : 1))))),
+      bestSlots: [
+        { day: 5, hour: 20, value: 812, label: 'Friday 20:00 UTC' },
+        { day: 6, hour: 21, value: 703, label: 'Saturday 21:00 UTC' },
+        { day: 2, hour: 19, value: 466, label: 'Tuesday 19:00 UTC' },
+      ],
+      attribution: [
+        { title: 'i tried every viral food hack for 7 days', url: '#', joins: 42, at: Date.now() - 86_400_000, topInvite: 'abc123' },
+        { title: 'reading your worst comments', url: '#', joins: 11, at: Date.now() - 5 * 86_400_000, topInvite: 'abc123' },
+        { title: 'q&a while I edit', url: '#', joins: 6, at: Date.now() - 9 * 86_400_000, topInvite: null },
+      ],
+      invites: [{ code: 'abc123', inviterTag: 'mike', joins: 51 }, { code: 'tiktok-bio', inviterTag: null, joins: 23 }],
+      superfans: [
+        { userId: '1', name: 'lunaaa', score: 148, firstHour: 12, stars: 21, giveaways: 4, xp: 41200 },
+        { userId: '2', name: 'notch', score: 96, firstHour: 7, stars: 9, giveaways: 3, xp: 26800 },
+        { userId: '3', name: 'mike', score: 41, firstHour: 2, stars: 6, giveaways: 1, xp: 9400 },
+      ],
+      recentJoins: [
+        { userId: '9', name: 'newbie', inviteCode: 'abc123', at: Date.now() - 400_000 },
+        { userId: '8', name: 'someone', inviteCode: 'tiktok-bio', at: Date.now() - 3_600_000 },
+      ],
+      recentUploads: [{ title: 'i tried every viral food hack for 7 days', at: Date.now() - 86_400_000 }],
+    },
+    shoutouts: [
+      { id: 3, userId: '1', userTag: 'lunaaa', text: 'shout out my cat, she is 14 today', at: Date.now() - 900_000, upvotes: ['a', 'b'] },
+      { id: 4, userId: '2', userTag: 'notch', text: 'please say hi to my brother, he is a big fan', at: Date.now() - 3_000_000, upvotes: [] },
+    ],
+    abtests: [{ id: 1, question: 'which thumbnail?', labelA: 'red arrow', labelB: 'no arrow', votes: { a: ['1', '2', '3'], b: ['4'] } }],
+    health: {
+      passed: 6, total: 9,
+      checks: [
+        { ok: true, label: 'Server Members intent', fix: '' },
+        { ok: false, label: 'Message Content intent', fix: "Automod's text rules and the counting game stay inactive without it." },
+        { ok: true, label: 'Welcome channel set', fix: '' },
+        { ok: true, label: 'At least one account watched', fix: '' },
+        { ok: true, label: 'Uploads channel set', fix: '' },
+        { ok: false, label: 'Mod-log channel set', fix: 'Automod is on but nothing records what it does.' },
+        { ok: true, label: 'A role panel exists', fix: '' },
+        { ok: false, label: 'Settings persist across deploys', fix: 'DATA_DIR should point at a mounted volume.' },
+        { ok: true, label: 'My role outranks what I hand out', fix: '' },
+      ],
+    },
     pollLimits: { question: 300, answer: 55, answers: 10, minHours: 1, maxHours: 768 },
     status: { uptimeMs: 7_200_000, ping: 42, watching: 3 },
   })
@@ -108,6 +154,12 @@ app.post('/api/action/:name', (req, res) => {
       ...polls,
     ];
     return res.json({ ok: true, message: 'Poll posted (preview).' });
+  }
+  if (name === 'validate-feed') {
+    return res.json({ ok: true, message: '✓ Daydream — latest: "i tried every viral food hack for 7 days"' });
+  }
+  if (name === 'shoutout-done' || name === 'abtest-close') {
+    return res.json({ ok: true, message: 'Done (preview).' });
   }
   if (name === 'giveaway-create') {
     giveaways = [{ messageId: String(Date.now()), channelId: req.body.channelId ?? '8',

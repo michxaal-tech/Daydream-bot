@@ -7,6 +7,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { collection, getIn, setIn, deleteIn } from '../../lib/store.js';
 import { embed, COLORS } from '../../lib/brand.js';
+import { recordEngagement } from '../analytics/index.js';
 import { logger } from '../../lib/logger.js';
 
 const log = logger('giveaway');
@@ -91,6 +92,7 @@ export async function handleButton(interaction) {
   }
 
   const entered = giveaway.entrants.includes(interaction.user.id);
+  if (!entered) recordEngagement(interaction.user.id, 'giveaways');
   giveaway.entrants = entered
     ? giveaway.entrants.filter((id) => id !== interaction.user.id)
     : [...giveaway.entrants, interaction.user.id];

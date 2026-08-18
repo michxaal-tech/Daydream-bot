@@ -3,12 +3,14 @@ import { logger } from '../lib/logger.js';
 import { CUSTOM_ID as ROLE_MENU, handleButton as roleMenuButton } from '../features/roles/index.js';
 import { CUSTOM_ID as GIVEAWAY, handleButton as giveawayButton } from '../features/giveaways/index.js';
 import { SUGGEST_ID, handleSuggestionVote } from '../features/community/index.js';
+import { CUSTOM_ID as ABTEST, handleButton as abtestButton } from '../features/abtest/index.js';
 
 /** Buttons that reply privately and edit their own message in place. */
 const BUTTONS = {
   [ROLE_MENU]: roleMenuButton,
   [GIVEAWAY]: giveawayButton,
   [SUGGEST_ID]: handleSuggestionVote,
+  [ABTEST]: abtestButton,
 };
 
 const log = logger('cmd');

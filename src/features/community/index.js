@@ -7,6 +7,7 @@ import { collection, getIn, setIn, nextId } from '../../lib/store.js';
 import { config } from '../../lib/config.js';
 import { embed, COLORS } from '../../lib/brand.js';
 import { logger } from '../../lib/logger.js';
+import { recordEngagement } from '../analytics/index.js';
 
 const log = logger('community');
 const SUGGESTIONS = 'suggestions';
@@ -74,6 +75,7 @@ export async function handleSuggestionVote(interaction) {
 
   suggestion[other] = suggestion[other].filter((id) => id !== userId);
   const had = suggestion[mine].includes(userId);
+  if (!had) recordEngagement(userId, 'suggestions');
   suggestion[mine] = had ? suggestion[mine].filter((id) => id !== userId) : [...suggestion[mine], userId];
   setIn(SUGGESTIONS, String(suggestion.id), suggestion);
 

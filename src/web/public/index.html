@@ -488,6 +488,103 @@ input.mono, textarea.mono { font-family: var(--mono); font-size: 13px; }
 .pv__foot { display: flex; justify-content: space-between; color: #949BA4; font-size: 13px; margin-top: 10px; }
 .pv-mention { background: rgba(167,139,250,.2); color: #C7B4FF; border-radius: 3px; padding: 0 2px; font-weight: 500; }
 
+/* ══ widgets ═══════════════════════════════════════════════════════════ */
+.spark { display: block; width: 100%; height: 42px; overflow: visible; }
+.spark path.line { fill: none; stroke: var(--lav); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+.spark path.area { fill: url(#sparkFill); stroke: none; }
+.spark circle { fill: var(--lav-soft); }
+.spark-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.spark-head b { font-size: 1.35rem; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.spark-head span { font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
+
+/* progress ring for the setup health card */
+.ring { display: flex; align-items: center; gap: 14px; }
+.ring svg { width: 54px; height: 54px; flex: none; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 5; stroke-linecap: round; }
+.ring circle.track { stroke: rgba(255,255,255,.07); }
+.ring circle.value { stroke: var(--lav); transition: stroke-dasharray .8s var(--spring); filter: drop-shadow(0 0 6px rgba(167,139,250,.6)); }
+.ring__count { font-size: 1.25rem; font-weight: 800; }
+.ring__label { font-size: 12.5px; color: var(--muted); }
+
+.check { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px solid var(--line-soft); }
+.check:first-of-type { border-top: 0; }
+.check__mark { flex: none; width: 17px; height: 17px; border-radius: 50%; display: grid; place-items: center; font-size: 10px; margin-top: 2px; }
+.check--ok .check__mark { background: rgba(82,224,160,.16); color: var(--good); }
+.check--no .check__mark { background: rgba(251,191,117,.16); color: var(--warn); }
+.check__body { min-width: 0; }
+.check__label { font-size: 14px; font-weight: 600; }
+.check--ok .check__label { color: var(--ink-soft); font-weight: 500; }
+.check__fix { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+/* live activity feed */
+.feed { display: grid; gap: 2px; max-height: 260px; overflow-y: auto; }
+.feed__row {
+  display: flex; gap: 10px; align-items: baseline;
+  padding: 7px 2px; font-size: 13px; color: var(--ink-soft);
+  border-bottom: 1px solid var(--line-soft);
+  animation: rise .45s var(--spring) both;
+}
+.feed__row:last-child { border-bottom: 0; }
+.feed__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lav); flex: none; align-self: center; }
+.feed__when { margin-left: auto; font-size: 11px; color: var(--muted); font-family: var(--mono); white-space: nowrap; }
+
+/* the drop-radar heatmap */
+.heat { display: grid; grid-template-columns: 34px 1fr; gap: 6px; align-items: center; }
+.heat__row { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; }
+.heat__cell { aspect-ratio: 1; border-radius: 2px; background: rgba(255,255,255,.04); }
+.heat__day { font-size: 10.5px; color: var(--muted); font-family: var(--mono); }
+.heat__legend { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.heat__legend i { width: 12px; height: 12px; border-radius: 2px; }
+
+/* command palette */
+.palette {
+  position: fixed; inset: 0; z-index: 60; display: grid; place-items: start center;
+  padding-top: 14vh; background: rgba(5,4,10,.6); backdrop-filter: blur(6px);
+  animation: fade .18s ease both;
+}
+.palette__box {
+  width: min(560px, 92vw);
+  background: linear-gradient(168deg, rgba(32,28,46,.96), rgba(19,17,28,.96));
+  border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+  box-shadow: 0 40px 90px -30px #000;
+  animation: rise .28s var(--spring) both;
+}
+.palette input {
+  width: 100%; border: 0; border-bottom: 1px solid var(--line); border-radius: 0;
+  background: transparent; padding: 16px 18px; font-size: 16px;
+}
+.palette input:focus { outline: none; border-color: var(--lav); background: transparent; }
+.palette__list { max-height: 340px; overflow-y: auto; padding: 6px; }
+.palette__item {
+  display: flex; align-items: center; gap: 11px; width: 100%;
+  padding: 10px 12px; border: 0; border-radius: 9px; cursor: pointer;
+  background: none; color: var(--ink-soft); font: inherit; font-size: 14.5px; text-align: left;
+}
+.palette__item[aria-selected="true"] { background: rgba(124,92,255,.22); color: var(--ink); }
+.palette__kind { margin-left: auto; font-size: 10.5px; font-family: var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.kbd {
+  font-family: var(--mono); font-size: 10.5px; padding: 2px 6px; border-radius: 5px;
+  border: 1px solid var(--line); color: var(--muted); background: rgba(255,255,255,.03);
+}
+@keyframes fade { from { opacity: 0 } }
+
+/* diff list in the save bar */
+.diff { display: grid; gap: 4px; padding: 10px 0 2px; max-height: 180px; overflow-y: auto; }
+.diff__row { display: flex; gap: 8px; font-size: 12.5px; font-family: var(--mono); color: var(--muted); }
+.diff__key { color: var(--lav-soft); }
+.savebar__inner { max-width: 1320px; margin: 0 auto; width: 100%; display: grid; gap: 2px; }
+.savebar__top { display: flex; align-items: center; gap: 12px; }
+
+/* preset packs */
+.preset {
+  display: grid; gap: 4px; padding: 14px 16px; cursor: pointer; text-align: left;
+  border: 1px solid var(--line); border-radius: var(--r); background: rgba(255,255,255,.02);
+  font: inherit; color: var(--ink); transition: border-color .2s, transform .3s var(--spring);
+}
+.preset:hover { border-color: var(--lav); transform: translateY(-2px); }
+.preset b { font-size: 14.5px; }
+.preset span { font-size: 12.5px; color: var(--muted); }
+
 /* ══ save bar / toast ═════════════════════════════════════════════════════ */
 .savebar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
@@ -589,9 +686,15 @@ input.mono, textarea.mono { font-family: var(--mono); font-size: 13px; }
   </div>
 
   <div class="savebar" id="savebar">
-    <span class="savebar__note"><i></i> <span id="saveNote">Unsaved changes</span></span>
-    <button class="btn btn--ghost" id="discard">Discard</button>
-    <button class="btn btn--primary" id="save">Save changes</button>
+    <div class="savebar__inner">
+      <div class="savebar__top">
+        <span class="savebar__note"><i></i> <span id="saveNote">Unsaved changes</span></span>
+        <button class="btn btn--ghost" id="showDiff">What changed?</button>
+        <button class="btn btn--ghost" id="discard">Discard</button>
+        <button class="btn btn--primary" id="save">Save changes</button>
+      </div>
+      <div class="diff" id="diffList" hidden></div>
+    </div>
   </div>
 </div>
 
@@ -613,6 +716,7 @@ const svg = (d) => {
 };
 
 const ICONS = {
+  insights: '<path d="M3 3v18h18"/><path d="m7 14 3-4 3 3 4-6"/>',
   extras: '<path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/>',
   roles: '<path d="M12 2 4 6v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V6l-8-4Z"/><path d="m9 12 2 2 4-4"/>',
   levels: '<path d="M4 20h16"/><path d="M7 20V9M12 20V4M17 20v-7"/>',
@@ -630,6 +734,7 @@ const TABS = [
   { id: 'welcome', label: 'Welcome', title: 'Welcome', blurb: 'What happens the moment somebody joins your server.' },
   { id: 'roles', label: 'Roles', title: 'Self-assign roles', blurb: 'Panels where members pick up their own roles — one tap, no mods involved.' },
   { id: 'levels', label: 'Levels', title: 'Levels & XP', blurb: 'Members earn XP for talking, climb levels, and unlock roles on the way.' },
+  { id: 'insights', label: 'Insights', title: 'Insights', blurb: 'What the numbers say — when your server is awake, and which uploads bring people in.' },
   { group: 'Content' },
   { id: 'notifications', label: 'Notifications', title: 'Notifications', blurb: 'Watch your accounts and announce every new post, once.' },
   { id: 'polls', label: 'Polls', title: 'Polls', blurb: "Discord's own polls — post one from here, watch it run, close it early." },
@@ -644,6 +749,19 @@ const TABS = [
 const TAB_LIST = TABS.filter((t) => t.id);
 
 let state = null, draft = null, activeTab = 'welcome';
+let navButtons = {};
+
+/** Switch tabs from anywhere — nav click, command palette, keyboard. */
+function selectTab(id) {
+  if (!PANELS[id]) return;
+  activeTab = id;
+  for (const [tabId, button] of Object.entries(navButtons)) {
+    button.setAttribute('aria-selected', String(tabId === id));
+  }
+  if (navButtons[id]) movePill(navButtons[id]);
+  renderActive();
+  scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 const api = async (path, options = {}) => {
   const res = await fetch(path, { ...options, headers: options.body ? { 'content-type': 'application/json' } : {} });
@@ -653,18 +771,32 @@ const api = async (path, options = {}) => {
 };
 
 let toastTimer;
-const toast = (message, kind = 'info') => {
+const toast = (message, kind = 'info', undo = null) => {
   const node = $('#toast');
-  node.textContent = message;
+  node.replaceChildren(el('span', { textContent: message }));
+  if (undo) {
+    const button = el('button', {
+      className: 'btn btn--ghost',
+      textContent: undo.label,
+      style: 'margin-left:14px;padding:4px 11px;font-size:13px',
+    });
+    button.addEventListener('click', () => { node.dataset.open = 'false'; undo.run(); });
+    node.append(button);
+  }
   node.dataset.kind = kind;
   node.dataset.open = 'true';
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => (node.dataset.open = 'false'), 4400);
+  toastTimer = setTimeout(() => (node.dataset.open = 'false'), undo ? 8000 : 4400);
 };
 
 const clone = (v) => JSON.parse(JSON.stringify(v));
 const dirty = () => JSON.stringify(draft) !== JSON.stringify(state.settings);
-const refreshSaveBar = () => { $('#savebar').dataset.open = String(dirty()); };
+const refreshSaveBar = () => {
+  const changed = dirty();
+  $('#savebar').dataset.open = String(changed);
+  if (changed) refreshDiff();
+  else $('#diffList').hidden = true;
+};
 const edit = (mutate) => { mutate(draft); refreshSaveBar(); };
 const chanName = (id) => state.guild.channels.find((c) => c.id === id)?.name;
 const relative = (ms) => {
@@ -960,10 +1092,22 @@ function renderNotifications(root) {
           })(),
         ]),
         el('div', { className: 'row' }, [
+          (() => {
+            // Fetches the real feed right here, so a wrong id fails now rather
+            // than silently never posting.
+            const check = el('button', { className: 'btn', textContent: 'Check the feed' });
+            check.addEventListener('click', () =>
+              action('validate-feed', check, {
+                platform: account.platform,
+                handle: account.platform === 'youtube' ? account.channelId ?? account.handle : account.handle,
+              }));
+            return check;
+          })(),
           actionButton('Test this one', 'notify-test', { accountId: account.id }),
           (() => {
             const btn = el('button', { className: 'btn btn--danger', textContent: 'Remove' });
-            btn.addEventListener('click', () => { edit((d) => d.notifications.accounts.splice(index, 1)); renderActive(); });
+            btn.addEventListener('click', () =>
+            undoable(`Removed ${account.handle || account.platform}.`, () => draft.notifications.accounts.splice(index, 1)));
             return btn;
           })(),
         ]),
@@ -1019,13 +1163,17 @@ function renderLook(root) {
   repaint();
 
   const hexInput = el('input', { type: 'text', className: 'mono', value: draft.brand.accent ?? '#A78BFA', placeholder: '#A78BFA' });
-  hexInput.addEventListener('input', () => { edit((d) => (d.brand.accent = hexInput.value)); repaint(); });
+  hexInput.addEventListener('input', () => {
+    edit((d) => (d.brand.accent = hexInput.value));
+    applyAccent(hexInput.value);   // the whole dashboard follows, not just the embed
+    repaint();
+  });
 
   const PRESETS = [['#A78BFA', 'Lavender'], ['#C4B5FD', 'Lilac'], ['#7C5CFF', 'Violet'], ['#F0ABFC', 'Orchid'], ['#8B5CF6', 'Amethyst'], ['#5865F2', 'Blurple']];
   const swatches = el('div', { className: 'swatches' }, PRESETS.map(([hex, name]) => {
     const btn = el('button', { className: 'swatch', title: name, style: `background:${hex}`, ariaLabel: name });
     btn.setAttribute('aria-pressed', String((draft.brand.accent ?? '').toLowerCase() === hex.toLowerCase()));
-    btn.addEventListener('click', () => { edit((d) => (d.brand.accent = hex)); renderActive(); });
+    btn.addEventListener('click', () => { edit((d) => (d.brand.accent = hex)); applyAccent(hex); renderActive(); });
     return btn;
   }));
 
@@ -1036,6 +1184,23 @@ function renderLook(root) {
       el('div', { style: 'max-width:200px' }, [hexInput]),
       preview,
     ]),
+    el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', { textContent: 'Preset packs' }),
+        el('p', { textContent: 'Switch on a sensible bundle in one tap. Nothing is deleted — it only turns things on.' }),
+      ]),
+      el('div', { style: 'display:grid;gap:10px' }, PRESETS.map((preset) => {
+        const card = el('button', { className: 'preset' }, [
+          el('b', { textContent: preset.name }),
+          el('span', { textContent: preset.blurb }),
+        ]);
+        card.addEventListener('click', () => {
+          undoable(`Applied "${preset.name}" — review, then save.`, () => preset.apply(draft));
+        });
+        return card;
+      })),
+    ]),
+
     el('div', { className: 'card' }, [
       el('header', {}, [el('h2', { textContent: 'Footer' })]),
       textField({ label: 'Footer text', value: draft.brand.footerText ?? '', placeholder: 'Daydream HQ', onInput: (v) => edit((d) => (d.brand.footerText = v)) }),
@@ -1514,8 +1679,122 @@ function renderExtras(root) {
   );
 }
 
+
+function renderInsights(root) {
+  const i = state.insights ?? {};
+  const fans = i.superfans ?? [];
+  const MEDALS = ['🥇', '🥈', '🥉'];
+
+  root.replaceChildren(
+    healthCard(),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', { textContent: 'Drop radar' }),
+        el('p', { textContent: 'Messages per hour over four weeks, UTC. The bright squares are when your people are actually here.' }),
+      ]),
+      i.grid ? heatmap(i.grid) : el('div', { className: 'empty', textContent: 'Not enough data yet.' }),
+      el('div', { className: 'heat__legend' }, [
+        el('span', { textContent: 'quiet' }),
+        ...[0.15, 0.4, 0.65, 0.9, 1].map((v) => {
+          const swatch = el('i');
+          swatch.style.background = `rgba(167,139,250,${v})`;
+          return swatch;
+        }),
+        el('span', { textContent: 'busiest' }),
+      ]),
+      (i.bestSlots ?? []).length
+        ? el('div', { style: 'display:grid;gap:8px' }, i.bestSlots.map((slot, n) =>
+            el('div', { className: 'stat' }, [
+              el('span', { className: 'stat__label', textContent: `${n + 1}. ${slot.label}` }),
+              el('span', { className: 'stat__value', textContent: `${slot.value.toLocaleString()} messages` }),
+            ])))
+        : null,
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', { textContent: 'Uploads → joins' }),
+        el('p', { textContent: 'How many people joined in the window after each drop. A signal about which content pulls, not a proof of cause.' }),
+      ]),
+      (i.attribution ?? []).length
+        ? el('div', { style: 'display:grid;gap:12px' }, i.attribution.map((row) =>
+            el('div', { className: 'stat' }, [
+              el('span', { className: 'stat__label', textContent: row.title.slice(0, 58) }),
+              el('span', { className: 'stat__value', textContent: `${row.joins} join${row.joins === 1 ? '' : 's'}` }),
+            ])))
+        : el('div', { className: 'empty', textContent: 'No uploads recorded yet — this fills in after your next drop.' }),
+      el('div', { className: 'divider' }),
+      el('h3', { style: 'font-size:12.5px;color:var(--muted);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase', textContent: 'By invite link' }),
+      (i.invites ?? []).length
+        ? el('div', { style: 'display:grid;gap:8px' }, i.invites.map((inv) =>
+            el('div', { className: 'stat' }, [
+              el('span', { className: 'stat__label', textContent: `${inv.code}${inv.inviterTag ? ` · ${inv.inviterTag}` : ''}` }),
+              el('span', { className: 'stat__value', textContent: String(inv.joins) }),
+            ])))
+        : el('div', { className: 'hint', textContent: 'Turn on invite tracking in Extras → Server logs to see this.' }),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', { textContent: 'Most invested' }),
+        el('p', { textContent: 'Weighted toward what people chose to do — being early to a drop counts most, talking counts least.' }),
+      ]),
+      fans.length
+        ? el('div', { style: 'display:grid;gap:10px' }, fans.map((f, n) =>
+            el('div', { className: 'stat' }, [
+              el('span', { className: 'stat__label', textContent: `${MEDALS[n] ?? `${n + 1}.`} ${f.name}` }),
+              el('span', { className: 'stat__value', textContent: `${f.score} pts` }),
+            ])))
+        : el('div', { className: 'empty', textContent: 'No engagement recorded yet.' }),
+    ]),
+
+    activityFeed(),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Shoutout queue' }), el('p', { textContent: 'What members have asked you to read out.' })]),
+      (state.shoutouts ?? []).length
+        ? el('div', { style: 'display:grid;gap:10px' }, state.shoutouts.map((s2) => {
+            const done = el('button', { className: 'btn', textContent: 'Done' });
+            done.addEventListener('click', async () => {
+              if (!(await action('shoutout-done', done, { id: s2.id }))) return;
+              await reloadState(); renderActive();
+            });
+            return el('div', { className: 'poll-row' }, [
+              el('div', { className: 'poll-row__main' }, [
+                el('div', { className: 'poll-row__q', textContent: s2.text }),
+                el('div', { className: 'poll-row__meta', textContent: `from ${s2.userTag} · ${relative(s2.at)}` }),
+              ]),
+              done,
+            ]);
+          }))
+        : el('div', { className: 'empty', textContent: 'Queue is empty.' }),
+    ]),
+
+    ...((state.abtests ?? []).length
+      ? [el('div', { className: 'card' }, [
+          el('header', {}, [el('h2', { textContent: 'A/B tests running' })]),
+          ...state.abtests.map((t) => {
+            const close = el('button', { className: 'btn', textContent: 'Close & reveal' });
+            close.addEventListener('click', async () => {
+              if (!(await action('abtest-close', close, { id: t.id }))) return;
+              await reloadState(); renderActive();
+            });
+            return el('div', { className: 'poll-row' }, [
+              el('div', { className: 'poll-row__main' }, [
+                el('div', { className: 'poll-row__q', textContent: t.question }),
+                el('div', { className: 'poll-row__meta', textContent: `${t.labelA} ${t.votes.a.length} · ${t.labelB} ${t.votes.b.length}` }),
+              ]),
+              close,
+            ]);
+          }),
+        ])]
+      : [])
+  );
+}
+
 const PANELS = {
-  welcome: renderWelcome, roles: renderRoles, levels: renderLevels,
+  welcome: renderWelcome, roles: renderRoles, levels: renderLevels, insights: renderInsights,
   notifications: renderNotifications, polls: renderPolls, giveaways: renderGiveaways,
   moderation: renderModeration, extras: renderExtras, links: renderLinks, look: renderLook,
 };
@@ -1532,6 +1811,301 @@ const uptime = (ms) => {
   const hours = Math.floor(mins / 60);
   return hours < 48 ? `${hours}h ${mins % 60}m` : `${Math.floor(hours / 24)}d ${hours % 24}h`;
 };
+
+
+
+/* ── what actually changed ────────────────────────────────────────────────
+   Saving should never be a leap of faith, so the bar can list the exact
+   settings that differ from what the server holds.                        */
+function diffSettings(before, after, path = '') {
+  const rows = [];
+  const keys = new Set([...Object.keys(before ?? {}), ...Object.keys(after ?? {})]);
+  for (const key of keys) {
+    if (key.startsWith('//')) continue;
+    const a = before?.[key];
+    const b = after?.[key];
+    const here = path ? `${path}.${key}` : key;
+    if (a && b && typeof a === 'object' && typeof b === 'object' && !Array.isArray(a) && !Array.isArray(b)) {
+      rows.push(...diffSettings(a, b, here));
+    } else if (JSON.stringify(a) !== JSON.stringify(b)) {
+      rows.push({ key: here, from: summarise(a), to: summarise(b) });
+    }
+  }
+  return rows;
+}
+
+function summarise(value) {
+  if (value === undefined || value === null || value === '') return 'empty';
+  if (Array.isArray(value)) return `${value.length} item${value.length === 1 ? '' : 's'}`;
+  if (typeof value === 'object') return 'object';
+  if (typeof value === 'boolean') return value ? 'on' : 'off';
+  const text = String(value);
+  return text.length > 28 ? `${text.slice(0, 27)}…` : text;
+}
+
+function refreshDiff() {
+  const rows = diffSettings(state.settings, draft);
+  $('#saveNote').textContent = rows.length === 1 ? '1 change' : `${rows.length} changes`;
+  const list = $('#diffList');
+  list.replaceChildren(...rows.slice(0, 30).map((row) =>
+    el('div', { className: 'diff__row' }, [
+      el('span', { className: 'diff__key', textContent: row.key }),
+      el('span', { textContent: `${row.from} → ${row.to}` }),
+    ])));
+}
+
+/* ── undo ─────────────────────────────────────────────────────────────────
+   Every destructive edit stashes the previous draft, so "Removed — Undo"
+   is a real offer rather than a suggestion to redo it by hand.            */
+let undoStack = [];
+function checkpoint() { undoStack.push(JSON.stringify(draft)); undoStack = undoStack.slice(-20); }
+
+function undoable(message, mutate) {
+  checkpoint();
+  mutate();
+  refreshSaveBar();
+  renderActive();
+  toast(message, 'info', { label: 'Undo', run: () => {
+    const previous = undoStack.pop();
+    if (!previous) return;
+    draft = JSON.parse(previous);
+    renderActive();
+    toast('Put back.');
+  }});
+}
+
+/* ── command palette ──────────────────────────────────────────────────── */
+function paletteEntries() {
+  const entries = TAB_LIST.map((tab) => ({
+    label: tab.title, kind: 'tab',
+    run: () => { selectTab(tab.id); },
+  }));
+  entries.push(
+    { label: 'Check every feed now', kind: 'action', run: (btn) => action('notify-check', btn) },
+    { label: 'Send me a test welcome', kind: 'action', run: (btn) => action('welcome-test', btn) },
+    { label: 'Save changes', kind: 'action', run: () => save() },
+    { label: 'Discard changes', kind: 'action', run: () => { draft = clone(state.settings); renderActive(); toast('Changes discarded.'); } }
+  );
+  return entries;
+}
+
+function openPalette() {
+  if ($('#palette')) return;
+  const entries = paletteEntries();
+  let index = 0;
+
+  const input = el('input', { type: 'text', placeholder: 'Jump to a tab, or run something…', spellcheck: false });
+  const list = el('div', { className: 'palette__list' });
+  const box = el('div', { className: 'palette__box' }, [input, list]);
+  const overlay = el('div', { className: 'palette', id: 'palette' }, [box]);
+
+  const paint = () => {
+    const query = input.value.toLowerCase();
+    const matches = entries.filter((e) => e.label.toLowerCase().includes(query));
+    index = Math.min(index, Math.max(0, matches.length - 1));
+    list.replaceChildren(...matches.map((entry, i) => {
+      const item = el('button', { className: 'palette__item' }, [
+        el('span', { textContent: entry.label }),
+        el('span', { className: 'palette__kind', textContent: entry.kind }),
+      ]);
+      item.setAttribute('aria-selected', String(i === index));
+      item.addEventListener('click', () => { close(); entry.run(item); });
+      return item;
+    }));
+    return matches;
+  };
+
+  const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey, true); };
+  const onKey = (event) => {
+    const matches = entries.filter((e) => e.label.toLowerCase().includes(input.value.toLowerCase()));
+    if (event.key === 'Escape') { event.preventDefault(); close(); }
+    else if (event.key === 'ArrowDown') { event.preventDefault(); index = Math.min(index + 1, matches.length - 1); paint(); }
+    else if (event.key === 'ArrowUp') { event.preventDefault(); index = Math.max(index - 1, 0); paint(); }
+    else if (event.key === 'Enter') { event.preventDefault(); const chosen = matches[index]; close(); chosen?.run(); }
+  };
+
+  input.addEventListener('input', paint);
+  document.addEventListener('keydown', onKey, true);
+  overlay.addEventListener('click', (event) => { if (event.target === overlay) close(); });
+
+  document.body.append(overlay);
+  paint();
+  input.focus();
+}
+
+/* ── accent sync: the whole dashboard adopts the brand colour ─────────── */
+function applyAccent(hex) {
+  if (!/^#[0-9a-f]{6}$/i.test(hex ?? '')) return;
+  const root = document.documentElement;
+  root.style.setProperty('--lav', hex);
+  root.style.setProperty('--lav-soft', shift(hex, 22));
+  root.style.setProperty('--deep', shift(hex, -26));
+}
+
+/** Lighten or darken a hex colour by a percentage, staying in range. */
+function shift(hex, percent) {
+  const n = parseInt(hex.slice(1), 16);
+  const parts = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) =>
+    Math.max(0, Math.min(255, Math.round(c + (percent / 100) * (percent > 0 ? 255 - c : c))))
+  );
+  return `#${parts.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
+}
+
+/* ── preset packs ─────────────────────────────────────────────────────── */
+const PRESETS = [
+  {
+    name: 'Creator starter',
+    blurb: 'Welcome pings, upload alerts, polls and a role panel. Nothing that moderates.',
+    apply: (d) => {
+      d.welcome.enabled = true; d.welcome.pingUser = true; d.welcome.sendDm = true;
+      d.notifications.enabled = true;
+      d.levels.enabled = true;
+      d.roleMenus.panels = d.roleMenus.panels?.length ? d.roleMenus.panels
+        : [{ id: 'notifs', title: 'Notification roles', description: 'Tap to hear about drops.', exclusive: false, roles: [] }];
+    },
+  },
+  {
+    name: 'Growing server',
+    blurb: 'Adds automod, the escalation ladder, logging and a starboard.',
+    apply: (d) => {
+      d.automod.enabled = true; d.automod.blockInvites = true; d.automod.blockRepeats = true;
+      d.automod.escalation = { timeoutAt: 3, timeoutMinutes: 60, kickAt: 6 };
+      d.logging.logDeletes = true; d.logging.logEdits = true; d.logging.logJoins = true; d.logging.logLeaves = true;
+      d.starboard.enabled = true; d.starboard.threshold = 3;
+    },
+  },
+  {
+    name: 'Full community',
+    blurb: 'Everything above plus the economy, birthdays, suggestions and the weekly recap.',
+    apply: (d) => {
+      PRESETS[0].apply(d); PRESETS[1].apply(d);
+      d.economy.enabled = true; d.birthdays.enabled = true; d.afk.enabled = true;
+      d.suggestions.enabled = true; d.stickyRoles.enabled = true;
+      d.recap.enabled = true; d.firstHour.enabled = true;
+    },
+  },
+];
+
+/* ── sparkline ────────────────────────────────────────────────────────────
+   Hand-rolled SVG rather than a chart library: one path, one fill, no
+   dependency, and it inherits the accent like everything else.            */
+function sparkline(series, { height = 42, accent = 'var(--lav)' } = {}) {
+  const values = series.map((p) => p.value);
+  const peak = Math.max(1, ...values);
+  const step = 100 / Math.max(1, series.length - 1);
+  const y = (v) => height - 3 - (v / peak) * (height - 8);
+
+  const points = values.map((v, i) => `${(i * step).toFixed(2)},${y(v).toFixed(2)}`);
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'spark');
+  svg.setAttribute('viewBox', `0 0 100 ${height}`);
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.innerHTML = `
+    <defs><linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${accent}" stop-opacity=".34"/>
+      <stop offset="100%" stop-color="${accent}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path class="area" d="M0,${height} L${points.join(' L')} L100,${height} Z"/>
+    <path class="line" d="M${points.join(' L')}"/>
+    <circle cx="100" cy="${y(values.at(-1)).toFixed(2)}" r="2.2"/>`;
+  return svg;
+}
+
+function sparkCard(title, series, unit) {
+  const total = series.reduce((sum, p) => sum + p.value, 0);
+  return el('div', { className: 'rail-card' }, [
+    el('h3', { textContent: title }),
+    el('div', { className: 'spark-head' }, [
+      el('b', { textContent: total.toLocaleString() }),
+      el('span', { textContent: unit }),
+    ]),
+    sparkline(series),
+  ]);
+}
+
+/* ── setup health ─────────────────────────────────────────────────────── */
+function healthCard() {
+  const health = state.health ?? { checks: [], passed: 0, total: 0 };
+  const fraction = health.total ? health.passed / health.total : 0;
+  const circumference = 2 * Math.PI * 22;
+  const failing = health.checks.filter((c) => !c.ok);
+
+  const ring = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  ring.setAttribute('viewBox', '0 0 54 54');
+  ring.innerHTML = `
+    <circle class="track" cx="27" cy="27" r="22"/>
+    <circle class="value" cx="27" cy="27" r="22"
+      stroke-dasharray="${(fraction * circumference).toFixed(1)} ${circumference.toFixed(1)}"/>`;
+
+  return el('div', { className: 'card' }, [
+    el('header', {}, [
+      el('h2', { textContent: 'Setup health' }),
+      el('p', { textContent: failing.length ? 'These silently break a feature until they are fixed.' : 'Everything the bot needs is in place.' }),
+    ]),
+    el('div', { className: 'ring' }, [
+      ring,
+      el('div', {}, [
+        el('div', { className: 'ring__count', textContent: `${health.passed} / ${health.total}` }),
+        el('div', { className: 'ring__label', textContent: failing.length ? `${failing.length} left to do` : 'all clear' }),
+      ]),
+    ]),
+    ...(failing.length ? failing : health.checks.slice(0, 3)).map((c) =>
+      el('div', { className: `check check--${c.ok ? 'ok' : 'no'}` }, [
+        el('span', { className: 'check__mark', textContent: c.ok ? '✓' : '!' }),
+        el('div', { className: 'check__body' }, [
+          el('div', { className: 'check__label', textContent: c.label }),
+          c.ok ? null : el('div', { className: 'check__fix', textContent: c.fix }),
+        ]),
+      ])
+    ),
+  ]);
+}
+
+/* ── live activity feed ───────────────────────────────────────────────── */
+function activityFeed() {
+  const insights = state.insights ?? {};
+  const rows = [
+    ...(insights.recentJoins ?? []).map((j) => ({ at: j.at, text: `${j.name ?? 'someone'} joined${j.inviteCode ? ` via ${j.inviteCode}` : ''}` })),
+    ...(insights.recentUploads ?? []).map((u) => ({ at: u.at, text: `posted "${u.title.slice(0, 46)}"` })),
+    ...(state.cases ?? []).map((c) => ({ at: c.at, text: `${c.action} · ${c.userTag}` })),
+    ...(state.polls ?? []).map((p) => ({ at: p.endsAt - 86_400_000, text: `poll "${p.question.slice(0, 40)}"` })),
+  ]
+    .filter((r) => r.at)
+    .sort((a, b) => b.at - a.at)
+    .slice(0, 12);
+
+  return el('div', { className: 'card' }, [
+    el('header', {}, [el('h2', { textContent: 'Activity' }), el('p', { textContent: 'Everything the bot has seen lately.' })]),
+    rows.length
+      ? el('div', { className: 'feed' }, rows.map((r) =>
+          el('div', { className: 'feed__row' }, [
+            el('span', { className: 'feed__dot' }),
+            el('span', { textContent: r.text }),
+            el('span', { className: 'feed__when', textContent: relative(r.at) }),
+          ])))
+      : el('div', { className: 'empty', textContent: 'Nothing yet — it fills up as the server is used.' }),
+  ]);
+}
+
+/* ── drop radar heatmap ───────────────────────────────────────────────── */
+function heatmap(grid) {
+  const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const peak = Math.max(1, ...grid.flat());
+  const rows = [];
+  grid.forEach((row, day) => {
+    rows.push(el('div', { className: 'heat__day', textContent: DAYS[day] }));
+    rows.push(el('div', { className: 'heat__row' }, row.map((value) => {
+      const intensity = value / peak;
+      const cell = el('div', { className: 'heat__cell', title: `${value} messages` });
+      if (value) {
+        cell.style.background = `rgba(167,139,250,${(0.12 + intensity * 0.88).toFixed(2)})`;
+        if (intensity > 0.7) cell.style.boxShadow = '0 0 8px rgba(167,139,250,.55)';
+      }
+      return cell;
+    })));
+  });
+  return el('div', { className: 'heat' }, rows);
+}
 
 /** The right-hand rail: live numbers, not settings. Rebuilt on every render. */
 function renderRail() {
@@ -1560,6 +2134,9 @@ function renderRail() {
         ? el('div', { className: 'hint', style: 'font-size:12.5px', textContent: `Next closes in ${relative(Math.min(...polls.map((p) => p.endsAt)))}` })
         : null,
     ]),
+
+    ...(state.insights?.messagesPerHour ? [sparkCard('Messages · 24h', state.insights.messagesPerHour, 'past day')] : []),
+    ...(state.insights?.joinsPerDay ? [sparkCard('Joins · 30d', state.insights.joinsPerDay, 'past month')] : []),
 
     el('div', { className: 'rail-card' }, [
       el('h3', { textContent: 'Quick actions' }),
@@ -1676,9 +2253,11 @@ async function boot() {
 
   const nav = $('#nav');
   let current = null;
+  navButtons = {};
   for (const tab of TABS) {
     if (tab.group) { nav.append(el('div', { className: 'nav__group', textContent: tab.group })); continue; }
     const button = el('button', { role: 'tab' }, [svg(ICONS[tab.id]), el('span', { textContent: tab.label })]);
+    navButtons[tab.id] = button;
     button.setAttribute('aria-selected', String(tab.id === activeTab));
     button.addEventListener('click', () => {
       for (const other of nav.querySelectorAll('button')) other.setAttribute('aria-selected', String(other === button));
@@ -1691,6 +2270,26 @@ async function boot() {
   addEventListener('resize', () => {
     const active = nav.querySelector('button[aria-selected="true"]');
     if (active) movePill(active);
+  });
+
+  applyAccent(draft.brand?.accent);
+
+  $('#showDiff').addEventListener('click', () => {
+    const list = $('#diffList');
+    list.hidden = !list.hidden;
+    $('#showDiff').textContent = list.hidden ? 'What changed?' : 'Hide changes';
+  });
+
+  // ⌘K / Ctrl+K anywhere, and ? for the shortcut list.
+  addEventListener('keydown', (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      openPalette();
+    }
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's' && dirty()) {
+      event.preventDefault();
+      save();
+    }
   });
 
   $('#save').addEventListener('click', save);

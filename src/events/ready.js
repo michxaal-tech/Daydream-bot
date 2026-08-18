@@ -9,6 +9,8 @@ import { restore as restoreReminders } from '../features/reminders/index.js';
 import { announceBirthdays, clearBirthdayRoles } from '../features/profiles/index.js';
 import { updateCounters } from '../features/autochannel/index.js';
 import { snapshotInvites } from '../features/logging/index.js';
+import { maybePostRecap } from '../features/analytics/recap.js';
+import { prune } from '../features/analytics/index.js';
 
 const log = logger('bot');
 
@@ -43,6 +45,8 @@ export default {
       await announceBirthdays(client).catch((e) => log.warn('birthdays:', e.message));
       await clearBirthdayRoles(client).catch(() => {});
       await updateCounters(client).catch((e) => log.warn('counters:', e.message));
+      await maybePostRecap(client).catch((e) => log.warn('recap:', e.message));
+      prune();
     };
     tick();
     const slowTimer = setInterval(tick, 10 * 60_000);

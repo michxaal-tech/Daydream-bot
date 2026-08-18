@@ -10,7 +10,7 @@ import express from 'express';
 import { randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { PermissionsBitField } from 'discord.js';
+import { PermissionsBitField, GatewayIntentBits } from 'discord.js';
 import { assertCanPost } from '../lib/brand.js';
 import { config, env } from '../lib/config.js';
 import { updateSettings, getOverrides } from '../lib/settings.js';
@@ -23,6 +23,12 @@ import { leaderboard, resetMember } from '../features/levels/index.js';
 import { allCases } from '../features/moderation/cases.js';
 import { active as activeGiveaways, createGiveaway, endGiveaway, cancelGiveaway } from '../features/giveaways/index.js';
 import { findPanel, renderPanel } from '../features/roles/index.js';
+import {
+  messagesPerHour, joinsPerDay, activityGrid, bestSlots,
+  attribution, invitePerformance, superfans, recentJoins, recentUploads,
+} from '../features/analytics/index.js';
+import { pending as pendingShoutouts, markRead } from '../features/shoutouts/index.js';
+import { activeTests, closeTest } from '../features/abtest/index.js';
 import { SESSION_COOKIE, createSession, readSession, parseCookies, setCookie, clearCookie } from './session.js';
 
 const log = logger('web');
@@ -217,6 +223,21 @@ export function startDashboard(client) {
         level: row.level, xp: row.xp, messages: row.messages,
       })),
       cases: allCases().slice(0, 10),
+      insights: {
+        messagesPerHour: messagesPerHour(24),
+        joinsPerDay: joinsPerDay(30),
+        grid: activityGrid(),
+        bestSlots: bestSlots(undefined, 3),
+        attribution: attribution().slice(0, 6),
+        invites: invitePerformance().slice(0, 6),
+        superfans: superfans(Object.fromEntries(leaderboard(100).map((r) => [r.userId, { xp: r.xp }])), 8)
+          .map((row) => ({ ...row, name: guild.members.cache.get(row.userId)?.displayName ?? `user ${row.userId.slice(-4)}` })),
+        recentJoins: recentJoins(8).map((j) => ({ ...j, name: guild.members.cache.get(j.userId)?.displayName ?? null })),
+        recentUploads: recentUploads(5),
+      },
+      shoutouts: pendingShoutouts().slice(0, 10),
+      abtests: activeTests().slice(0, 5),
+      health: healthChecks(client, guild),
       status: {
         uptimeMs: client.uptime,
         ping: Math.round(client.ws.ping),
@@ -352,6 +373,25 @@ async function runAction(name, req, client) {
     return `Panel posted in #${channel.name}.`;
   }
 
+  if (name === 'shoutout-done') {
+    const entry = markRead(Number(req.body?.id));
+    return `Cleared "${entry.text.slice(0, 40)}".`;
+  }
+
+  if (name === 'abtest-close') {
+    const test = await closeTest(client, req.body?.id);
+    const { a, b } = { a: test.votes.a.length, b: test.votes.b.length };
+    return a === b ? `Closed — a tie at ${a} each.` : `Closed — ${a > b ? test.labelA : test.labelB} won ${Math.max(a, b)} to ${Math.min(a, b)}.`;
+  }
+
+  if (name === 'validate-feed') {
+    // Fetch the real feed so a wrong id fails here rather than silently later.
+    const account = { id: 'probe', platform: req.body?.platform, handle: req.body?.handle, channelId: req.body?.handle };
+    const posts = await getPlatform(account.platform).fetchLatest(account);
+    if (!posts.length) throw new Error('That feed answered, but it has no posts in it.');
+    return `✓ ${posts[0].author} — latest: "${posts[0].title.slice(0, 60)}"`;
+  }
+
   if (name === 'level-reset') {
     const userId = String(req.body?.userId ?? '');
     if (!/^\d{17,20}$/.test(userId)) throw new Error('That does not look like a user id.');
@@ -370,6 +410,38 @@ async function runAction(name, req, client) {
   }
 
   throw new Error(`Unknown action "${name}".`);
+}
+
+/**
+ * The setup health card. Each check is a thing that silently breaks a feature,
+ * phrased as what to do rather than what is wrong.
+ */
+function healthChecks(client, guild) {
+  const checks = [];
+  const add = (ok, label, fix) => checks.push({ ok: Boolean(ok), label, fix });
+  const isId = (v) => /^\d{17,20}$/.test(v ?? '');
+
+  add(client.options.intents.has?.(GatewayIntentBits.GuildMembers) ?? true,
+    'Server Members intent', 'Without it nobody gets welcomed. Developer Portal → Bot → Privileged Gateway Intents.');
+  add(env.messageContent,
+    'Message Content intent', "Automod's text rules and the counting game stay inactive without it. Needs enabling in the portal and ENABLE_MESSAGE_CONTENT=true.");
+  add(isId(config.welcome?.channelId), 'Welcome channel set', 'Pick one on the Welcome tab.');
+  add((config.notifications?.accounts ?? []).some((a) => a.enabled !== false && a.handle),
+    'At least one account watched', 'Add your YouTube channel id on the Notifications tab.');
+  add(isId(config.notifications?.defaultChannelId), 'Uploads channel set', 'Pick one on the Notifications tab.');
+  add(isId(config.moderation?.modLogChannelId) || !config.automod?.enabled,
+    'Mod-log channel set', 'Automod is on but nothing records what it does. Set one on the Moderation tab.');
+  add((config.roleMenus?.panels ?? []).length > 0,
+    'A role panel exists', "Otherwise members can't self-assign notification roles.");
+  add(env.dataDir !== 'data' || process.env.RAILWAY_ENVIRONMENT_NAME === undefined,
+    'Settings persist across deploys', 'DATA_DIR should point at a mounted volume, or every redeploy resets your config.');
+
+  const me = guild.members.me;
+  const highest = me?.roles?.highest?.position ?? 0;
+  const grantable = (config.welcome?.autoRoleIds ?? []).every((id) => (guild.roles.cache.get(id)?.position ?? 0) < highest);
+  add(grantable, 'My role outranks what I hand out', "Drag my role above the auto-role in Server Settings → Roles.");
+
+  return { checks, passed: checks.filter((c) => c.ok).length, total: checks.length };
 }
 
 /** Webhook URLs are credentials — never send them to the browser. */

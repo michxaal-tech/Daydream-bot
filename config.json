@@ -232,5 +232,31 @@
     "trackInvites": false
   },
   "channelRules": [],
-  "counterChannels": []
+  "counterChannels": [],
+  "analytics": {
+    "enabled": true,
+    "attributionWindowHours": 24
+  },
+  "firstHour": {
+    "enabled": false,
+    "roleId": "",
+    "windowMinutes": 60,
+    "announce": false,
+    "resetEachUpload": true
+  },
+  "liveTakeover": {
+    "enabled": false,
+    "renameChannelId": "",
+    "liveName": "\ud83d\udd34-live-now",
+    "bannerChannelId": ""
+  },
+  "recap": {
+    "enabled": false,
+    "channelId": "",
+    "weekday": 0
+  },
+  "shoutouts": {
+    "enabled": false,
+    "perPersonLimit": 1
+  }
 }

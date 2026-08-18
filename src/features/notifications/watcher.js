@@ -4,6 +4,9 @@ import { logger } from '../../lib/logger.js';
 import { hasSeen, markSeen, markSeenBulk, isSeeded, markSeeded } from '../../lib/store.js';
 import { getPlatform } from './platforms/index.js';
 import { renderAll } from './render.js';
+import { recordUpload } from '../analytics/index.js';
+import { sync as syncTakeover } from '../takeover/index.js';
+import { resetClub } from '../firsthour/index.js';
 
 const log = logger('notify');
 const webhooks = new Map();
@@ -18,6 +21,7 @@ export async function runCheck(client, { only = null, force = false } = {}) {
 
   const accounts = enabledAccounts().filter((a) => !only || a.id === only);
   const announced = [];
+  const livePostsFound = [];
 
   for (const account of accounts) {
     try {
@@ -35,10 +39,22 @@ export async function runCheck(client, { only = null, force = false } = {}) {
         continue;
       }
 
+      if (posts.some((p) => p.kind === 'live')) livePostsFound.push(...posts.filter((p) => p.kind === 'live'));
+
       for (const post of posts) {
         if (!force && hasSeen(account.id, post.id)) continue;
-        await announce(client, account, post);
+
+        // The club is per-drop, so clear it before the next one lands.
+        if (post.kind !== 'live') await resetClub(client.guilds.cache.first()).catch(() => {});
+
+        const message = await announce(client, account, post);
         markSeen(account.id, post.id);
+        recordUpload({
+          accountId: account.id, platform: account.platform,
+          title: post.title, url: post.url,
+          messageId: message?.id ?? null, channelId: message?.channelId ?? null,
+          at: Date.now(),
+        });
         announced.push({ account: account.id, post });
         if (force) break; // /notify test only ever posts one
       }
@@ -48,6 +64,7 @@ export async function runCheck(client, { only = null, force = false } = {}) {
   }
 
   if (announced.length) log.info(`announced ${announced.length} new post(s)`);
+  if (!only && !force) await syncTakeover(client, { livePostsFound }).catch((e) => log.warn('takeover:', e.message));
   return announced;
 }
 
