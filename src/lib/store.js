@@ -4,9 +4,13 @@
  * grows past a few thousand tracked posts.
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { resolve, dirname, isAbsolute } from 'node:path';
+import { env } from './config.js';
 
-const FILE = resolve(process.cwd(), 'data', 'store.json');
+const FILE = resolve(
+  isAbsolute(env.dataDir) ? env.dataDir : resolve(process.cwd(), env.dataDir),
+  'store.json'
+);
 let cache = null;
 let flushTimer = null;
 

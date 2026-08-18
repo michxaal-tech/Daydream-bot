@@ -108,14 +108,19 @@ bot. Note that webhook messages can't start threads or be crossposted — leave
 ## 7. Run it
 
 ```bash
-npm run deploy   # register slash commands — instant with DISCORD_GUILD_ID set
 npm start
 ```
+
+The bot registers its own slash commands on startup — instant with
+`DISCORD_GUILD_ID` set, ~1h to propagate without it. That's what makes
+terminal-free hosts work. Set `AUTO_DEPLOY_COMMANDS=false` and run
+`npm run deploy` yourself if you'd rather control when they change.
 
 You should see:
 
 ```
 • [bot] loaded 5 command(s): latest, notify, ping, socials, welcome
+• [deploy] registered 5 command(s) to guild 123… (instant)
 • [bot] logged in as Daydream#1234 — 1 guild(s)
 • [notify] watching 3 account(s) every 300s
 • [notify] seeded yt-main with 15 existing post(s) — no announcement
@@ -142,7 +147,7 @@ uploads as "already seen" instead of announcing all of them. Set
 | No welcome on join, but `/welcome test` works | Server Members Intent is off |
 | `Missing Permissions` on auto-role | Bot's role is below the role it's granting |
 | `channel is missing or not text-based` | Wrong ID, or the bot can't see that channel |
-| Slash commands don't show | Run `npm run deploy`; global registration takes ~1h, guild is instant |
+| Slash commands don't show | Set `DISCORD_GUILD_ID` (guild registration is instant, global takes ~1h), then restart |
 | Same upload posted twice | Two instances running, or `data/store.json` isn't persisted between restarts |
 | TikTok feed 404s | RSSHub instance is down or rate-limiting — self-host it |
 | Ping doesn't actually notify | The mention must be in message `content`, not only in the embed |

@@ -15,6 +15,7 @@ Live alerts step up to a deeper violet (`#7C5CFF`).
 - 📋 [Feature menu / roadmap](docs/FEATURES.md) — ~120 features, ordered by what to build next
 - 🎨 [Message mockups](docs/MOCKUPS.md) — what every reply and webhook looks like
 - 🛠️ [Setup guide](docs/SETUP.md) — from zero to a bot in your server
+- 📱 [Setup from an iPad](docs/SETUP-IPAD.md) — browser-only, no terminal anywhere
 
 ---
 
@@ -28,8 +29,7 @@ npm install
 cp .env.example .env       # paste your bot token + client id
 $EDITOR config.json        # channel ids, role ids, your handles
 
-npm run deploy             # register slash commands (instant, guild-scoped)
-npm start
+npm start                  # registers its own slash commands on boot
 ```
 
 Then in Discord: `/welcome test` — it should ping you in `#welcome`.

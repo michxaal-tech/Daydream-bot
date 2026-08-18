@@ -22,6 +22,10 @@ export const env = {
   rsshubBase: (process.env.RSSHUB_BASE_URL || 'https://rsshub.app').replace(/\/$/, ''),
   twitchClientId: process.env.TWITCH_CLIENT_ID || '',
   twitchClientSecret: process.env.TWITCH_CLIENT_SECRET || '',
+  /** Register slash commands on boot, so hosts with no terminal still work. */
+  autoDeployCommands: (process.env.AUTO_DEPLOY_COMMANDS ?? 'true') !== 'false',
+  /** Where the "already announced" store lives — point this at a mounted volume. */
+  dataDir: process.env.DATA_DIR || 'data',
 };
 
 /** Fails fast with a readable message instead of a cryptic login error. */
