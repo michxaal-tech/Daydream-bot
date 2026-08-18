@@ -5,6 +5,7 @@ import { handleMessage as channelRules } from '../features/autochannel/index.js'
 import { handleCounting } from '../features/community/index.js';
 import { afkNotices } from '../features/profiles/index.js';
 import { recordMessage } from '../features/analytics/index.js';
+import { handleMessage as triggers } from '../features/triggers/index.js';
 
 export default {
   name: Events.MessageCreate,
@@ -23,6 +24,6 @@ export default {
       await message.reply({ content: lines.join('\n'), allowedMentions: { parse: [] } }).catch(() => {});
     }
 
-    await Promise.all([levels(message), handleCounting(message), channelRules(message)]);
+    await Promise.all([levels(message), handleCounting(message), channelRules(message), triggers(message)]);
   },
 };

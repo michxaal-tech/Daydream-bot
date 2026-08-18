@@ -106,6 +106,32 @@ export function levelUpEmbed(member, level) {
     );
 }
 
+/* ── voice xp ────────────────────────────────────────────────────────────
+   Time in a voice channel earns XP too, on the same curve. Muted-and-alone
+   doesn't count, or people would idle in an empty room overnight for it.   */
+const voiceSince = new Map();
+
+export function voiceJoined(userId, at = Date.now()) {
+  voiceSince.set(userId, at);
+}
+
+/** Returns the XP awarded, or 0. */
+export function voiceLeft(userId, { at = Date.now(), channelSize = 2 } = {}) {
+  const cfg = config.levels ?? {};
+  const since = voiceSince.get(userId);
+  voiceSince.delete(userId);
+  if (!cfg.enabled || !cfg.voiceXp || !since) return 0;
+  if (channelSize < 2) return 0; // alone in a room is not participation
+
+  const minutes = Math.floor((at - since) / 60_000);
+  if (minutes < 1) return 0;
+  const gain = Math.min(minutes, cfg.voiceMaxMinutes ?? 120) * (cfg.voicePerMinute ?? 2);
+
+  const before = getMember(userId);
+  setMember(userId, { ...before, xp: before.xp + gain });
+  return gain;
+}
+
 export async function handleMessage(message) {
   const cfg = config.levels ?? {};
   if (!cfg.enabled) return;

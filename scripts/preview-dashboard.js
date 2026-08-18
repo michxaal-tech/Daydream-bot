@@ -29,6 +29,15 @@ settings.roleMenus.panels = [
       { roleId: '22', label: 'Live', emoji: '🔴', description: 'streams' },
     ] },
 ];
+settings.brand.cardStyle = 'aurora';
+settings.brand.cardIntensity = 'medium';
+settings.verification = { enabled: false, roleId: '23', challenge: true };
+settings.tickets = { enabled: false, staffRoleId: '20', logChannelId: '7', maxOpenPerMember: 1 };
+settings.dailyPrompt = { enabled: false, channelId: '7', hourUtc: 9, openThread: true, prompts: [] };
+settings.triggers = { enabled: false, cooldownSeconds: 30, list: [{ match: 'daydream', reply: 'someone say daydream?' }] };
+settings.keywordAlerts = { enabled: false, notifyUserId: '', words: ['daydream'] };
+settings.nicknames = { dehoist: false, fallback: 'member' };
+settings.boosts = { enabled: false, channelId: '7', roleId: '23' };
 settings.analytics = { enabled: true, attributionWindowHours: 24 };
 settings.firstHour = { enabled: true, roleId: '23', windowMinutes: 60, announce: false, resetEachUpload: true };
 settings.liveTakeover = { enabled: false, renameChannelId: '6', liveName: '🔴-live-now', bannerChannelId: '7' };
@@ -133,6 +142,10 @@ app.get('/api/state', (_req, res) =>
         { ok: true, label: 'My role outranks what I hand out', fix: '' },
       ],
     },
+    scheduled: [
+      { id: '1', channelId: '4', text: 'new video goes up in an hour 👀', repeat: 'once', at: Date.now() + 3_600_000 },
+      { id: '2', channelId: '7', text: 'weekly check-in — what are you working on?', repeat: 'weekly', at: Date.now() + 86_400_000 },
+    ],
     pollLimits: { question: 300, answer: 55, answers: 10, minHours: 1, maxHours: 768 },
     status: { uptimeMs: 7_200_000, ping: 42, watching: 3 },
   })
@@ -160,6 +173,7 @@ app.post('/api/action/:name', (req, res) => {
     ];
     return res.json({ ok: true, message: 'Poll posted (preview).' });
   }
+  if (['verify-panel','ticket-panel','schedule-add','schedule-remove'].includes(name)) return res.json({ ok: true, message: 'Done (preview).' });
   if (name === 'recap-preview') return res.json({ ok: true, message: 'Sent you the recap as a DM (preview).' });
   if (name === 'validate-feed') {
     return res.json({ ok: true, message: '✓ Daydream — latest: "i tried every viral food hack for 7 days"' });

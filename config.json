@@ -8,7 +8,9 @@
     "usePlatformColors": false,
     "footerText": "Daydream HQ",
     "footerIcon": "",
-    "thumbnail": ""
+    "thumbnail": "",
+    "cardStyle": "aurora",
+    "cardIntensity": "medium"
   },
   "welcome": {
     "enabled": true,
@@ -145,7 +147,10 @@
     "announceChannelId": "",
     "announceTemplate": "{user} just hit **level {level}** \ud83d\udc9c",
     "ignoredChannelIds": [],
-    "rewards": {}
+    "rewards": {},
+    "voiceXp": false,
+    "voicePerMinute": 2,
+    "voiceMaxMinutes": 120
   },
   "automod": {
     "enabled": false,
@@ -258,5 +263,49 @@
   "shoutouts": {
     "enabled": false,
     "perPersonLimit": 1
+  },
+  "verification": {
+    "enabled": false,
+    "roleId": "",
+    "challenge": true,
+    "title": "Verify to get in",
+    "description": "Press the button below and the rest of the server opens up.",
+    "buttonLabel": "Verify me",
+    "successMessage": "You're in. Welcome."
+  },
+  "tickets": {
+    "enabled": false,
+    "staffRoleId": "",
+    "logChannelId": "",
+    "maxOpenPerMember": 1,
+    "title": "Need a hand?",
+    "description": "Open a private thread with the staff. Only you and they can see it."
+  },
+  "dailyPrompt": {
+    "enabled": false,
+    "channelId": "",
+    "hourUtc": 9,
+    "openThread": true,
+    "prompts": []
+  },
+  "triggers": {
+    "enabled": false,
+    "cooldownSeconds": 30,
+    "list": []
+  },
+  "keywordAlerts": {
+    "enabled": false,
+    "notifyUserId": "",
+    "words": []
+  },
+  "nicknames": {
+    "dehoist": false,
+    "fallback": "member"
+  },
+  "boosts": {
+    "enabled": false,
+    "channelId": "",
+    "roleId": "",
+    "template": "{user} just boosted the server. That genuinely helps \u2014 thank you."
   }
 }

@@ -11,6 +11,7 @@ import { updateCounters } from '../features/autochannel/index.js';
 import { snapshotInvites } from '../features/logging/index.js';
 import { maybePostRecap } from '../features/analytics/recap.js';
 import { prune } from '../features/analytics/index.js';
+import { runDue, postDailyPrompt } from '../features/scheduler/index.js';
 
 const log = logger('bot');
 
@@ -46,12 +47,21 @@ export default {
       await clearBirthdayRoles(client).catch(() => {});
       await updateCounters(client).catch((e) => log.warn('counters:', e.message));
       await maybePostRecap(client).catch((e) => log.warn('recap:', e.message));
+      await runDue(client).catch((e) => log.warn('scheduler:', e.message));
+      await postDailyPrompt(client).catch((e) => log.warn('daily prompt:', e.message));
       prune();
     };
     tick();
     const slowTimer = setInterval(tick, 10 * 60_000);
     slowTimer.unref?.();
-    client.stopSlowTick = () => clearInterval(slowTimer);
+
+    // Scheduled posts are time-sensitive in a way birthdays are not.
+    const fastTimer = setInterval(
+      () => runDue(client).catch((e) => log.warn('scheduler:', e.message)),
+      60_000
+    );
+    fastTimer.unref?.();
+    client.stopSlowTick = () => { clearInterval(slowTimer); clearInterval(fastTimer); };
     log.info(`tracking: ${enabledAccounts().map((a) => `${a.platform}:${a.handle}`).join(', ') || 'nothing yet'}`);
   },
 };

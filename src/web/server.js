@@ -29,6 +29,10 @@ import {
 } from '../features/analytics/index.js';
 import { pending as pendingShoutouts, markRead } from '../features/shoutouts/index.js';
 import { buildRecap } from '../features/analytics/recap.js';
+import { panel as verifyPanel } from '../features/verification/index.js';
+import { panel as ticketPanel } from '../features/tickets/index.js';
+import { create as scheduleCreate, all as scheduledAll, remove as scheduleRemove } from '../features/scheduler/index.js';
+import { parseWhen } from '../features/fun/index.js';
 import { activeTests, closeTest } from '../features/abtest/index.js';
 import { SESSION_COOKIE, createSession, readSession, parseCookies, setCookie, clearCookie } from './session.js';
 
@@ -239,6 +243,7 @@ export function startDashboard(client) {
       shoutouts: pendingShoutouts().slice(0, 10),
       abtests: activeTests().slice(0, 5),
       health: healthChecks(client, guild),
+      scheduled: scheduledAll().slice(0, 20),
       status: {
         uptimeMs: client.uptime,
         ping: Math.round(client.ws.ping),
@@ -372,6 +377,32 @@ async function runAction(name, req, client) {
     assertCanPost(channel, await guild.members.fetchMe());
     await channel.send(renderPanel(panel));
     return `Panel posted in #${channel.name}.`;
+  }
+
+  if (name === 'verify-panel' || name === 'ticket-panel') {
+    const channel = await client.channels.fetch(req.body?.channelId).catch(() => null);
+    if (!channel?.isTextBased()) throw new Error('Pick a channel to post it in.');
+    assertCanPost(channel, await guild.members.fetchMe());
+    await channel.send(name === 'verify-panel' ? verifyPanel() : ticketPanel());
+    return `Panel posted in #${channel.name}.`;
+  }
+
+  if (name === 'schedule-add') {
+    const when = parseWhen(req.body?.when);
+    if (!when) throw new Error('Could not read that time. Try "in 2 hours" or "2026-09-01 18:30".');
+    if (when.getTime() < Date.now() - 60_000) throw new Error('That time has already passed.');
+    const channel = await client.channels.fetch(req.body?.channelId).catch(() => null);
+    if (!channel?.isTextBased()) throw new Error('Pick a channel.');
+    scheduleCreate({
+      channelId: channel.id, text: String(req.body?.text ?? ''), at: when.getTime(),
+      repeat: req.body?.repeat ?? 'once', asEmbed: Boolean(req.body?.asEmbed), authorTag: req.session.tag,
+    });
+    return `Queued for #${channel.name}.`;
+  }
+
+  if (name === 'schedule-remove') {
+    scheduleRemove(String(req.body?.id ?? ''));
+    return 'Cancelled.';
   }
 
   if (name === 'recap-preview') {
