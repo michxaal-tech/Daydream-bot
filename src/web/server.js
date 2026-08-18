@@ -31,13 +31,29 @@ export function startDashboard(client) {
     log.info('dashboard disabled (set DASHBOARD_ENABLED=true to turn it on)');
     return () => {};
   }
-  if (!web.clientSecret) {
-    log.warn('dashboard needs DISCORD_CLIENT_SECRET (Developer Portal → OAuth2) — not starting');
-    return () => {};
-  }
-  if (!env.guildId) {
-    log.warn('dashboard needs DISCORD_GUILD_ID so it knows which server to authorise against — not starting');
-    return () => {};
+  // Missing config used to mean "don't listen", which on a host with a domain
+  // shows up as a bare 502 that explains nothing. Listen anyway and serve the
+  // reason instead.
+  const problems = [
+    !web.clientSecret && {
+      name: 'DISCORD_CLIENT_SECRET',
+      fix: 'Developer Portal → your app → OAuth2 → Client Secret. Copy it into your host\'s variables.',
+    },
+    !env.guildId && {
+      name: 'DISCORD_GUILD_ID',
+      fix: 'Your server id — long-press the server icon in Discord → Copy ID. The dashboard authorises against this server.',
+    },
+  ].filter(Boolean);
+
+  if (problems.length) {
+    for (const problem of problems) log.warn(`dashboard needs ${problem.name} — ${problem.fix}`);
+    const stub = express();
+    stub.disable('x-powered-by');
+    stub.get('*', (req, res) => res.status(503).send(setupHelpPage(problems)));
+    const stubServer = stub.listen(web.port, '0.0.0.0', () =>
+      log.warn(`dashboard is showing a setup page on port ${web.port} until those are set`)
+    );
+    return () => stubServer.close();
   }
 
   const app = express();
@@ -196,7 +212,7 @@ export function startDashboard(client) {
   app.use(express.static(PUBLIC_DIR, { index: 'index.html', maxAge: '1h' }));
   app.get('*', (req, res) => res.sendFile(resolve(PUBLIC_DIR, 'index.html')));
 
-  const server = app.listen(web.port, () => {
+  const server = app.listen(web.port, '0.0.0.0', () => {
     log.info(`dashboard on port ${web.port}${baseUrl() ? ` — ${baseUrl()}` : ''}`);
     if (baseUrl()) {
       // Discord rejects anything that isn't a byte-for-byte match, so print the
@@ -283,6 +299,27 @@ async function discordGet(path, token) {
   if (!res.ok) throw new Error(`GET ${path} failed: HTTP ${res.status}`);
   return res.json();
 }
+
+/** Shown instead of a blank 502 when the dashboard can't start. */
+const setupHelpPage = (problems) => `<!doctype html><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard needs setting up</title>
+<body style="font:16px/1.65 system-ui,-apple-system,sans-serif;background:#100E17;color:#EEEBF5;margin:0;padding:12vh 7vw;max-width:44rem">
+  <h1 style="color:#A78BFA;font-size:1.7rem;margin:0 0 .4em">Almost there</h1>
+  <p style="color:#B8B2C9;margin:0 0 1.6em">The bot is running — the dashboard just needs
+  ${problems.length === 1 ? 'one more variable' : `${problems.length} more variables`}
+  set on your host, then a redeploy.</p>
+  ${problems
+    .map(
+      (p) => `<div style="background:#17151F;border:1px solid #262234;border-left:3px solid #A78BFA;border-radius:12px;padding:16px 20px;margin-bottom:14px">
+        <code style="color:#C4B5FD;font-size:15px">${escapeHtml(p.name)}</code>
+        <div style="color:#B8B2C9;font-size:14.5px;margin-top:6px">${escapeHtml(p.fix)}</div>
+      </div>`
+    )
+    .join('')}
+  <p style="color:#7D7691;font-size:14px;margin-top:2em">Everything else works without this page —
+  the same settings are available in Discord with <code>/setup</code>.</p>
+</body>`;
 
 const escapeHtml = (text) =>
   String(text).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);

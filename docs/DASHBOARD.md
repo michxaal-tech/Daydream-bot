@@ -91,6 +91,8 @@ And once it's up:
 | "You need the Manage Server permission" | Correct — grant yourself that role, or use an account that has it |
 | Signed out after every deploy | `SESSION_SECRET` isn't set, so it's regenerated on each boot |
 | Settings revert after a deploy | No volume mounted at `DATA_DIR` |
+| Railway: "Application failed to respond" | The proxy can't reach the port. Don't set `PORT` yourself — Railway injects it; delete the variable if you added one. Then check the domain's **target port** matches the port in the log line `dashboard on port …` |
+| A page saying "Almost there" | The dashboard is up but missing a variable — the page names which one |
 
 ## Working on the UI
 
