@@ -29,6 +29,7 @@ settings.roleMenus.panels = [
       { roleId: '22', label: 'Live', emoji: '🔴', description: 'streams' },
     ] },
 ];
+settings.punishments = { jailRoleId: '23', jailChannelId: '7', mutedRoleId: '20', imageMutedRoleId: '', reactionMutedRoleId: '', staffRoleIds: ['20'], invoke: { jail: { message: '{user} was jailed by {moderator}', dm: '' } } };
 settings.brand.cardStyle = 'aurora';
 settings.brand.cardIntensity = 'medium';
 settings.verification = { enabled: false, roleId: '23', challenge: true };
@@ -142,6 +143,15 @@ app.get('/api/state', (_req, res) =>
         { ok: true, label: 'My role outranks what I hand out', fix: '' },
       ],
     },
+    punishments: {
+      hardBans: [{ userId: '900000000000000123', reason: 'raid account', by: 'mike', at: Date.now() - 86_400_000 }],
+      tempBans: [{ userId: '900000000000000456', reason: 'spam', until: Date.now() + 7_200_000 }],
+      muteKinds: [
+        { id: 'text', key: 'mutedRoleId', label: 'text mute', name: 'Muted' },
+        { id: 'image', key: 'imageMutedRoleId', label: 'image mute', name: 'Image Muted' },
+        { id: 'reaction', key: 'reactionMutedRoleId', label: 'reaction mute', name: 'Reaction Muted' },
+      ],
+    },
     scheduled: [
       { id: '1', channelId: '4', text: 'new video goes up in an hour 👀', repeat: 'once', at: Date.now() + 3_600_000 },
       { id: '2', channelId: '7', text: 'weekly check-in — what are you working on?', repeat: 'weekly', at: Date.now() + 86_400_000 },
@@ -173,6 +183,7 @@ app.post('/api/action/:name', (req, res) => {
     ];
     return res.json({ ok: true, message: 'Poll posted (preview).' });
   }
+  if (['modsetup-jail','modsetup-mutes','unhardban','lift-tempban'].includes(name)) return res.json({ ok: true, message: 'Done (preview).' });
   if (['verify-panel','ticket-panel','schedule-add','schedule-remove'].includes(name)) return res.json({ ok: true, message: 'Done (preview).' });
   if (name === 'recap-preview') return res.json({ ok: true, message: 'Sent you the recap as a DM (preview).' });
   if (name === 'validate-feed') {

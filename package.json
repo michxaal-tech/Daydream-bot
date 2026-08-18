@@ -12,7 +12,7 @@
     "dev": "node --watch src/index.js",
     "deploy": "node src/deploy-commands.js",
     "mockups": "node scripts/generate-mockups.js",
-    "test": "node scripts/syntax-check.js && node test/parsers.test.js && node test/settings.test.js && node test/features.test.js && node test/extras.test.js && node test/insights.test.js && node test/punishments.test.js",
+    "test": "node scripts/syntax-check.js && node test/parsers.test.js && node test/settings.test.js && node test/features.test.js && node test/extras.test.js && node test/insights.test.js && node test/punishments.test.js && node test/dashboard-coverage.test.js",
     "preview": "node scripts/preview-dashboard.js"
   },
   "dependencies": {

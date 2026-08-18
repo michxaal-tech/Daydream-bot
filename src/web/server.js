@@ -33,6 +33,9 @@ import { panel as verifyPanel } from '../features/verification/index.js';
 import { panel as ticketPanel } from '../features/tickets/index.js';
 import { create as scheduleCreate, all as scheduledAll, remove as scheduleRemove } from '../features/scheduler/index.js';
 import { parseWhen } from '../features/fun/index.js';
+import {
+  setupJail, setupMutes, hardBans, tempbans, unhardban, liftTempban, MUTE_KINDS,
+} from '../features/moderation/punishments.js';
 import { activeTests, closeTest } from '../features/abtest/index.js';
 import { SESSION_COOKIE, createSession, readSession, parseCookies, setCookie, clearCookie } from './session.js';
 
@@ -244,6 +247,11 @@ export function startDashboard(client) {
       abtests: activeTests().slice(0, 5),
       health: healthChecks(client, guild),
       scheduled: scheduledAll().slice(0, 20),
+      punishments: {
+        hardBans: hardBans().slice(0, 20),
+        tempBans: tempbans().slice(0, 20),
+        muteKinds: Object.entries(MUTE_KINDS).map(([id, spec]) => ({ id, key: spec.key, label: spec.label, name: spec.name })),
+      },
       status: {
         uptimeMs: client.uptime,
         ping: Math.round(client.ws.ping),
@@ -377,6 +385,28 @@ async function runAction(name, req, client) {
     assertCanPost(channel, await guild.members.fetchMe());
     await channel.send(renderPanel(panel));
     return `Panel posted in #${channel.name}.`;
+  }
+
+  if (name === 'modsetup-jail') {
+    const result = await setupJail(guild, { who: `${req.session.tag} via dashboard` });
+    return `${result.created.length ? `Created ${result.created.join(' and ')}. ` : 'Reused what existed. '}Locked the role out of ${result.touched} channel(s).`;
+  }
+
+  if (name === 'modsetup-mutes') {
+    const result = await setupMutes(guild, { who: `${req.session.tag} via dashboard` });
+    return `${result.created.length ? `Created ${result.created.join(', ')}. ` : 'Reused what existed. '}Applied ${result.touched} channel overwrite(s).`;
+  }
+
+  if (name === 'unhardban') {
+    const userId = String(req.body?.userId ?? '');
+    unhardban(userId);
+    await guild.members.unban(userId, `lifted by ${req.session.tag} via dashboard`).catch(() => {});
+    return 'Hard ban lifted.';
+  }
+
+  if (name === 'lift-tempban') {
+    await liftTempban(client, String(req.body?.userId ?? ''));
+    return 'Ban lifted early.';
   }
 
   if (name === 'verify-panel' || name === 'ticket-panel') {

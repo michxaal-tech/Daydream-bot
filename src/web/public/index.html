@@ -1102,9 +1102,68 @@ function renderWelcome(root) {
         toggleField({ label: 'Send a welcome DM', hint: 'Skipped silently if their DMs are closed', checked: Boolean(w.sendDm), onChange: (v) => edit((d) => (d.welcome.sendDm = v)) }),
         toggleField({ label: 'Post when somebody leaves', hint: 'Plain text, no ping', checked: Boolean(w.goodbye?.enabled), onChange: (v) => edit((d) => ((d.welcome.goodbye ??= {}).enabled = v)) }),
       ]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Use the embed', hint: 'Off sends the greeting as plain text', checked: w.useEmbed !== false, live: repaint,
+          onChange: (v) => edit((d) => (d.welcome.useEmbed = v)) }),
+        toggleField({ label: 'Show their member number', checked: w.showMemberCount !== false, live: repaint,
+          onChange: (v) => edit((d) => (d.welcome.showMemberCount = v)) }),
+        toggleField({ label: 'Show how old their account is', hint: 'A quick tell for throwaway accounts', checked: w.showAccountAge !== false, live: repaint,
+          onChange: (v) => edit((d) => (d.welcome.showAccountAge = v)) }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        selectField({
+          label: 'Where the ping goes', value: w.pingStyle ?? 'both', blank: null, live: repaint,
+          options: [{ id: 'inline', name: 'Above the embed only' }, { id: 'both', name: 'Above and inside it' }, { id: 'embed', name: 'Inside the embed only' }],
+          onChange: (v) => edit((d) => (d.welcome.pingStyle = v)),
+        }),
+        textField({ label: 'React with', hint: 'Emoji separated by spaces — social proof on the post', value: (w.reactWith ?? []).join(' '), live: repaint,
+          onInput: (v) => edit((d) => (d.welcome.reactWith = v.split(/\s+/).filter(Boolean))) }),
+        textField({ label: 'Delete it after (seconds)', hint: '0 keeps it forever', value: String(w.deleteAfterSeconds ?? 0),
+          onInput: (v) => edit((d) => (d.welcome.deleteAfterSeconds = Number(v) || 0)) }),
+      ]),
       el('div', { className: 'divider' }),
       selectField({ label: 'Auto-role on join', hint: 'My own role has to sit above this one in Server Settings → Roles', value: w.autoRoleIds?.[0] ?? '', options: roleOptions(), onChange: (v) => edit((d) => (d.welcome.autoRoleIds = v ? [v] : [])) }),
     ]),
+    (() => {
+      const buttons = (draft.welcome.buttons ??= { enabled: true, links: [] });
+      buttons.links ??= [];
+
+      const rows = buttons.links.map((link, i) =>
+        el('div', { className: 'grid2', style: 'align-items:end' }, [
+          textField({ label: 'Button text', value: link.label ?? '', placeholder: 'YouTube', live: repaint,
+            onInput: (v) => edit((d) => (d.welcome.buttons.links[i].label = v)) }),
+          textField({ label: 'Emoji', hint: 'Optional — a real emoji or <:name:id>', value: link.emoji ?? '', live: repaint,
+            onInput: (v) => edit((d) => (d.welcome.buttons.links[i].emoji = v)) }),
+          textField({ label: 'Link', type: 'url', value: link.url ?? '', placeholder: 'https://…', live: repaint,
+            onInput: (v) => edit((d) => (d.welcome.buttons.links[i].url = v)) }),
+          (() => {
+            const btn = el('button', { className: 'btn btn--danger', textContent: 'Remove' });
+            btn.addEventListener('click', () => undoable(`Removed the ${link.label || 'button'} button.`, () => draft.welcome.buttons.links.splice(i, 1)));
+            return el('div', { className: 'field' }, [el('label', { textContent: ' ' }), btn]);
+          })(),
+        ])
+      );
+
+      const add = el('button', { className: 'btn', textContent: 'Add a button' });
+      add.addEventListener('click', () => {
+        edit((d) => d.welcome.buttons.links.push({ label: '', emoji: '', url: '' }));
+        renderActive();
+      });
+
+      return el('div', { className: 'card' }, [
+        el('header', {}, [
+          el('h2', { textContent: 'Buttons under the welcome' }),
+          el('p', { textContent: 'Up to five links. They show on the public post and in the DM.' }),
+        ]),
+        el('div', { className: 'toggles' }, [
+          toggleField({ label: 'Show the buttons', checked: buttons.enabled !== false, live: repaint,
+            onChange: (v) => edit((d) => (d.welcome.buttons.enabled = v)) }),
+        ]),
+        ...(rows.length ? rows : [el('div', { className: 'empty', textContent: 'No buttons yet.' })]),
+        el('div', { className: 'row' }, [add]),
+      ]);
+    })(),
+
     el('div', { className: 'card' }, [
       el('header', {}, [
         el('h2', { textContent: 'Greeting lines' }),
@@ -1393,7 +1452,13 @@ function renderLook(root) {
 
     el('div', { className: 'card' }, [
       el('header', {}, [el('h2', { textContent: 'Footer' })]),
-      textField({ label: 'Footer text', value: draft.brand.footerText ?? '', placeholder: 'Daydream HQ', onInput: (v) => edit((d) => (d.brand.footerText = v)) }),
+      el('div', { className: 'grid2' }, [
+        textField({ label: 'Footer text', value: draft.brand.footerText ?? '', placeholder: 'Daydream HQ', onInput: (v) => edit((d) => (d.brand.footerText = v)) }),
+        textField({ label: 'Footer icon URL', type: 'url', value: draft.brand.footerIcon ?? '', onInput: (v) => edit((d) => (d.brand.footerIcon = v)) }),
+        textField({ label: 'Embed thumbnail URL', hint: 'Sits top-right on upload embeds', type: 'url', value: draft.brand.thumbnail ?? '', onInput: (v) => edit((d) => (d.brand.thumbnail = v)) }),
+        textField({ label: 'Soft accent', mono: true, hint: 'Closed polls and passive notices', value: draft.brand.accentSoft ?? '', onInput: (v) => edit((d) => (d.brand.accentSoft = v)) }),
+        textField({ label: 'Deep accent', mono: true, hint: 'Live alerts', value: draft.brand.accentDeep ?? '', onInput: (v) => edit((d) => (d.brand.accentDeep = v)) }),
+      ]),
       el('div', { className: 'toggles' }, [
         toggleField({
           label: 'Use each platform’s own colour',
@@ -1538,6 +1603,9 @@ function renderLevels(root) {
         textField({ label: 'Max XP per message', value: String(lv.maxPerMessage ?? 25), onInput: (v) => edit((d) => (d.levels.maxPerMessage = Number(v) || 0)) }),
         textField({ label: 'Cooldown (seconds)', value: String(lv.cooldownSeconds ?? 60), onInput: (v) => edit((d) => (d.levels.cooldownSeconds = Number(v) || 0)) }),
         selectField({ label: 'Announce in', hint: 'Blank posts wherever they levelled up', value: lv.announceChannelId, options: channelOptions(), blank: '— the channel they were in —', onChange: (v) => edit((d) => (d.levels.announceChannelId = v)) }),
+        textField({ label: 'XP per minute in voice', value: String(lv.voicePerMinute ?? 2), onInput: (v) => edit((d) => (d.levels.voicePerMinute = Number(v) || 0)) }),
+        textField({ label: 'Voice minutes that count per session', hint: 'Stops an overnight idle earning a level', value: String(lv.voiceMaxMinutes ?? 120), onInput: (v) => edit((d) => (d.levels.voiceMaxMinutes = Number(v) || 0)) }),
+        selectField({ label: 'Channel that earns no XP', value: (lv.ignoredChannelIds ?? [])[0] ?? '', options: channelOptions(), blank: '— none —', onChange: (v) => edit((d) => (d.levels.ignoredChannelIds = v ? [v] : [])) }),
       ]),
       (() => {
         const f = textField({ label: 'Level-up message', hint: '{user} {level} {name}', value: lv.announceTemplate ?? '', placeholder: '{user} just hit **level {level}** 💜', onInput: (v) => edit((d) => (d.levels.announceTemplate = v)) });
@@ -1652,6 +1720,7 @@ function renderModeration(root) {
         textField({ label: 'Shouting threshold (% caps)', value: String(am.maxCapsPercent ?? 70), onInput: (v) => edit((d) => (d.automod.maxCapsPercent = Number(v) || 0)) }),
         selectField({ label: 'Mod-log channel', value: draft.moderation.modLogChannelId, options: channelOptions(), onChange: (v) => edit((d) => (d.moderation.modLogChannelId = v)) }),
         selectField({ label: 'Exempt role', value: (am.exemptRoleIds ?? [])[0] ?? '', options: roleOptions(), blank: '— none —', onChange: (v) => edit((d) => (d.automod.exemptRoleIds = v ? [v] : [])) }),
+        selectField({ label: 'Channel automod ignores', value: (am.ignoredChannelIds ?? [])[0] ?? '', options: channelOptions(), blank: '— none —', onChange: (v) => edit((d) => (d.automod.ignoredChannelIds = v ? [v] : [])) }),
       ]),
       areaField({
         label: 'Blocked words', hint: 'One per line. Matched anywhere in the message, case-insensitively.',
@@ -1686,6 +1755,101 @@ function renderModeration(root) {
         textField({ label: 'Stars needed', value: String(draft.starboard.threshold ?? 3), onInput: (v) => edit((d) => (d.starboard.threshold = Number(v) || 1)) }),
       ]),
     ]),
+
+    (() => {
+      const pun = (draft.punishments ??= {});
+      pun.staffRoleIds ??= [];
+      pun.invoke ??= {};
+      const live = state.punishments ?? { hardBans: [], tempBans: [], muteKinds: [] };
+      const roleRef = (id) => (/^\d{17,20}$/.test(id ?? '') ? state.guild.roles.find((r) => r.id === id)?.name ?? 'set' : null);
+
+      const setupJail = el('button', { className: 'btn btn--primary', textContent: 'Create jail role & channel' });
+      setupJail.addEventListener('click', async () => {
+        if (!(await action('modsetup-jail', setupJail))) return;
+        await reloadState(); draft = clone(state.settings); renderActive();
+      });
+      const setupMutes = el('button', { className: 'btn btn--primary', textContent: 'Create the three mute roles' });
+      setupMutes.addEventListener('click', async () => {
+        if (!(await action('modsetup-mutes', setupMutes))) return;
+        await reloadState(); draft = clone(state.settings); renderActive();
+      });
+
+      const INVOKE_ACTIONS = ['jail', 'mute', 'tempban', 'softban', 'hardban', 'warn', 'kick', 'ban'];
+
+      return el('div', { className: 'card' }, [
+        el('header', {}, [
+          el('h2', { textContent: '⛓️ Punishments' }),
+          el('p', { textContent: 'Jail, the three mutes, and temp/soft/hard bans. The setup buttons create the roles and apply the channel overwrites for you.' }),
+        ]),
+        el('div', { className: 'row' }, [setupJail, setupMutes]),
+        el('div', { className: 'grid2' }, [
+          el('div', { className: 'field' }, [
+            el('label', { textContent: 'Jail' }),
+            el('div', { className: 'hint', textContent:
+              `${roleRef(pun.jailRoleId) ? `role ✓ (${roleRef(pun.jailRoleId)})` : 'role not created'} · ${chanName(pun.jailChannelId) ? `#${chanName(pun.jailChannelId)}` : 'no channel'}` }),
+          ]),
+          ...live.muteKinds.map((kind) =>
+            el('div', { className: 'field' }, [
+              el('label', { textContent: kind.name }),
+              el('div', { className: 'hint', textContent: roleRef(pun[kind.key]) ? 'ready ✓' : 'not created' }),
+            ])),
+        ]),
+        el('div', { className: 'divider' }),
+        selectField({
+          label: 'Bind a staff role', hint: 'These roles may use the punish commands, on top of Manage Server',
+          value: pun.staffRoleIds[0] ?? '', options: roleOptions(), blank: '— Manage Server only —',
+          onChange: (v) => edit((d) => (d.punishments.staffRoleIds = v ? [v] : [])),
+        }),
+        el('div', { className: 'divider' }),
+        el('h3', { style: 'font-size:12.5px;color:var(--muted);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase', textContent: 'What each punishment says' }),
+        el('span', { className: 'hint', textContent: 'Leave blank for the built-in wording. Tokens: {user} {moderator} {reason} {duration}' }),
+        ...INVOKE_ACTIONS.map((act) =>
+          el('div', { className: 'grid2' }, [
+            textField({ label: `${act} — channel reply`, value: pun.invoke[act]?.message ?? '',
+              placeholder: `{user} was ${act}ed by {moderator}`,
+              onInput: (v) => edit((d) => ((d.punishments.invoke[act] ??= {}).message = v)) }),
+            textField({ label: `${act} — DM to them`, value: pun.invoke[act]?.dm ?? '',
+              placeholder: `You were ${act}ed: {reason}`,
+              onInput: (v) => edit((d) => ((d.punishments.invoke[act] ??= {}).dm = v)) }),
+          ])),
+        el('div', { className: 'divider' }),
+        el('h3', { style: 'font-size:12.5px;color:var(--muted);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase', textContent: `Bans in force · ${live.hardBans.length + live.tempBans.length}` }),
+        ...(live.hardBans.length || live.tempBans.length
+          ? [
+              ...live.hardBans.map((ban) => {
+                const lift = el('button', { className: 'btn', textContent: 'Lift' });
+                lift.addEventListener('click', async () => {
+                  if (!(await action('unhardban', lift, { userId: ban.userId }))) return;
+                  await reloadState(); renderActive();
+                });
+                return el('div', { className: 'poll-row' }, [
+                  el('span', { className: 'pill', textContent: 'hard' }),
+                  el('div', { className: 'poll-row__main' }, [
+                    el('div', { className: 'poll-row__q', textContent: ban.reason || 'no reason recorded' }),
+                    el('div', { className: 'poll-row__meta', textContent: `user ${ban.userId}${ban.by ? ` · by ${ban.by}` : ''}` }),
+                  ]),
+                  lift,
+                ]);
+              }),
+              ...live.tempBans.map((ban) => {
+                const lift = el('button', { className: 'btn', textContent: 'Lift now' });
+                lift.addEventListener('click', async () => {
+                  if (!(await action('lift-tempban', lift, { userId: ban.userId }))) return;
+                  await reloadState(); renderActive();
+                });
+                return el('div', { className: 'poll-row' }, [
+                  el('span', { className: 'pill pill--live', textContent: 'temp' }),
+                  el('div', { className: 'poll-row__main' }, [
+                    el('div', { className: 'poll-row__q', textContent: ban.reason || 'no reason recorded' }),
+                    el('div', { className: 'poll-row__meta', textContent: `user ${ban.userId} · lifts ${relative(ban.until)}` }),
+                  ]),
+                  lift,
+                ]);
+              }),
+            ]
+          : [el('div', { className: 'empty', textContent: 'Nobody is banned right now.' })]),
+      ]);
+    })(),
 
     el('div', { className: 'card' }, [
       el('header', {}, [el('h2', { textContent: 'Recent cases' }), el('p', { textContent: 'The last ten actions, automod and manual alike.' })]),
@@ -1838,6 +2002,7 @@ function renderExtras(root) {
         selectField({ label: 'Counting channel', value: d.counting.channelId, options: channelOptions(), onChange: (v) => edit((x) => (x.counting.channelId = v)) }),
         textField({ label: 'Voice lobby channel id', hint: 'The voice channel people join to get their own room', value: d.tempVoice.lobbyChannelId ?? '', mono: true, onInput: (v) => edit((x) => (x.tempVoice.lobbyChannelId = v.trim())) }),
         textField({ label: 'Room name', hint: '{user} is their name', value: d.tempVoice.nameTemplate ?? "{user}'s room", onInput: (v) => edit((x) => (x.tempVoice.nameTemplate = v)) }),
+        textField({ label: 'People per room', hint: '0 means no limit', value: String(d.tempVoice.userLimit ?? 0), onInput: (v) => edit((x) => (x.tempVoice.userLimit = Number(v) || 0)) }),
       ]),
     ]),
 
@@ -2090,6 +2255,7 @@ function renderAccess(root) {
         textField({ label: 'Button label', value: d.verification.buttonLabel ?? 'Verify me', onInput: (v) => edit((x) => (x.verification.buttonLabel = v)) }),
         textField({ label: 'Panel heading', value: d.verification.title ?? '', onInput: (v) => edit((x) => (x.verification.title = v)) }),
         textField({ label: 'Panel text', value: d.verification.description ?? '', onInput: (v) => edit((x) => (x.verification.description = v)) }),
+        textField({ label: 'What they see on success', value: d.verification.successMessage ?? '', placeholder: "You're in. Welcome.", onInput: (v) => edit((x) => (x.verification.successMessage = v)) }),
       ]),
       post('verify-panel'),
       el('span', { className: 'hint', textContent: 'Set your channels so only the verified role can see them — the gate is the button, the permissions are yours.' }),
@@ -2267,6 +2433,8 @@ function renderTriggers(root) {
         toggleField({ label: 'Strip !!! from nicknames', hint: 'Punctuation used to sit at the top of the member list', checked: Boolean(d.nicknames.dehoist), onChange: (v) => edit((x) => (x.nicknames.dehoist = v)) }),
       ]),
       el('div', { className: 'grid2' }, [
+        textField({ label: 'Nickname to fall back on', hint: 'Used when stripping punctuation leaves nothing', value: d.nicknames.fallback ?? 'member', onInput: (v) => edit((x) => (x.nicknames.fallback = v)) }),
+        textField({ label: 'Boost thank-you', hint: '{user} {count}', value: d.boosts.template ?? '', onInput: (v) => edit((x) => (x.boosts.template = v)) }),
         selectField({ label: 'Thank them in', value: d.boosts.channelId, options: channelOptions(), onChange: (v) => edit((x) => (x.boosts.channelId = v)) }),
         selectField({ label: 'Booster role', value: d.boosts.roleId, options: roleOptions(), blank: '— none —', onChange: (v) => edit((x) => (x.boosts.roleId = v)) }),
       ]),
