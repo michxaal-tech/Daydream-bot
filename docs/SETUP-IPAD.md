@@ -34,6 +34,14 @@ dies instantly.
 
 Bot tab → **Privileged Gateway Intents** → **Server Members Intent** → on → Save.
 
+Can't find the section? It's halfway down the **Bot** page, in this order:
+Build-A-Bot → Token → **Authorization Flow** → **Privileged Gateway Intents** →
+Bot Permissions. If you can see the Authorization Flow toggles, it's the next
+section down; if you're looking at the Bot Permissions checkbox grid, you've
+scrolled past it. Two things that hide it on an iPad: the portal opens on
+**Installation** by default (tap **☰** → **Bot**), and the mobile layout crops
+the page (**ᴀA** → **Request Desktop Website**).
+
 Without it Discord never tells your bot that someone joined, and the welcome
 feature does nothing at all while looking perfectly healthy. If you only
 remember one thing from this page, remember this switch.
@@ -46,6 +54,12 @@ open it and pick your server:
 ```
 https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=310043069504&scope=bot%20applications.commands
 ```
+
+If Discord answers **"Integration requires code grant"**, go back to the **Bot**
+page → **Authorization Flow** → switch **Requires OAuth2 Code Grant** *off* →
+**Save Changes**, then reopen the link. That toggle is for apps that complete a
+full OAuth2 handshake with their own server; a plain bot invite has nowhere to
+send the code, so Discord refuses the install.
 
 Then, in the Discord app: **Server Settings → Roles** → drag the bot's role
 **above** `@Member` (or whatever role it will hand out). A bot can't grant a role
@@ -168,6 +182,7 @@ app caches them.
 | `/welcome test` works, real joins do nothing | Server Members Intent is off (step 2) |
 | Bot shows offline | Check Railway logs. `Missing required env vars` = a variable is misspelled; `Unexpected token` = broken JSON in `config.json` |
 | `Missing Permissions` in the logs | The bot's role sits below the role it's granting (step 3) |
+| "Integration requires code grant" on the invite | **Requires OAuth2 Code Grant** is on — Bot page → Authorization Flow → turn it off |
 | Same upload posted twice | No volume mounted, or `DATA_DIR` isn't `/app/data` |
 | Auto-role doesn't apply | Same role-order problem as above |
 

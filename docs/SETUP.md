@@ -9,6 +9,10 @@ Roughly 15 minutes end to end.
    Treat it like a password; anyone with it controls the bot.
 3. Same tab → **Privileged Gateway Intents** → turn on **Server Members
    Intent**. Without it `guildMemberAdd` never fires and no welcome is sent.
+   The section sits between **Authorization Flow** and **Bot Permissions**,
+   halfway down the Bot page.
+   While you're in **Authorization Flow**, leave **Requires OAuth2 Code Grant**
+   *off* — with it on, the invite fails with "Integration requires code grant".
 4. **General Information** → copy **Application ID** into `DISCORD_CLIENT_ID`.
 
 ## 2. Invite it
@@ -146,6 +150,7 @@ uploads as "already seen" instead of announcing all of them. Set
 |---|---|
 | No welcome on join, but `/welcome test` works | Server Members Intent is off |
 | `Missing Permissions` on auto-role | Bot's role is below the role it's granting |
+| "Integration requires code grant" | **Requires OAuth2 Code Grant** is on — Bot → Authorization Flow → off |
 | `channel is missing or not text-based` | Wrong ID, or the bot can't see that channel |
 | Slash commands don't show | Set `DISCORD_GUILD_ID` (guild registration is instant, global takes ~1h), then restart |
 | Same upload posted twice | Two instances running, or `data/store.json` isn't persisted between restarts |
