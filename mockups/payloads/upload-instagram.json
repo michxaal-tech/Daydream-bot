@@ -1,0 +1,41 @@
+{
+  "content": "📸 <@&1140000000000000001> new post from **@daydream**",
+  "embeds": [
+    {
+      "color": 10980346,
+      "footer": {
+        "text": "Daydream HQ"
+      },
+      "author": {
+        "name": "📸 @daydream · Instagram",
+        "url": "https://instagram.com/daydream"
+      },
+      "title": "photo dump from the shoot 💜",
+      "url": "https://instagram.com/p/C9xKqLmNoPq",
+      "timestamp": "2026-08-17T12:15:00.000Z",
+      "description": "photo dump from the shoot 💜 swipe for the outtakes",
+      "image": {
+        "url": "https://instagram.fixed.cdn/mockphoto.jpg"
+      }
+    }
+  ],
+  "components": [
+    {
+      "type": 1,
+      "components": [
+        {
+          "type": 2,
+          "style": 5,
+          "label": "Watch on Instagram",
+          "url": "https://instagram.com/p/C9xKqLmNoPq"
+        },
+        {
+          "type": 2,
+          "style": 5,
+          "label": "Profile",
+          "url": "https://instagram.com/daydream"
+        }
+      ]
+    }
+  ]
+}

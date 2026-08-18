@@ -1,0 +1,47 @@
+{
+  "content": "🔴 <@&1140000000000000001> **daydream** is LIVE",
+  "embeds": [
+    {
+      "color": 8150271,
+      "footer": {
+        "text": "Daydream HQ"
+      },
+      "author": {
+        "name": "🔴 daydream · Twitch",
+        "url": "https://twitch.tv/daydream"
+      },
+      "title": "editing the new vid with you all + chill",
+      "url": "https://twitch.tv/daydream",
+      "timestamp": "2026-08-18T19:00:00.000Z",
+      "description": "Playing **Just Chatting**",
+      "image": {
+        "url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_daydream-1280x720.jpg"
+      },
+      "fields": [
+        {
+          "name": "Watching",
+          "value": "1K",
+          "inline": true
+        },
+        {
+          "name": "Category",
+          "value": "Just Chatting",
+          "inline": true
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "type": 1,
+      "components": [
+        {
+          "type": 2,
+          "style": 5,
+          "label": "Watch the stream",
+          "url": "https://twitch.tv/daydream"
+        }
+      ]
+    }
+  ]
+}

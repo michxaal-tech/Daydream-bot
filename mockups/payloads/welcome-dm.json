@@ -1,0 +1,52 @@
+{
+  "embeds": [
+    {
+      "color": 10980346,
+      "footer": {
+        "text": "Daydream HQ"
+      },
+      "title": "Welcome to Daydream HQ 💜",
+      "description": "Hey **lunaaa** — thanks for joining.\nA few things worth doing first:\n• Pick up notification roles so you hear about uploads and streams\n• Drop an intro — the server is a lot more fun once people know you",
+      "thumbnail": {
+        "url": "https://cdn.discordapp.com/embed/avatars/1.png"
+      }
+    }
+  ],
+  "components": [
+    {
+      "type": 1,
+      "components": [
+        {
+          "type": 2,
+          "emoji": {
+            "name": "📺",
+            "animated": false
+          },
+          "style": 5,
+          "label": "YouTube",
+          "url": "https://youtube.com/@yourhandle"
+        },
+        {
+          "type": 2,
+          "emoji": {
+            "name": "🎵",
+            "animated": false
+          },
+          "style": 5,
+          "label": "TikTok",
+          "url": "https://tiktok.com/@yourhandle"
+        },
+        {
+          "type": 2,
+          "emoji": {
+            "name": "𝕏",
+            "animated": false
+          },
+          "style": 5,
+          "label": "X",
+          "url": "https://x.com/yourhandle"
+        }
+      ]
+    }
+  ]
+}

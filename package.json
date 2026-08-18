@@ -1,0 +1,23 @@
+{
+  "name": "daydream-bot",
+  "version": "0.1.0",
+  "description": "Discord bot for a social media influencer community: welcome flow + multi-platform upload notifications.",
+  "main": "src/index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "deploy": "node src/deploy-commands.js",
+    "mockups": "node scripts/generate-mockups.js",
+    "test": "node scripts/syntax-check.js && node test/parsers.test.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5",
+    "fast-xml-parser": "^4.5.0"
+  },
+  "license": "MIT"
+}

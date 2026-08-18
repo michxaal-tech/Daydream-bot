@@ -1,0 +1,75 @@
+{
+  "content": "look who showed up — welcome, <@284620194716532736>!",
+  "allowedMentions": {
+    "users": [
+      "284620194716532736"
+    ]
+  },
+  "embeds": [
+    {
+      "color": 10980346,
+      "footer": {
+        "text": "Daydream HQ"
+      },
+      "author": {
+        "name": "lunaaa joined",
+        "icon_url": "https://cdn.discordapp.com/embed/avatars/4.png"
+      },
+      "title": "Welcome to Daydream HQ 💜",
+      "thumbnail": {
+        "url": "https://cdn.discordapp.com/embed/avatars/4.png"
+      },
+      "timestamp": "2026-08-18T05:31:47.221Z",
+      "description": "Hey <@284620194716532736> — glad you made it.",
+      "fields": [
+        {
+          "name": "Member",
+          "value": "You're the **12,483rd** member",
+          "inline": true
+        },
+        {
+          "name": "Account created",
+          "value": "<t:1615713120:R>",
+          "inline": true
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "type": 1,
+      "components": [
+        {
+          "type": 2,
+          "emoji": {
+            "name": "📺",
+            "animated": false
+          },
+          "style": 5,
+          "label": "YouTube",
+          "url": "https://youtube.com/@yourhandle"
+        },
+        {
+          "type": 2,
+          "emoji": {
+            "name": "🎵",
+            "animated": false
+          },
+          "style": 5,
+          "label": "TikTok",
+          "url": "https://tiktok.com/@yourhandle"
+        },
+        {
+          "type": 2,
+          "emoji": {
+            "name": "𝕏",
+            "animated": false
+          },
+          "style": 5,
+          "label": "X",
+          "url": "https://x.com/yourhandle"
+        }
+      ]
+    }
+  ]
+}

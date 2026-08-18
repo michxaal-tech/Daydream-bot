@@ -1,0 +1,46 @@
+{
+  "content": "𝕏 <@&1140000000000000001> **Daydream (@daydream)** posted",
+  "embeds": [
+    {
+      "color": 10980346,
+      "footer": {
+        "text": "Daydream HQ"
+      },
+      "author": {
+        "name": "𝕏 Daydream (@daydream) · X",
+        "url": "https://x.com/daydream",
+        "icon_url": "https://cdn.discordapp.com/embed/avatars/4.png"
+      },
+      "title": "new video is live. it took 3 weeks and one minor breakdown 🫠",
+      "url": "https://x.com/daydream/status/1826619283746152448",
+      "timestamp": "2026-08-18T17:06:00.000Z",
+      "description": "new video is live. it took 3 weeks and one minor breakdown 🫠",
+      "fields": [
+        {
+          "name": "Likes",
+          "value": "2.3K",
+          "inline": true
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "type": 1,
+      "components": [
+        {
+          "type": 2,
+          "style": 5,
+          "label": "Watch on X",
+          "url": "https://x.com/daydream/status/1826619283746152448"
+        },
+        {
+          "type": 2,
+          "style": 5,
+          "label": "Profile",
+          "url": "https://x.com/daydream"
+        }
+      ]
+    }
+  ]
+}

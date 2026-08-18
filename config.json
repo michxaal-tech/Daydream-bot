@@ -1,0 +1,123 @@
+{
+  "brand": {
+    "name": "Daydream",
+    "//accent": "The vertical bar on the left of every embed / webhook post. Lavender.",
+    "accent": "#A78BFA",
+    "accentSoft": "#C4B5FD",
+    "accentDeep": "#7C5CFF",
+    "usePlatformColors": false,
+    "footerText": "Daydream HQ",
+    "footerIcon": "",
+    "thumbnail": ""
+  },
+
+  "welcome": {
+    "enabled": true,
+    "channelId": "WELCOME_CHANNEL_ID",
+    "rulesChannelId": "RULES_CHANNEL_ID",
+    "introsChannelId": "INTROS_CHANNEL_ID",
+    "rolesChannelId": "ROLES_CHANNEL_ID",
+    "//pingUser": "true = the message literally @-mentions the joining member.",
+    "pingUser": true,
+    "//pingStyle": "inline = ping sits in the message content above the embed; both = also inside the embed.",
+    "pingStyle": "both",
+    "useEmbed": true,
+    "showMemberCount": true,
+    "showAccountAge": true,
+    "sendDm": true,
+    "autoRoleIds": [],
+    "reactWith": ["💜", "👋"],
+    "deleteAfterSeconds": 0,
+    "greetings": [
+      "{user} just wandered into the daydream. 💜",
+      "look who showed up — welcome, {user}!",
+      "{user} is member **#{count}**. the vibes just went up.",
+      "new face alert: {user} 👋",
+      "{user} just joined the server. say hi, everyone."
+    ],
+    "buttons": {
+      "enabled": true,
+      "links": [
+        { "label": "YouTube", "emoji": "📺", "url": "https://youtube.com/@yourhandle" },
+        { "label": "TikTok", "emoji": "🎵", "url": "https://tiktok.com/@yourhandle" },
+        { "label": "X", "emoji": "𝕏", "url": "https://x.com/yourhandle" }
+      ]
+    },
+    "goodbye": {
+      "enabled": true,
+      "channelId": "",
+      "messages": ["**{tag}** drifted off. ({count} left)"]
+    }
+  },
+
+  "notifications": {
+    "enabled": true,
+    "defaultChannelId": "UPLOADS_CHANNEL_ID",
+    "//accounts": "One entry per platform account you want watched.",
+    "accounts": [
+      {
+        "id": "yt-main",
+        "platform": "youtube",
+        "handle": "@yourhandle",
+        "channelId": "UCxxxxxxxxxxxxxxxxxxxxxx",
+        "postToChannelId": "",
+        "webhookUrl": "",
+        "mentionRoleId": "",
+        "mentionEveryone": false,
+        "template": "🔔 {roleMention} new upload from **{author}** — go watch it 👇",
+        "enabled": true
+      },
+      {
+        "id": "tiktok-main",
+        "platform": "tiktok",
+        "handle": "yourhandle",
+        "postToChannelId": "",
+        "webhookUrl": "",
+        "mentionRoleId": "",
+        "template": "🎵 {roleMention} **{author}** just posted on TikTok",
+        "enabled": true
+      },
+      {
+        "id": "x-main",
+        "platform": "x",
+        "handle": "yourhandle",
+        "postToChannelId": "",
+        "webhookUrl": "",
+        "mentionRoleId": "",
+        "includeReplies": false,
+        "includeRetweets": false,
+        "template": "𝕏 {roleMention} **{author}** posted",
+        "enabled": true
+      },
+      {
+        "id": "twitch-main",
+        "platform": "twitch",
+        "handle": "yourhandle",
+        "postToChannelId": "",
+        "webhookUrl": "",
+        "mentionRoleId": "",
+        "template": "🔴 {roleMention} **{author}** is LIVE",
+        "enabled": false
+      },
+      {
+        "id": "ig-main",
+        "platform": "instagram",
+        "handle": "yourhandle",
+        "postToChannelId": "",
+        "webhookUrl": "",
+        "mentionRoleId": "",
+        "template": "📸 {roleMention} new post from **{author}**",
+        "enabled": false
+      }
+    ]
+  },
+
+  "socials": {
+    "youtube": "https://youtube.com/@yourhandle",
+    "tiktok": "https://tiktok.com/@yourhandle",
+    "x": "https://x.com/yourhandle",
+    "instagram": "https://instagram.com/yourhandle",
+    "twitch": "https://twitch.tv/yourhandle",
+    "business": "business@yourdomain.com"
+  }
+}
