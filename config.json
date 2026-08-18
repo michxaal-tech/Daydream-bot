@@ -179,5 +179,58 @@
   "roleMenus": {
     "//": "Panels of self-assign roles. Build them with /rolemenu or the dashboard.",
     "panels": []
-  }
+  },
+  "economy": {
+    "enabled": false,
+    "currency": "\ud83e\ude99",
+    "dailyAmount": 100,
+    "streakBonus": 25,
+    "maxStreakBonusDays": 7,
+    "//shop": "Each item sells a role. id must be unique.",
+    "shop": []
+  },
+  "birthdays": {
+    "enabled": false,
+    "channelId": "",
+    "roleId": "",
+    "template": "It's {users}' birthday today \u2014 say something nice."
+  },
+  "afk": {
+    "enabled": false
+  },
+  "stickyRoles": {
+    "enabled": false
+  },
+  "suggestions": {
+    "enabled": false,
+    "channelId": ""
+  },
+  "confessions": {
+    "enabled": false,
+    "channelId": "",
+    "logChannelId": ""
+  },
+  "counting": {
+    "enabled": false,
+    "channelId": "",
+    "noDoubles": true
+  },
+  "tempVoice": {
+    "enabled": false,
+    "lobbyChannelId": "",
+    "nameTemplate": "{user}'s room",
+    "userLimit": 0
+  },
+  "logging": {
+    "enabled": false,
+    "messageLogChannelId": "",
+    "memberLogChannelId": "",
+    "logDeletes": true,
+    "logEdits": true,
+    "logJoins": true,
+    "logLeaves": true,
+    "trackInvites": false
+  },
+  "channelRules": [],
+  "counterChannels": []
 }

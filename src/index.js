@@ -17,6 +17,8 @@ const intents = [
   GatewayIntentBits.GuildMembers,
   GatewayIntentBits.GuildMessages,
   GatewayIntentBits.GuildMessageReactions,
+  GatewayIntentBits.GuildVoiceStates,
+  GatewayIntentBits.GuildInvites,
 ];
 
 // Also privileged, and asking for one you haven't enabled makes login fail —
@@ -55,6 +57,7 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
     log.info(`${signal} — shutting down`);
     client.stopWatcher?.();
     client.stopDashboard?.();
+    client.stopSlowTick?.();
     client.destroy();
     process.exit(0);
   });

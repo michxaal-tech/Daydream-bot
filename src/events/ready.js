@@ -6,6 +6,9 @@ import { startWatcher, enabledAccounts } from '../features/notifications/watcher
 import { startDashboard } from '../web/server.js';
 import { restore as restoreGiveaways } from '../features/giveaways/index.js';
 import { restore as restoreReminders } from '../features/reminders/index.js';
+import { announceBirthdays, clearBirthdayRoles } from '../features/profiles/index.js';
+import { updateCounters } from '../features/autochannel/index.js';
+import { snapshotInvites } from '../features/logging/index.js';
 
 const log = logger('bot');
 
@@ -29,6 +32,22 @@ export default {
     client.stopDashboard = startDashboard(client);
     restoreGiveaways(client);
     restoreReminders(client);
+
+    for (const guild of client.guilds.cache.values()) {
+      await snapshotInvites(guild).catch(() => {});
+    }
+
+    // One slow tick drives everything that only needs checking now and then.
+    // Channel renames in particular are rate-limited to twice per 10 minutes.
+    const tick = async () => {
+      await announceBirthdays(client).catch((e) => log.warn('birthdays:', e.message));
+      await clearBirthdayRoles(client).catch(() => {});
+      await updateCounters(client).catch((e) => log.warn('counters:', e.message));
+    };
+    tick();
+    const slowTimer = setInterval(tick, 10 * 60_000);
+    slowTimer.unref?.();
+    client.stopSlowTick = () => clearInterval(slowTimer);
     log.info(`tracking: ${enabledAccounts().map((a) => `${a.platform}:${a.handle}`).join(', ') || 'nothing yet'}`);
   },
 };

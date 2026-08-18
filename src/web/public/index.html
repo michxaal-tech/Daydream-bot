@@ -613,6 +613,7 @@ const svg = (d) => {
 };
 
 const ICONS = {
+  extras: '<path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/>',
   roles: '<path d="M12 2 4 6v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V6l-8-4Z"/><path d="m9 12 2 2 4-4"/>',
   levels: '<path d="M4 20h16"/><path d="M7 20V9M12 20V4M17 20v-7"/>',
   giveaways: '<rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 13h18"/><path d="M12 8S9.5 3 7.5 4.5 9 8 12 8Zm0 0s2.5-5 4.5-3.5S15 8 12 8Z"/>',
@@ -635,6 +636,7 @@ const TABS = [
   { id: 'giveaways', label: 'Giveaways', title: 'Giveaways', blurb: 'One button to enter, a timer, and a fair draw at the end.' },
   { group: 'Safety' },
   { id: 'moderation', label: 'Moderation', title: 'Moderation', blurb: 'Automod rules, the escalation ladder, and the case log.' },
+  { id: 'extras', label: 'Extras', title: 'Extras', blurb: 'Optional features — all off until you switch them on.' },
   { group: 'Brand' },
   { id: 'links', label: 'Links', title: 'Links', blurb: 'The links behind /socials and the welcome buttons.' },
   { id: 'look', label: 'Appearance', title: 'Appearance', blurb: 'The accent bar down the left of every embed the bot sends.' },
@@ -1342,10 +1344,180 @@ function renderModeration(root) {
   );
 }
 
+
+/** One card per optional feature. Everything here ships off by default. */
+function renderExtras(root) {
+  const d = draft;
+  d.economy ??= {}; d.economy.shop ??= [];
+  d.birthdays ??= {}; d.afk ??= {}; d.stickyRoles ??= {};
+  d.suggestions ??= {}; d.confessions ??= {}; d.counting ??= {};
+  d.tempVoice ??= {}; d.logging ??= {}; d.counterChannels ??= []; d.channelRules ??= [];
+
+  const shopRows = d.economy.shop.map((item, i) =>
+    el('div', { className: 'grid2', style: 'align-items:end' }, [
+      textField({ label: 'Item name', value: item.name ?? '', placeholder: 'VIP colour',
+        onInput: (v) => edit((x) => { x.economy.shop[i].name = v; x.economy.shop[i].id ||= v.toLowerCase().replace(/[^a-z0-9]/g, '-'); }) }),
+      textField({ label: 'Price', value: String(item.price ?? 0), onInput: (v) => edit((x) => (x.economy.shop[i].price = Number(v) || 0)) }),
+      selectField({ label: 'Gives this role', value: item.roleId, options: roleOptions(),
+        onChange: (v) => edit((x) => (x.economy.shop[i].roleId = v)) }),
+      (() => {
+        const btn = el('button', { className: 'btn btn--danger', textContent: 'Remove' });
+        btn.addEventListener('click', () => { edit((x) => x.economy.shop.splice(i, 1)); renderActive(); });
+        return el('div', { className: 'field' }, [el('label', { textContent: ' ' }), btn]);
+      })(),
+    ])
+  );
+  const addItem = el('button', { className: 'btn', textContent: 'Add shop item' });
+  addItem.addEventListener('click', () => {
+    edit((x) => x.economy.shop.push({ id: `item-${x.economy.shop.length + 1}`, name: '', price: 100, roleId: '' }));
+    renderActive();
+  });
+
+  const counterRows = d.counterChannels.map((counter, i) =>
+    el('div', { className: 'grid2', style: 'align-items:end' }, [
+      selectField({ label: 'Voice channel to rename', value: counter.channelId, options: channelOptions(),
+        onChange: (v) => edit((x) => (x.counterChannels[i].channelId = v)) }),
+      selectField({
+        label: 'Shows', value: counter.type ?? 'members', blank: null,
+        options: [{ id: 'members', name: 'Member count' }, { id: 'online', name: 'Online now' }, { id: 'boosts', name: 'Boosts' }],
+        onChange: (v) => edit((x) => (x.counterChannels[i].type = v)),
+      }),
+      textField({ label: 'Name template', hint: '{value} is the number', value: counter.template ?? '{value} members',
+        onInput: (v) => edit((x) => (x.counterChannels[i].template = v)) }),
+      (() => {
+        const btn = el('button', { className: 'btn btn--danger', textContent: 'Remove' });
+        btn.addEventListener('click', () => { edit((x) => x.counterChannels.splice(i, 1)); renderActive(); });
+        return el('div', { className: 'field' }, [el('label', { textContent: ' ' }), btn]);
+      })(),
+    ])
+  );
+  const addCounter = el('button', { className: 'btn', textContent: 'Add a counter' });
+  addCounter.addEventListener('click', () => {
+    edit((x) => x.counterChannels.push({ channelId: '', type: 'members', template: '{value} members' }));
+    renderActive();
+  });
+
+  const ruleRows = d.channelRules.map((rule, i) =>
+    el('div', { className: 'account' }, [
+      el('div', { className: 'account__head' }, [
+        el('span', { className: 'pill', textContent: chanName(rule.channelId) ? `#${chanName(rule.channelId)}` : 'unset' }),
+        el('span', { style: 'flex:1' }),
+        (() => {
+          const btn = el('button', { className: 'btn btn--danger', textContent: 'Remove' });
+          btn.addEventListener('click', () => { edit((x) => x.channelRules.splice(i, 1)); renderActive(); });
+          return btn;
+        })(),
+      ]),
+      el('div', { className: 'account__body' }, [
+        selectField({ label: 'Channel', value: rule.channelId, options: channelOptions(),
+          onChange: (v) => { edit((x) => (x.channelRules[i].channelId = v)); renderActive(); } }),
+        el('div', { className: 'toggles' }, [
+          toggleField({ label: 'Open a thread on every post', checked: Boolean(rule.autoThread), onChange: (v) => edit((x) => (x.channelRules[i].autoThread = v)) }),
+          toggleField({ label: 'Publish to followers', hint: 'Announcement channels only', checked: Boolean(rule.autoPublish), onChange: (v) => edit((x) => (x.channelRules[i].autoPublish = v)) }),
+          toggleField({ label: 'Slowmode autopilot', hint: 'Raises slowmode when the channel spikes, lifts it when it calms', checked: Boolean(rule.autoSlowmode), onChange: (v) => edit((x) => (x.channelRules[i].autoSlowmode = v)) }),
+        ]),
+        el('div', { className: 'grid2' }, [
+          textField({ label: 'Auto-react with', hint: 'Emoji separated by spaces', value: (rule.autoReact ?? []).join(' '),
+            onInput: (v) => edit((x) => (x.channelRules[i].autoReact = v.split(/\s+/).filter(Boolean))) }),
+          textField({ label: 'Sticky message', hint: 'Kept at the bottom of the channel', value: rule.sticky ?? '',
+            onInput: (v) => edit((x) => (x.channelRules[i].sticky = v)) }),
+        ]),
+      ]),
+    ])
+  );
+  const addRule = el('button', { className: 'btn', textContent: 'Add channel rules' });
+  addRule.addEventListener('click', () => { edit((x) => x.channelRules.push({ channelId: '', autoReact: [] })); renderActive(); });
+
+  root.replaceChildren(
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: '🪙 Currency & daily streaks' }), el('p', { textContent: 'A reason to show up every day. Coins buy roles from the shop.' })]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Run the economy', checked: Boolean(d.economy.enabled), onChange: (v) => edit((x) => (x.economy.enabled = v)) }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        textField({ label: 'Currency symbol', value: d.economy.currency ?? '🪙', onInput: (v) => edit((x) => (x.economy.currency = v)) }),
+        textField({ label: 'Daily amount', value: String(d.economy.dailyAmount ?? 100), onInput: (v) => edit((x) => (x.economy.dailyAmount = Number(v) || 0)) }),
+        textField({ label: 'Bonus per streak day', value: String(d.economy.streakBonus ?? 25), onInput: (v) => edit((x) => (x.economy.streakBonus = Number(v) || 0)) }),
+        textField({ label: 'Bonus stops climbing after', hint: 'days', value: String(d.economy.maxStreakBonusDays ?? 7), onInput: (v) => edit((x) => (x.economy.maxStreakBonusDays = Number(v) || 0)) }),
+      ]),
+      el('div', { className: 'divider' }),
+      ...(shopRows.length ? shopRows : [el('div', { className: 'empty', textContent: 'The shop is empty.' })]),
+      el('div', { className: 'row' }, [addItem]),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: '💡 Suggestions & confessions' })]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Take suggestions', hint: 'Posted with 👍 / 👎 buttons and a status', checked: Boolean(d.suggestions.enabled), onChange: (v) => edit((x) => (x.suggestions.enabled = v)) }),
+        toggleField({ label: 'Anonymous confessions', checked: Boolean(d.confessions.enabled), onChange: (v) => edit((x) => (x.confessions.enabled = v)) }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        selectField({ label: 'Suggestions channel', value: d.suggestions.channelId, options: channelOptions(), onChange: (v) => edit((x) => (x.suggestions.channelId = v)) }),
+        selectField({ label: 'Confessions channel', value: d.confessions.channelId, options: channelOptions(), onChange: (v) => edit((x) => (x.confessions.channelId = v)) }),
+        selectField({ label: 'Confession author log', hint: 'Staff-only. Anonymous in public, accountable in private.', value: d.confessions.logChannelId, options: channelOptions(), onChange: (v) => edit((x) => (x.confessions.logChannelId = v)) }),
+      ]),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: '🎂 Birthdays, AFK & sticky roles' })]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Birthday shoutouts', hint: 'Members save a day and month — never a year', checked: Boolean(d.birthdays.enabled), onChange: (v) => edit((x) => (x.birthdays.enabled = v)) }),
+        toggleField({ label: 'AFK notices', hint: 'Tells people when someone they pinged is away', checked: Boolean(d.afk.enabled), onChange: (v) => edit((x) => (x.afk.enabled = v)) }),
+        toggleField({ label: 'Sticky roles', hint: 'Give roles back if somebody leaves and rejoins', checked: Boolean(d.stickyRoles.enabled), onChange: (v) => edit((x) => (x.stickyRoles.enabled = v)) }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        selectField({ label: 'Birthday channel', value: d.birthdays.channelId, options: channelOptions(), onChange: (v) => edit((x) => (x.birthdays.channelId = v)) }),
+        selectField({ label: 'Birthday role for the day', value: d.birthdays.roleId, options: roleOptions(), blank: '— none —', onChange: (v) => edit((x) => (x.birthdays.roleId = v)) }),
+      ]),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: '🔢 Counting & temporary voice' })]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Counting game', hint: 'Needs the Message Content intent to read the numbers', checked: Boolean(d.counting.enabled), onChange: (v) => edit((x) => (x.counting.enabled = v)) }),
+        toggleField({ label: "Stop the same person counting twice", checked: d.counting.noDoubles !== false, onChange: (v) => edit((x) => (x.counting.noDoubles = v)) }),
+        toggleField({ label: 'Join-to-create voice rooms', checked: Boolean(d.tempVoice.enabled), onChange: (v) => edit((x) => (x.tempVoice.enabled = v)) }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        selectField({ label: 'Counting channel', value: d.counting.channelId, options: channelOptions(), onChange: (v) => edit((x) => (x.counting.channelId = v)) }),
+        textField({ label: 'Voice lobby channel id', hint: 'The voice channel people join to get their own room', value: d.tempVoice.lobbyChannelId ?? '', mono: true, onInput: (v) => edit((x) => (x.tempVoice.lobbyChannelId = v.trim())) }),
+        textField({ label: 'Room name', hint: '{user} is their name', value: d.tempVoice.nameTemplate ?? "{user}'s room", onInput: (v) => edit((x) => (x.tempVoice.nameTemplate = v)) }),
+      ]),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: '📋 Server logs' }), el('p', { textContent: 'Each event type is separate, so the log stays readable.' })]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Log deleted messages', checked: Boolean(d.logging.logDeletes), onChange: (v) => edit((x) => (x.logging.logDeletes = v)) }),
+        toggleField({ label: 'Log edited messages', checked: Boolean(d.logging.logEdits), onChange: (v) => edit((x) => (x.logging.logEdits = v)) }),
+        toggleField({ label: 'Log joins', checked: Boolean(d.logging.logJoins), onChange: (v) => edit((x) => (x.logging.logJoins = v)) }),
+        toggleField({ label: 'Log leaves', hint: 'Includes the roles they had', checked: Boolean(d.logging.logLeaves), onChange: (v) => edit((x) => (x.logging.logLeaves = v)) }),
+        toggleField({ label: 'Track which invite they used', checked: Boolean(d.logging.trackInvites), onChange: (v) => edit((x) => (x.logging.trackInvites = v)) }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        selectField({ label: 'Message log channel', value: d.logging.messageLogChannelId, options: channelOptions(), onChange: (v) => edit((x) => (x.logging.messageLogChannelId = v)) }),
+        selectField({ label: 'Member log channel', value: d.logging.memberLogChannelId, options: channelOptions(), onChange: (v) => edit((x) => (x.logging.memberLogChannelId = v)) }),
+      ]),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: '📊 Counter channels' }), el('p', { textContent: 'A voice channel whose name is a live number. Updated every ten minutes — Discord rate-limits renames hard.' })]),
+      ...(counterRows.length ? counterRows : [el('div', { className: 'empty', textContent: 'No counters.' })]),
+      el('div', { className: 'row' }, [addCounter]),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: '⚙️ Per-channel automation' }), el('p', { textContent: 'Threads, crossposting, auto-reactions, a sticky message, and slowmode autopilot — set per channel.' })]),
+      ...(ruleRows.length ? ruleRows : [el('div', { className: 'empty', textContent: 'No channel rules.' })]),
+      el('div', { className: 'row' }, [addRule]),
+    ])
+  );
+}
+
 const PANELS = {
   welcome: renderWelcome, roles: renderRoles, levels: renderLevels,
   notifications: renderNotifications, polls: renderPolls, giveaways: renderGiveaways,
-  moderation: renderModeration, links: renderLinks, look: renderLook,
+  moderation: renderModeration, extras: renderExtras, links: renderLinks, look: renderLook,
 };
 
 const stat = (label, value, cls = '') =>

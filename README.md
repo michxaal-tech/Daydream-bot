@@ -22,6 +22,14 @@ A Discord bot for a creator community. Everything below works end-to-end:
 11. **A dashboard** — sign in with Discord and run all of it from a browser,
     with live previews. Nothing needs editing by hand.
 
+Plus 25+ optional extras, every one off by default: a currency with daily
+streaks and a role shop, suggestions with voting, anonymous confessions,
+birthdays, AFK notices, sticky roles, the counting game, join-to-create voice
+rooms, live counter channels, per-channel auto-threading, crossposting,
+auto-reactions, sticky messages, slowmode autopilot, message and member logs,
+invite attribution, dice, 8ball, would-you-rather, compliments, user and server
+info, avatar lookup, timestamp building, and bulk message purging.
+
 Everything the bot sends uses one lavender accent bar (`#A78BFA`) on the left of
 the embed, so the server reads as one brand instead of a rainbow of vendor reds.
 Live alerts step up to a deeper violet (`#7C5CFF`).
@@ -75,6 +83,11 @@ Then in Discord: `/welcome test` — it should ping you in `#welcome`.
 | `/mod history` \| `/mod cases` | Moderate Members | A member's record, or the server's |
 | `/giveaway start\|end\|reroll` | Manage Server | Run a giveaway |
 | `/remindme set\|list\|cancel` | Everyone | Nudge yourself later |
+| `/coins daily\|balance\|pay\|shop\|buy\|top` | Everyone | Currency, streaks and the role shop |
+| `/community suggest\|confess\|birthday\|afk` | Everyone | Suggestions, confessions, birthdays, AFK |
+| `/fun 8ball\|flip\|roll\|choose\|wyr\|compliment` | Everyone | Small distractions |
+| `/info user\|server\|avatar\|timestamp` | Everyone | Lookups and timestamp building |
+| `/purge` | Manage Messages | Bulk-delete by count, author or text |
 | `/latest <platform>` | Everyone | Newest post from a platform, on demand |
 | `/socials` | Everyone | All links in one embed with buttons |
 | `/ping` | Everyone | Latency + uptime |
@@ -107,6 +120,12 @@ src/
     giveaways/index.js         entry, timers, the draw
     starboard/index.js         ⭐ threshold and the board post
     reminders/index.js         duration parsing and delivery
+    economy/index.js           currency, daily streaks, the shop
+    profiles/index.js          birthdays, AFK, sticky roles
+    community/index.js         suggestions, confessions, counting
+    autochannel/index.js       per-channel automation, temp voice, counters
+    logging/index.js           message + member logs, invite attribution
+    fun/index.js               dice, 8ball, timestamp parsing
     welcome/
       render.js                builds the payload (pure — easy to unit test)
       index.js                 join/leave handling, auto-role, DM

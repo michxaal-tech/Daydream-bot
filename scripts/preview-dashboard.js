@@ -29,6 +29,19 @@ settings.roleMenus.panels = [
       { roleId: '22', label: 'Live', emoji: '🔴', description: 'streams' },
     ] },
 ];
+settings.economy = { enabled: true, currency: '🪙', dailyAmount: 100, streakBonus: 25, maxStreakBonusDays: 7,
+  shop: [{ id: 'vip', name: 'VIP colour', price: 500, roleId: '23' }] };
+settings.birthdays = { enabled: true, channelId: '7', roleId: '23', template: "It's {users}' birthday today." };
+settings.afk = { enabled: true };
+settings.stickyRoles = { enabled: true };
+settings.suggestions = { enabled: true, channelId: '7' };
+settings.confessions = { enabled: false, channelId: '', logChannelId: '' };
+settings.counting = { enabled: true, channelId: '7', noDoubles: true };
+settings.tempVoice = { enabled: false, lobbyChannelId: '', nameTemplate: "{user}'s room" };
+settings.logging = { enabled: true, messageLogChannelId: '7', memberLogChannelId: '7',
+  logDeletes: true, logEdits: true, logJoins: true, logLeaves: true, trackInvites: true };
+settings.counterChannels = [{ channelId: '6', type: 'members', template: '{value} members' }];
+settings.channelRules = [{ channelId: '4', autoThread: true, autoPublish: true, autoSlowmode: false, autoReact: ['💜'], sticky: '' }];
 settings.notifications.accounts = settings.notifications.accounts.map((a, i) => ({
   ...a,
   mentionRoleId: i % 2 ? '' : '20',
