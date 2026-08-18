@@ -67,7 +67,7 @@ is written so you can hand it straight to a dev as a ticket.
 | ⚪ | **First-comment race** | Points for the first 10 people to react to an upload post |
 | ⚪ | **Watch-party scheduler** | Countdown + auto-VC creation for premieres |
 | ⚪ | **Giveaways** | Entry by reaction/button, weighted entries for boosters & subs, auto-draw & reroll |
-| 🟢 | **Polls** | `/poll create` — buttons, live bar chart, multi-select, anonymous, role-gated, timed close |
+| 🟢 | **Polls** | `/poll create` — Discord's native poll: radio buttons, Vote button, hidden results until close, multi-select, 1h–2w duration |
 | ⚪ | **Q&A / AMA queue** | Members submit questions, mods upvote, the creator gets a ranked list |
 | ⚪ | **Fan-art gallery** | Post in `#fan-art` → auto-thread, auto-crosspost the best to a showcase channel |
 | ⚪ | **Clip-of-the-week** | Members submit clips, react-vote, winner gets a role |

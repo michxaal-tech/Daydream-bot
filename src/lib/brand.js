@@ -59,11 +59,18 @@ const CUSTOM_EMOJI = /^<?a?:\w{2,32}:\d{17,20}>?$/;
  * that merely looks like the X logo. Anything unrecognised is dropped so the
  * button still renders, minus its icon.
  */
+/**
+ * The whole token has to be emoji — merely *containing* one isn't enough.
+ * A stray quote from a copy-pasted command turns `🎮` into `"🎮`, which looks
+ * fine to a human and is rejected outright by Discord.
+ */
+const EMOJI_ONLY = /^(?:\p{Extended_Pictographic}|\p{Emoji_Component}|\p{Regional_Indicator}|\u200D|\uFE0F)+$/u;
+
 export function safeEmoji(input) {
-  const raw = String(input ?? '').trim();
+  const raw = String(input ?? '').trim().replace(/^["'`]+|["'`]+$/g, '');
   if (!raw) return null;
   if (CUSTOM_EMOJI.test(raw)) return raw;
-  return /\p{Extended_Pictographic}/u.test(raw) ? raw : null;
+  return EMOJI_ONLY.test(raw) ? raw : null;
 }
 
 /** A link button, with the emoji applied only when Discord will accept it. */

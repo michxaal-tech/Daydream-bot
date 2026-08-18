@@ -12,7 +12,7 @@ import { COLORS } from '../src/lib/brand.js';
 import { buildWelcome } from '../src/features/welcome/render.js';
 import { renderAll } from '../src/features/notifications/render.js';
 import { platformIds, getPlatform } from '../src/features/notifications/platforms/index.js';
-import { parseOptions, renderPoll, pollButtons } from '../src/features/polls/index.js';
+import { parseOptions, buildPoll, LIMITS } from '../src/features/polls/index.js';
 import { missingPermissions, assertCanPost } from '../src/lib/brand.js';
 
 const checks = [];
@@ -118,47 +118,51 @@ check('a blocked channel names the exact permissions it is missing', () => {
   assert.equal(missingPermissions(invisible, {}).length, 3);
 });
 
-check('poll options parse, including leading emoji', () => {
-  const options = parseOptions('🍕 Pizza | Burgers | 🌮 Tacos');
-  assert.deepEqual(options, [
-    { emoji: '🍕', label: 'Pizza' },
-    { emoji: null, label: 'Burgers' },
-    { emoji: '🌮', label: 'Tacos' },
+check('poll options parse, surviving the quotes people paste in', () => {
+  // The exact input that broke in production: the whole list wrapped in quotes,
+  // fusing a `"` onto the first emoji. Discord rejects `"🎮` as an emoji.
+  assert.deepEqual(parseOptions('"🎮 gaming | 🍜 food | 🎤 q&a"'), [
+    { emoji: '🎮', text: 'gaming' },
+    { emoji: '🍜', text: 'food' },
+    { emoji: '🎤', text: 'q&a' },
   ]);
-  assert.equal(parseOptions('a|b|c|d|e|f|g|h|i|j|k|l').length, 10, 'capped at 10 options');
-  assert.equal(parseOptions('  one  ||  two  ').length, 2, 'blank chunks dropped');
+  assert.deepEqual(parseOptions('gaming | food'), [
+    { emoji: null, text: 'gaming' },
+    { emoji: null, text: 'food' },
+  ]);
+  assert.equal(parseOptions('a|b|c|d|e|f|g|h|i|j|k|l').length, LIMITS.answers);
+  assert.equal(parseOptions('  one  ||  two  ').length, 2);
 });
 
-check('poll renders a bar chart and picks a winner when closed', () => {
-  const poll = {
-    messageId: '1', channelId: '2', question: 'Best upload day?',
-    options: parseOptions('Friday | Sunday'),
-    votes: { u1: [0], u2: [0], u3: [1] },
-    multi: false, anonymous: false, roleId: null, endsAt: null, closed: false,
-  };
-  const open = renderPoll(poll).toJSON();
-  assert.equal(open.color, 0xa78bfa);
-  assert.match(open.description, /▰/, 'bar chart missing');
-  assert.match(open.description, /67%/, '2 of 3 votes should read as 67%');
-  assert.match(open.description, /3 votes/);
-  assert.equal(pollButtons(poll).length, 1, 'two options fit in one row');
-
-  poll.closed = true;
-  const closed = renderPoll(poll).toJSON();
-  assert.equal(closed.fields[0].name, 'Winner');
-  assert.equal(closed.fields[0].value, 'Friday');
-  assert.equal(pollButtons(poll).length, 0, 'a closed poll has no buttons');
+check('poll payload matches what Discord accepts', () => {
+  const poll = buildPoll({
+    question: 'what should I film next?',
+    options: parseOptions('🎮 gaming | food'),
+    hours: 24,
+    multi: false,
+  });
+  assert.equal(poll.question.text, 'what should I film next?');
+  assert.deepEqual(poll.answers, [{ text: 'gaming', emoji: '🎮' }, { text: 'food' }]);
+  assert.equal(poll.allowMultiselect, false);
+  assert.equal(poll.duration, 24);
 });
 
-check('poll splits more than five options across rows', () => {
-  const poll = {
-    messageId: '1', channelId: '2', question: 'q',
-    options: parseOptions('a|b|c|d|e|f|g'), votes: {}, closed: false,
-  };
-  const rows = pollButtons(poll);
-  assert.equal(rows.length, 2);
-  assert.equal(rows[0].toJSON().components.length, 5, 'Discord allows 5 buttons per row');
-  assert.equal(rows[1].toJSON().components.length, 2);
+check('poll duration is clamped to the range Discord allows', () => {
+  const of = (hours) => buildPoll({ question: 'q', options: parseOptions('a|b'), hours }).duration;
+  assert.equal(of(0), LIMITS.minHours, 'zero would be rejected');
+  assert.equal(of(0.2), LIMITS.minHours);
+  assert.equal(of(99_999), LIMITS.maxHours);
+  assert.equal(of(72), 72);
+});
+
+check('over-long question and answers are truncated, not rejected', () => {
+  const poll = buildPoll({
+    question: 'q'.repeat(500),
+    options: parseOptions(`${'a'.repeat(200)}|b`),
+    hours: 1,
+  });
+  assert.equal(poll.question.text.length, LIMITS.question);
+  assert.equal(poll.answers[0].text.length, LIMITS.answer);
 });
 
 function fakeMember() {

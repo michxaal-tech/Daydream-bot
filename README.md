@@ -7,8 +7,8 @@ A Discord bot for a creator community. Four things work end-to-end today:
 2. **Upload notifications** — watches YouTube, TikTok, X, Instagram, Twitch and
    Kick and posts a branded embed (as the bot or through a webhook) the moment
    something new drops.
-3. **Polls** — button polls with a live bar chart, multi-select, anonymous mode,
-   role-gating and timed close. Votes survive a restart.
+3. **Polls** — Discord's native polls: radio buttons, a Vote button, results
+   hidden until it closes. Multi-select and any duration from 1 hour to 2 weeks.
 4. **A dashboard** — sign in with Discord and configure everything in a browser,
    with a live preview of the welcome message. Nothing needs editing by hand.
 
@@ -58,7 +58,7 @@ Then in Discord: `/welcome test` — it should ping you in `#welcome`.
 | `/setup colour` | Manage Server | Change the accent bar |
 | `/setup show` | Manage Server | The whole current config |
 | `/poll create` | Everyone | Button poll with live results |
-| `/poll end` \| `/poll list` | Author or Manage Messages | Close early, or list open polls |
+| `/poll end` \| `/poll list` | Author or Manage Messages | Close early and reveal results, or list running polls |
 | `/latest <platform>` | Everyone | Newest post from a platform, on demand |
 | `/socials` | Everyone | All links in one embed with buttons |
 | `/ping` | Everyone | Latency + uptime |
@@ -83,7 +83,7 @@ src/
     session.js                 signed-cookie sessions
     public/index.html          the dashboard itself
   features/
-    polls/index.js             button polls, live bar chart, persisted votes
+    polls/index.js             native Discord polls — option parsing and limits
     welcome/
       render.js                builds the payload (pure — easy to unit test)
       index.js                 join/leave handling, auto-role, DM
