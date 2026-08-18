@@ -273,24 +273,38 @@ button, input, select, textarea { font-family: inherit; }
    28px turns it into a glow that drifts.                                    */
 @property --glow-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
 @keyframes glow-orbit { to { --glow-angle: 360deg; } }
-@keyframes glow-breathe { 50% { opacity: .78; } }
+@keyframes glow-breathe { 50% { opacity: 1; } }
 
 .card::before, .account::before, .poll-row::before, .rail-card::before {
   content: "";
   position: absolute; inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(
-    150deg,
-    rgba(196,181,253,.42),
-    rgba(255,255,255,.05) 38%,
-    rgba(255,255,255,.03) 62%,
-    rgba(124,92,255,.34)
-  );
+  /* Two stacked backgrounds on the same hairline: a bright arc that travels,
+     over a static diagonal that's always lit. The travelling one is what you
+     actually notice; the static one stops the rest of the edge going dark
+     behind it. Both are on the border only — the fill stays glass.          */
+  background:
+    conic-gradient(
+      from var(--glow-angle),
+      transparent 0 14%,
+      rgba(233,224,255,.95) 27%,
+      rgba(167,139,250,.85) 34%,
+      rgba(124,92,255,.45) 44%,
+      transparent 58% 100%
+    ),
+    linear-gradient(
+      150deg,
+      rgba(196,181,253,.40),
+      rgba(255,255,255,.05) 38%,
+      rgba(255,255,255,.03) 62%,
+      rgba(124,92,255,.32)
+    );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
           mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask-composite: exclude;
   pointer-events: none;
+  animation: glow-orbit 13s linear infinite;
 }
 
 .card::after, .account::after, .poll-row::after, .rail-card::after {
@@ -305,18 +319,22 @@ button, input, select, textarea { font-family: inherit; }
     rgba(240,171,252,.16) 56%,
     transparent 74% 100%
   );
-  filter: blur(30px);
-  opacity: .5;
+  filter: blur(26px);
+  opacity: .72;
   z-index: -1;
   pointer-events: none;
-  animation: glow-orbit 22s linear infinite, glow-breathe 9s ease-in-out infinite;
+  /* same 13s as the border arc, so the bloom and the bright edge are one light */
+  animation: glow-orbit 13s linear infinite, glow-breathe 6.5s ease-in-out infinite;
 }
-/* out of phase, so the page never pulses as one block */
-.card:nth-child(2n)::after { animation-delay: -7s, -3s; }
-.card:nth-child(3n)::after { animation-delay: -14s, -6s; }
-.account::after, .poll-row::after { animation-duration: 28s, 11s; opacity: .38; }
-.account:nth-child(2n)::after, .poll-row:nth-child(2n)::after { animation-delay: -9s, -4s; }
-.rail-card::after { animation-duration: 26s, 10s; opacity: .34; }
+/* offset per card, so the page never pulses as one block */
+.card:nth-child(2n)::before, .card:nth-child(2n)::after { animation-delay: -4.3s, -2s; }
+.card:nth-child(3n)::before, .card:nth-child(3n)::after { animation-delay: -8.6s, -4s; }
+.account::before, .poll-row::before { animation-duration: 16s; }
+.account::after, .poll-row::after { animation-duration: 16s, 8s; opacity: .55; }
+.account:nth-child(2n)::before, .account:nth-child(2n)::after,
+.poll-row:nth-child(2n)::before, .poll-row:nth-child(2n)::after { animation-delay: -5.5s, -3s; }
+.rail-card::before { animation-duration: 15s; }
+.rail-card::after { animation-duration: 15s, 7s; opacity: .5; }
 
 /* ══ fields ═══════════════════════════════════════════════════════════════ */
 .field { display: grid; gap: 7px; }
@@ -513,7 +531,8 @@ input.mono, textarea.mono { font-family: var(--mono); font-size: 13px; }
   *, *::before, *::after { transition-duration: .01ms !important; }
   body::before, body::after, .mark, .savebar__note i, .pill--live::before,
   .card::before, .card::after, .account::before, .account::after,
-  .poll-row::before, .poll-row::after, .stagger > *, .pv__opt, .side, .login__card { animation: none !important; }
+  .poll-row::before, .poll-row::after, .rail-card::before, .rail-card::after,
+  .stagger > *, .pv__opt, .side, .login__card { animation: none !important; }
 }
 </style>
 </head>
