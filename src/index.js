@@ -1,10 +1,14 @@
 import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
 import { env, assertEnv } from './lib/config.js';
+import { loadSettings } from './lib/settings.js';
 import { logger } from './lib/logger.js';
 import { loadCommands, loadEvents } from './lib/loaders.js';
 
 const log = logger('bot');
 assertEnv();
+
+// Runtime settings sit on top of config.json — load before anything reads it.
+loadSettings();
 
 const client = new Client({
   intents: [
@@ -37,6 +41,7 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
   process.on(signal, () => {
     log.info(`${signal} — shutting down`);
     client.stopWatcher?.();
+    client.stopDashboard?.();
     client.destroy();
     process.exit(0);
   });

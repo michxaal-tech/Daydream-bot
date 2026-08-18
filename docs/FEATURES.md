@@ -67,7 +67,7 @@ is written so you can hand it straight to a dev as a ticket.
 | ⚪ | **First-comment race** | Points for the first 10 people to react to an upload post |
 | ⚪ | **Watch-party scheduler** | Countdown + auto-VC creation for premieres |
 | ⚪ | **Giveaways** | Entry by reaction/button, weighted entries for boosters & subs, auto-draw & reroll |
-| ⚪ | **Polls** | Buttons + live bar chart in the embed |
+| 🟢 | **Polls** | `/poll create` — buttons, live bar chart, multi-select, anonymous, role-gated, timed close |
 | ⚪ | **Q&A / AMA queue** | Members submit questions, mods upvote, the creator gets a ranked list |
 | ⚪ | **Fan-art gallery** | Post in `#fan-art` → auto-thread, auto-crosspost the best to a showcase channel |
 | ⚪ | **Clip-of-the-week** | Members submit clips, react-vote, winner gets a role |
@@ -143,9 +143,10 @@ is written so you can hand it straight to a dev as a ticket.
 | 🟢 | **JSON config** | Everything tunable without touching code |
 | 🟢 | **Slash commands with autocomplete** | `/notify test account:` autocompletes configured accounts |
 | 🟢 | **Graceful shutdown** | Clean SIGINT/SIGTERM, no duplicate pollers |
-| 🟡 | **`/setup` wizard** | Walks an admin through channels, roles and handles in Discord — no JSON editing |
+| 🟢 | **`/setup` commands** | Channels, toggles, greetings, watched accounts, links and accent — all from inside Discord |
+| 🟢 | **Settings that survive redeploys** | Runtime changes merge over config.json in a mounted volume |
 | 🟡 | **Per-guild config in a DB** | SQLite/Postgres so the bot can serve multiple creators |
-| ⚪ | **Web dashboard** | Discord OAuth login, edit config in a browser |
+| 🟢 | **Web dashboard** | Discord OAuth login, Manage-Server gated, live preview of the welcome message |
 | ⚪ | **Health endpoint + uptime pings** | `/healthz` for Railway/Fly health checks |
 | ⚪ | **Sharding** | Needed past ~2,500 guilds |
 | ⚪ | **Rate-limit-aware queue** | Batches announcements when five platforms fire at once |
@@ -156,7 +157,7 @@ is written so you can hand it straight to a dev as a ticket.
 
 ## Suggested build order
 
-1. **Now** — welcome ping, upload notifications, notification role menu. *(1 and 2 are done; the role menu is the missing half of 2.)*
+1. **Now** — welcome ping, upload notifications, polls, the dashboard. *(All done. The notification role menu is the one gap: members still can't self-assign @YouTube Notifs.)*
 2. **Week 2** — verification gate + automod + mod-log. Do this before the server gets big enough to attract raids.
 3. **Week 3** — XP, levels, leaderboard, daily streaks. This is what turns a notification feed into a community.
 4. **Week 4** — giveaways, polls, watch parties, `/setup` wizard.

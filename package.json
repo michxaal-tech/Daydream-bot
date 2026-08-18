@@ -12,11 +12,13 @@
     "dev": "node --watch src/index.js",
     "deploy": "node src/deploy-commands.js",
     "mockups": "node scripts/generate-mockups.js",
-    "test": "node scripts/syntax-check.js && node test/parsers.test.js"
+    "test": "node scripts/syntax-check.js && node test/parsers.test.js && node test/settings.test.js",
+    "preview": "node scripts/preview-dashboard.js"
   },
   "dependencies": {
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
+    "express": "^4.22.2",
     "fast-xml-parser": "^4.5.0"
   },
   "license": "MIT"

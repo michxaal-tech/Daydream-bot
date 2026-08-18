@@ -26,6 +26,17 @@ export const env = {
   autoDeployCommands: (process.env.AUTO_DEPLOY_COMMANDS ?? 'true') !== 'false',
   /** Where the "already announced" store lives — point this at a mounted volume. */
   dataDir: process.env.DATA_DIR || 'data',
+
+  web: {
+    enabled: (process.env.DASHBOARD_ENABLED ?? 'true') !== 'false',
+    port: Number(process.env.PORT ?? 3000),
+    clientSecret: process.env.DISCORD_CLIENT_SECRET || '',
+    /** Public origin, e.g. https://daydream-bot.up.railway.app — no trailing slash. */
+    baseUrl: (
+      process.env.DASHBOARD_URL ||
+      (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : '')
+    ).replace(/\/$/, ''),
+  },
 };
 
 const NAMES = { token: 'DISCORD_TOKEN', clientId: 'DISCORD_CLIENT_ID' };

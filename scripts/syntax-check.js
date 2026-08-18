@@ -12,6 +12,7 @@ import { COLORS } from '../src/lib/brand.js';
 import { buildWelcome } from '../src/features/welcome/render.js';
 import { renderAll } from '../src/features/notifications/render.js';
 import { platformIds, getPlatform } from '../src/features/notifications/platforms/index.js';
+import { parseOptions, renderPoll, pollButtons } from '../src/features/polls/index.js';
 
 const checks = [];
 const check = (name, fn) => checks.push([name, fn]);
@@ -100,6 +101,49 @@ check('live posts use the deeper violet, not the default lavender', () => {
     kind: 'live', stats: { viewers: 5 },
   };
   assert.equal(renderAll(account, post).embeds[0].toJSON().color, 0x7c5cff);
+});
+
+check('poll options parse, including leading emoji', () => {
+  const options = parseOptions('🍕 Pizza | Burgers | 🌮 Tacos');
+  assert.deepEqual(options, [
+    { emoji: '🍕', label: 'Pizza' },
+    { emoji: null, label: 'Burgers' },
+    { emoji: '🌮', label: 'Tacos' },
+  ]);
+  assert.equal(parseOptions('a|b|c|d|e|f|g|h|i|j|k|l').length, 10, 'capped at 10 options');
+  assert.equal(parseOptions('  one  ||  two  ').length, 2, 'blank chunks dropped');
+});
+
+check('poll renders a bar chart and picks a winner when closed', () => {
+  const poll = {
+    messageId: '1', channelId: '2', question: 'Best upload day?',
+    options: parseOptions('Friday | Sunday'),
+    votes: { u1: [0], u2: [0], u3: [1] },
+    multi: false, anonymous: false, roleId: null, endsAt: null, closed: false,
+  };
+  const open = renderPoll(poll).toJSON();
+  assert.equal(open.color, 0xa78bfa);
+  assert.match(open.description, /▰/, 'bar chart missing');
+  assert.match(open.description, /67%/, '2 of 3 votes should read as 67%');
+  assert.match(open.description, /3 votes/);
+  assert.equal(pollButtons(poll).length, 1, 'two options fit in one row');
+
+  poll.closed = true;
+  const closed = renderPoll(poll).toJSON();
+  assert.equal(closed.fields[0].name, 'Winner');
+  assert.equal(closed.fields[0].value, 'Friday');
+  assert.equal(pollButtons(poll).length, 0, 'a closed poll has no buttons');
+});
+
+check('poll splits more than five options across rows', () => {
+  const poll = {
+    messageId: '1', channelId: '2', question: 'q',
+    options: parseOptions('a|b|c|d|e|f|g'), votes: {}, closed: false,
+  };
+  const rows = pollButtons(poll);
+  assert.equal(rows.length, 2);
+  assert.equal(rows[0].toJSON().components.length, 5, 'Discord allows 5 buttons per row');
+  assert.equal(rows[1].toJSON().components.length, 2);
 });
 
 function fakeMember() {

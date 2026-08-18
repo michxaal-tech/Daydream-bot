@@ -3,6 +3,8 @@ import { logger } from '../lib/logger.js';
 import { env } from '../lib/config.js';
 import { registerCommands } from '../lib/register-commands.js';
 import { startWatcher, enabledAccounts } from '../features/notifications/watcher.js';
+import { startDashboard } from '../web/server.js';
+import { restoreOpenPolls } from '../features/polls/index.js';
 
 const log = logger('bot');
 
@@ -23,6 +25,8 @@ export default {
     }
 
     client.stopWatcher = startWatcher(client);
+    client.stopDashboard = startDashboard(client);
+    restoreOpenPolls(client);
     log.info(`tracking: ${enabledAccounts().map((a) => `${a.platform}:${a.handle}`).join(', ') || 'nothing yet'}`);
   },
 };

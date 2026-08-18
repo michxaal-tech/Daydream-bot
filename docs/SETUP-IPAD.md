@@ -99,7 +99,27 @@ Railway's free trial covers a few weeks; after that a bot like this runs about
 $5/month. Alternatives with the same browser-only flow: Render (background
 worker) or Replit.
 
+## 4b. Turn on the dashboard (optional, but it replaces step 5)
+
+With the dashboard on you can configure everything in Safari instead of editing
+JSON. Three extra steps:
+
+1. Railway → **Settings** → **Networking** → **Generate Domain**. Copy the URL.
+2. Developer Portal → **OAuth2** → copy the **Client Secret** into Railway as
+   `DISCORD_CLIENT_SECRET`. While you're there, **OAuth2 → Redirects → Add
+   Redirect** and paste your domain with `/callback` on the end.
+3. Railway → **Variables** → add `SESSION_SECRET` (any long random string).
+
+Open the domain, sign in with Discord, and you get channel and role dropdowns,
+a live preview of the welcome message, and a save button. Full details in
+[DASHBOARD.md](DASHBOARD.md).
+
+You can also do all of it from inside Discord with `/setup` — try `/setup show`
+to see the current config, then `/setup channel`, `/setup watch`, and so on.
+
 ## 5. Fill in your channel and role IDs · Discord app + Safari
+
+*Skip this if you did 4b — the dashboard and `/setup` write the same settings.*
 
 **Get the IDs.** In the Discord app: **Settings → Advanced → Developer Mode**
 on. Now long-press any channel, role or your server icon → **Copy ID**.

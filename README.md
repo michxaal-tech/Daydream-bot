@@ -1,12 +1,16 @@
 # Daydream Bot
 
-A Discord bot for a creator community. Two things work end-to-end today:
+A Discord bot for a creator community. Four things work end-to-end today:
 
 1. **Welcome** — pings every new member by name in `#welcome`, with a lavender
    embed, member count, social buttons and an optional DM.
 2. **Upload notifications** — watches YouTube, TikTok, X, Instagram, Twitch and
    Kick and posts a branded embed (as the bot or through a webhook) the moment
    something new drops.
+3. **Polls** — button polls with a live bar chart, multi-select, anonymous mode,
+   role-gating and timed close. Votes survive a restart.
+4. **A dashboard** — sign in with Discord and configure everything in a browser,
+   with a live preview of the welcome message. Nothing needs editing by hand.
 
 Everything the bot sends uses one lavender accent bar (`#A78BFA`) on the left of
 the embed, so the server reads as one brand instead of a rainbow of vendor reds.
@@ -16,6 +20,7 @@ Live alerts step up to a deeper violet (`#7C5CFF`).
 - 🎨 [Message mockups](docs/MOCKUPS.md) — what every reply and webhook looks like
 - 🛠️ [Setup guide](docs/SETUP.md) — from zero to a bot in your server
 - 📱 [Setup from an iPad](docs/SETUP-IPAD.md) — browser-only, no terminal anywhere
+- 🎛️ [The dashboard](docs/DASHBOARD.md) — turning on the web UI and who can access it
 
 ---
 
@@ -44,6 +49,16 @@ Then in Discord: `/welcome test` — it should ping you in `#welcome`.
 | `/notify list` | Manage Server | Every watched account, where it posts, what it pings |
 | `/notify check` | Manage Server | Polls all feeds right now |
 | `/notify test <account>` | Manage Server | Re-posts the latest item to check formatting |
+| `/setup channel` | Manage Server | Point a feature at a channel |
+| `/setup welcome` | Manage Server | Toggles: greet, ping, DM, goodbye, auto-role |
+| `/setup greeting` | Manage Server | Replace the greeting lines |
+| `/setup watch` | Manage Server | Start watching an account |
+| `/setup unwatch` | Manage Server | Stop watching one |
+| `/setup socials` | Manage Server | Set your links |
+| `/setup colour` | Manage Server | Change the accent bar |
+| `/setup show` | Manage Server | The whole current config |
+| `/poll create` | Everyone | Button poll with live results |
+| `/poll end` \| `/poll list` | Author or Manage Messages | Close early, or list open polls |
 | `/latest <platform>` | Everyone | Newest post from a platform, on demand |
 | `/socials` | Everyone | All links in one embed with buttons |
 | `/ping` | Everyone | Latency + uptime |
@@ -56,13 +71,19 @@ src/
   deploy-commands.js           registers slash commands
   lib/
     config.js                  config.json + .env, fails fast on missing vars
+    settings.js                runtime settings merged over config.json
     brand.js                   the lavender accent bar lives here
     store.js                   json persistence: which posts are already announced
     http.js                    fetch + RSS/Atom parsing
     logger.js
   events/                      ready, guildMemberAdd, guildMemberRemove, interactionCreate
   commands/                    one file per slash command, auto-loaded
+  web/
+    server.js                  dashboard: Discord OAuth, settings API, actions
+    session.js                 signed-cookie sessions
+    public/index.html          the dashboard itself
   features/
+    polls/index.js             button polls, live bar chart, persisted votes
     welcome/
       render.js                builds the payload (pure — easy to unit test)
       index.js                 join/leave handling, auto-role, DM
@@ -91,6 +112,18 @@ plus a line in `platforms/index.js`. Everything downstream is shared.
 TikTok and Instagram are the honest weak spots — neither has a free, stable,
 public feed. The adapters take a `feedUrl` per account so you can point them at
 whatever bridge you settle on without touching code.
+
+## Configuring it
+
+Three ways, all writing to the same place:
+
+- **The dashboard** — `/` on the bot's own URL. Sign in with Discord, edit, save.
+- **`/setup` commands** — everything the dashboard does, from inside Discord.
+- **`config.json`** — the committed defaults, used when nothing overrides them.
+
+Changes from the first two land in `<DATA_DIR>/settings.json` and are merged
+over `config.json` at boot, so a redeploy never overwrites what you configured.
+`config.json` stays the fallback for anything you haven't touched.
 
 ## Deploying
 

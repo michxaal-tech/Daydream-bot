@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Daydream Bot — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg:        #0A0910;
+  --bg-2:      #0F0D17;
+  --panel:     #15131F;
+  --raised:    #1C1929;
+  --line:      #262234;
+  --line-soft: #1E1B2A;
+  --ink:       #F1EFF7;
+  --ink-soft:  #B8B2C9;
+  --muted:     #7D7691;
+  --lav:       #A78BFA;
+  --lav-soft:  #C4B5FD;
+  --deep:      #7C5CFF;
+  --good:      #52E0A0;
+  --bad:       #FB7185;
+  --warn:      #FBBF75;
+  --r-sm: 8px; --r: 12px; --r-lg: 16px;
+  --sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+* { box-sizing: border-box; min-width: 0; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.5 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+/* one soft lavender bloom, top-left — the only decorative flourish */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background: radial-gradient(760px 460px at 8% -8%, rgba(124,92,255,.14), transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+h1, h2, h3 { margin: 0; letter-spacing: -.022em; font-weight: 700; }
+button, input, select, textarea { font-family: inherit; }
+[hidden] { display: none !important; }
+::selection { background: rgba(167,139,250,.32); }
+:focus-visible { outline: 2px solid var(--lav); outline-offset: 2px; border-radius: 6px; }
+
+/* ── sign-in ───────────────────────────────────────────────────────────── */
+.login { position: relative; z-index: 1; min-height: 100dvh; display: grid; place-items: center; padding: 24px; }
+.login__card { max-width: 400px; display: grid; gap: 20px; justify-items: center; text-align: center; }
+.mark {
+  width: 60px; height: 60px; border-radius: 18px;
+  background: linear-gradient(155deg, var(--lav), var(--deep));
+  display: grid; place-items: center; font-size: 27px;
+  box-shadow: 0 18px 40px -16px rgba(124,92,255,.7);
+}
+.login h1 { font-size: 2rem; font-weight: 800; }
+.login p { margin: 0; color: var(--ink-soft); }
+
+/* ── shell ─────────────────────────────────────────────────────────────── */
+.shell { position: relative; z-index: 1; display: grid; grid-template-columns: 248px 1fr; min-height: 100dvh; }
+@media (max-width: 860px) { .shell { grid-template-columns: 1fr; } }
+
+.side {
+  border-right: 1px solid var(--line-soft);
+  padding: 22px 16px;
+  display: flex; flex-direction: column; gap: 26px;
+  position: sticky; top: 0; height: 100dvh;
+  background: linear-gradient(180deg, rgba(21,19,31,.5), transparent 40%);
+}
+@media (max-width: 860px) {
+  .side { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line-soft); gap: 18px; }
+}
+
+.brand { display: flex; align-items: center; gap: 11px; padding: 0 6px; }
+.brand__mark {
+  width: 34px; height: 34px; border-radius: 10px; flex: none;
+  background: linear-gradient(155deg, var(--lav), var(--deep));
+  display: grid; place-items: center; font-size: 16px;
+}
+.brand__name { font-weight: 800; letter-spacing: -.03em; }
+.brand__sub { font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
+
+.nav { display: grid; gap: 3px; }
+.nav button {
+  display: flex; align-items: center; gap: 11px;
+  width: 100%; text-align: left;
+  background: none; border: 0; cursor: pointer;
+  color: var(--muted); font-size: 14.5px; font-weight: 600;
+  padding: 10px 12px; border-radius: var(--r-sm);
+}
+.nav button svg { width: 17px; height: 17px; flex: none; opacity: .85; }
+.nav button:hover { color: var(--ink-soft); background: var(--line-soft); }
+.nav button[aria-selected="true"] {
+  color: var(--ink);
+  background: linear-gradient(90deg, rgba(124,92,255,.22), rgba(124,92,255,.05));
+  box-shadow: inset 2px 0 0 var(--lav);
+}
+@media (max-width: 860px) {
+  .nav { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; gap: 4px; padding-bottom: 2px; }
+  .nav button { padding: 9px 13px; }
+  .nav button[aria-selected="true"] { box-shadow: inset 0 -2px 0 var(--lav); }
+}
+
+.side__foot { margin-top: auto; display: grid; gap: 12px; }
+@media (max-width: 860px) { .side__foot { margin-top: 0; } }
+.guild {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px; border-radius: var(--r); border: 1px solid var(--line-soft);
+  background: var(--panel);
+}
+.guild__icon {
+  width: 32px; height: 32px; border-radius: 9px; flex: none; object-fit: cover;
+  background: linear-gradient(155deg, #2A2440, #191527);
+}
+.guild__name { font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.guild__meta { font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
+.linkish { background: none; border: 0; color: var(--muted); font-size: 13px; cursor: pointer; text-align: left; padding: 0 10px; }
+.linkish:hover { color: var(--lav); }
+
+/* ── content ───────────────────────────────────────────────────────────── */
+.content { padding: 34px 34px 130px; max-width: 900px; }
+@media (max-width: 640px) { .content { padding: 22px 18px 130px; } }
+
+.page-head { display: grid; gap: 6px; margin-bottom: 26px; }
+.page-head h1 { font-size: 1.75rem; font-weight: 800; }
+.page-head p { margin: 0; color: var(--muted); max-width: 62ch; font-size: 14.5px; }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 22px;
+  display: grid; gap: 18px;
+  margin-bottom: 18px;
+}
+.card > header { display: grid; gap: 3px; }
+.card h2 { font-size: 1.02rem; font-weight: 700; }
+.card header p { margin: 0; color: var(--muted); font-size: 13.5px; }
+.divider { height: 1px; background: var(--line-soft); }
+
+.field { display: grid; gap: 7px; }
+.field > label { font-size: 12.5px; font-weight: 700; color: var(--ink-soft); letter-spacing: .01em; }
+.field small { color: var(--muted); font-size: 12.5px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+.grid2 > .wide { grid-column: 1 / -1; }
+
+input[type=text], input[type=url], input[type=email], select, textarea {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14.5px;
+  transition: border-color .12s, background .12s;
+}
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%237D7691' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center; background-size: 12px;
+  padding-right: 32px;
+}
+textarea { min-height: 108px; resize: vertical; line-height: 1.65; font-size: 14px; }
+input:hover, select:hover, textarea:hover { border-color: #332E45; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--lav); background: var(--panel); }
+input::placeholder, textarea::placeholder { color: #514B63; }
+input.mono, textarea.mono { font-family: var(--mono); font-size: 13px; }
+
+.toggle { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; padding: 3px 0; }
+.toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+.toggle .track {
+  width: 40px; height: 23px; border-radius: 999px; flex: none; margin-top: 1px;
+  background: #251F36; border: 1px solid var(--line);
+  position: relative; transition: background .15s, border-color .15s;
+}
+.toggle .track::after {
+  content: ""; position: absolute; top: 2px; left: 2px;
+  width: 17px; height: 17px; border-radius: 50%;
+  background: #6C6584; transition: transform .16s cubic-bezier(.3,1.4,.5,1), background .15s;
+}
+.toggle input:checked + .track { background: var(--deep); border-color: var(--deep); }
+.toggle input:checked + .track::after { transform: translateX(17px); background: #fff; }
+.toggle input:focus-visible + .track { outline: 2px solid var(--lav); outline-offset: 2px; }
+.toggle .label { font-size: 14.5px; font-weight: 600; }
+.toggle small { display: block; color: var(--muted); font-weight: 400; font-size: 12.5px; margin-top: 1px; }
+.toggles { display: grid; gap: 14px; }
+
+.btn {
+  font-size: 14px; font-weight: 600;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  color: var(--ink);
+  padding: 9px 15px; border-radius: 10px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: border-color .12s, background .12s, transform .06s;
+}
+.btn:hover { border-color: #3A3350; background: #221E32; }
+.btn:active { transform: translateY(1px); }
+.btn--primary {
+  background: linear-gradient(160deg, var(--lav), var(--deep));
+  border-color: transparent; color: #14101F;
+  box-shadow: 0 8px 22px -12px rgba(124,92,255,.9);
+}
+.btn--primary:hover { background: linear-gradient(160deg, #B9A3FF, #8A6DFF); border-color: transparent; }
+.btn--ghost { background: none; }
+.btn--danger { color: var(--bad); background: none; border-color: transparent; }
+.btn--danger:hover { background: rgba(251,113,133,.1); border-color: rgba(251,113,133,.3); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.hint { color: var(--muted); font-size: 13px; }
+
+.pill {
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
+  padding: 4px 9px; border-radius: 999px;
+  background: rgba(167,139,250,.14); color: var(--lav-soft);
+  font-family: var(--mono);
+}
+.pill--off { background: #221F2E; color: var(--muted); }
+
+.account {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg-2);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.account__head {
+  display: flex; align-items: center; gap: 11px; flex-wrap: wrap;
+  padding: 14px 18px;
+  background: var(--raised);
+  border-bottom: 1px solid var(--line);
+}
+.account__title { font-weight: 700; font-size: 14.5px; }
+.account__body { padding: 18px; display: grid; gap: 16px; }
+.account--off { opacity: .62; }
+
+/* ── live Discord preview ──────────────────────────────────────────────── */
+.preview {
+  --d-embed: #2B2D31;
+  background: #313338;
+  border-radius: var(--r);
+  padding: 16px;
+  font-size: 14.5px;
+  line-height: 1.375;
+  color: #DBDEE1;
+  overflow-x: auto;
+}
+.pv-msg { display: grid; grid-template-columns: 40px minmax(0,1fr); gap: 15px; }
+.pv-av {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(150deg, var(--lav), var(--deep));
+  display: grid; place-items: center; font-weight: 700; color: #fff; font-size: 15px;
+}
+.pv-head { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; flex-wrap: wrap; }
+.pv-name { color: #F2F3F5; font-weight: 600; }
+.pv-tag { background: #5865F2; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 4px; border-radius: 3px; text-transform: uppercase; }
+.pv-time { color: #949BA4; font-size: 12px; }
+.pv-text { margin-bottom: 7px; word-break: break-word; }
+.pv-mention { background: rgba(167,139,250,.2); color: #C7B4FF; border-radius: 3px; padding: 0 2px; font-weight: 500; }
+.pv-embed {
+  max-width: 480px;
+  background: var(--d-embed);
+  border-radius: 4px;
+  border-left: 4px solid var(--lav);
+  padding: 12px 15px 15px;
+  display: grid; gap: 8px;
+}
+.pv-author { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: #F2F3F5; }
+.pv-author i { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(150deg,#F0ABFC,#A78BFA); flex: none; }
+.pv-title { color: #F2F3F5; font-weight: 600; font-size: 15px; }
+.pv-desc { font-size: 14px; white-space: pre-wrap; word-break: break-word; }
+.pv-fields { display: flex; flex-wrap: wrap; gap: 8px 30px; }
+.pv-field dt { font-size: 13.5px; font-weight: 600; color: #F2F3F5; margin: 0 0 2px; }
+.pv-field dd { margin: 0; font-size: 13.5px; }
+.pv-foot { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #949BA4; }
+.pv-foot i { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(150deg,var(--lav),var(--deep)); }
+.pv-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.pv-btn { background: #4E5058; color: #fff; font-size: 14px; font-weight: 500; padding: 7px 15px; border-radius: 3px; }
+.pv-reacts { display: flex; gap: 6px; margin-top: 8px; }
+.pv-react { background: rgba(167,139,250,.14); border: 1px solid rgba(167,139,250,.42); border-radius: 8px; padding: 2px 8px; font-size: 13px; color: #C7B4FF; }
+
+/* ── save bar / toast ──────────────────────────────────────────────────── */
+.savebar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: flex; align-items: center; gap: 12px; justify-content: flex-end;
+  padding: 13px 22px;
+  background: rgba(10,9,16,.9);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+  transform: translateY(120%); transition: transform .2s cubic-bezier(.3,1,.4,1);
+}
+.savebar[data-open="true"] { transform: none; }
+.savebar__note { margin-right: auto; color: var(--ink-soft); font-size: 13.5px; display: flex; align-items: center; gap: 9px; }
+.savebar__note i { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); flex: none; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 92px; z-index: 40;
+  transform: translateX(-50%) translateY(14px);
+  background: var(--raised); border: 1px solid var(--line);
+  border-left: 3px solid var(--lav);
+  padding: 12px 18px; border-radius: 11px;
+  box-shadow: 0 22px 50px -22px #000;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s, transform .2s;
+  max-width: min(90vw, 460px); font-size: 14px;
+}
+.toast[data-open="true"] { opacity: 1; transform: translateX(-50%); }
+.toast[data-kind="error"] { border-left-color: var(--bad); }
+.toast[data-kind="success"] { border-left-color: var(--good); }
+
+.empty {
+  color: var(--muted); font-size: 14px; text-align: center;
+  padding: 26px; border: 1px dashed var(--line); border-radius: var(--r); margin-bottom: 14px;
+}
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.swatch {
+  width: 38px; height: 38px; border-radius: 10px; cursor: pointer;
+  border: 2px solid transparent; padding: 0;
+}
+.swatch[aria-pressed="true"] { border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,.14); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<div id="login" class="login" hidden>
+  <div class="login__card">
+    <div class="mark">💜</div>
+    <h1>Daydream Bot</h1>
+    <p>Sign in with Discord to configure the bot. You'll need <strong>Manage Server</strong> in the server it runs in.</p>
+    <a class="btn btn--primary" href="/login" style="text-decoration:none;padding:11px 20px">Sign in with Discord</a>
+  </div>
+</div>
+
+<div id="app" class="shell" hidden>
+  <aside class="side">
+    <div class="brand">
+      <div class="brand__mark">💜</div>
+      <div>
+        <div class="brand__name">Daydream</div>
+        <div class="brand__sub" id="statusLine">connecting…</div>
+      </div>
+    </div>
+
+    <nav class="nav" role="tablist" id="nav"></nav>
+
+    <div class="side__foot">
+      <div class="guild">
+        <img id="guildIcon" class="guild__icon" alt="">
+        <div style="min-width:0">
+          <div class="guild__name" id="guildName">—</div>
+          <div class="guild__meta" id="guildMeta">—</div>
+        </div>
+      </div>
+      <button class="linkish" id="signOut">Sign out</button>
+    </div>
+  </aside>
+
+  <div class="content">
+    <div class="page-head">
+      <h1 id="pageTitle">Welcome</h1>
+      <p id="pageBlurb"></p>
+    </div>
+    <div id="panel"></div>
+  </div>
+
+  <div class="savebar" id="savebar">
+    <span class="savebar__note"><i></i> <span id="saveNote">Unsaved changes</span></span>
+    <button class="btn btn--ghost" id="discard">Discard</button>
+    <button class="btn btn--primary" id="save">Save changes</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+const $ = (s, r = document) => r.querySelector(s);
+const el = (tag, props = {}, kids = []) => {
+  const node = Object.assign(document.createElement(tag), props);
+  for (const kid of [].concat(kids).filter(Boolean)) node.append(kid);
+  return node;
+};
+const svg = (d) => {
+  const node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  node.setAttribute('viewBox', '0 0 24 24');
+  node.setAttribute('fill', 'none');
+  node.setAttribute('stroke', 'currentColor');
+  node.setAttribute('stroke-width', '1.9');
+  node.setAttribute('stroke-linecap', 'round');
+  node.setAttribute('stroke-linejoin', 'round');
+  node.innerHTML = d;
+  return node;
+};
+
+const ICONS = {
+  welcome: '<path d="M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
+  notifications: '<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+  links: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
+  look: '<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2v-1a2 2 0 0 1 2-2h1a4 4 0 0 0 4-4 10 10 0 0 0-9-11Z"/>',
+};
+
+const TABS = [
+  { id: 'welcome', label: 'Welcome', title: 'Welcome', blurb: 'What happens the moment somebody joins your server.' },
+  { id: 'notifications', label: 'Notifications', title: 'Notifications', blurb: 'Watch your accounts and announce every new post, once.' },
+  { id: 'links', label: 'Links', title: 'Links', blurb: 'The links behind /socials and the welcome buttons.' },
+  { id: 'look', label: 'Appearance', title: 'Appearance', blurb: 'The accent bar down the left of every embed the bot sends.' },
+];
+
+let state = null, draft = null, activeTab = 'welcome';
+
+const api = async (path, options = {}) => {
+  const res = await fetch(path, { ...options, headers: options.body ? { 'content-type': 'application/json' } : {} });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+  return data;
+};
+
+let toastTimer;
+const toast = (message, kind = 'info') => {
+  const node = $('#toast');
+  node.textContent = message;
+  node.dataset.kind = kind;
+  node.dataset.open = 'true';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => (node.dataset.open = 'false'), 4400);
+};
+
+const clone = (v) => JSON.parse(JSON.stringify(v));
+const dirty = () => JSON.stringify(draft) !== JSON.stringify(state.settings);
+const refreshSaveBar = () => { $('#savebar').dataset.open = String(dirty()); };
+const edit = (mutate) => { mutate(draft); refreshSaveBar(); };
+const chanName = (id) => state.guild.channels.find((c) => c.id === id)?.name;
+const roleName = (id) => state.guild.roles.find((r) => r.id === id)?.name;
+
+// ── fields ────────────────────────────────────────────────────────────────
+function textField({ label, hint, value, placeholder, onInput, type = 'text', mono, live }) {
+  const input = el('input', { type, value: value ?? '', placeholder: placeholder ?? '', className: mono ? 'mono' : '' });
+  input.addEventListener('input', () => { onInput(input.value); if (live) live(); });
+  return el('div', { className: 'field' }, [el('label', { textContent: label }), input, hint && el('small', { textContent: hint })]);
+}
+
+function selectField({ label, hint, value, options, onChange, blank = '— none —', live }) {
+  const select = el('select');
+  select.append(el('option', { value: '', textContent: blank }));
+  for (const opt of options) select.append(el('option', { value: opt.id, textContent: opt.name }));
+  select.value = options.some((o) => o.id === value) ? value : '';
+  select.addEventListener('change', () => { onChange(select.value); if (live) live(); });
+  return el('div', { className: 'field' }, [el('label', { textContent: label }), select, hint && el('small', { textContent: hint })]);
+}
+
+function toggleField({ label, hint, checked, onChange, live }) {
+  const input = el('input', { type: 'checkbox', checked: Boolean(checked) });
+  input.addEventListener('change', () => { onChange(input.checked); if (live) live(); });
+  const text = el('span', { className: 'label' }, [document.createTextNode(label), hint && el('small', { textContent: hint })]);
+  return el('label', { className: 'toggle' }, [input, el('span', { className: 'track' }), text]);
+}
+
+const actionButton = (label, name, body = {}) => {
+  const btn = el('button', { className: 'btn', textContent: label });
+  btn.addEventListener('click', () => action(name, btn, body));
+  return btn;
+};
+
+const channelOptions = () => state.guild.channels.map((c) => ({ id: c.id, name: `#${c.name}` }));
+const roleOptions = () => state.guild.roles.map((r) => ({ id: r.id, name: `@${r.name}` }));
+
+// ── live preview of the welcome message ───────────────────────────────────
+function welcomePreview() {
+  const w = draft.welcome ?? {};
+  const accent = /^#[0-9a-f]{6}$/i.test(draft.brand?.accent ?? '') ? draft.brand.accent : '#A78BFA';
+  const line = (w.greetings?.[0] ?? 'welcome {user}!')
+    .replaceAll('{count}', '12,483')
+    .replaceAll('{ordinal}', '12,483rd')
+    .replaceAll('{server}', state.guild.name)
+    .replaceAll('{name}', 'lunaaa')
+    .replaceAll('{tag}', 'lunaaa');
+
+  const withMention = (text) => {
+    const frag = document.createDocumentFragment();
+    for (const [i, part] of text.split('{user}').entries()) {
+      if (i) frag.append(el('span', { className: 'pv-mention', textContent: '@lunaaa' }));
+      frag.append(document.createTextNode(part));
+    }
+    return frag;
+  };
+
+  const pointers = [
+    w.rulesChannelId && chanName(w.rulesChannelId) ? `📜 Read #${chanName(w.rulesChannelId)}` : null,
+    w.rolesChannelId && chanName(w.rolesChannelId) ? `🎨 Grab your roles in #${chanName(w.rolesChannelId)}` : null,
+    w.introsChannelId && chanName(w.introsChannelId) ? `👋 Say hi in #${chanName(w.introsChannelId)}` : null,
+  ].filter(Boolean);
+
+  const body = [];
+  if (w.pingUser !== false) body.push('Hey @lunaaa — glad you made it.');
+  if (pointers.length) body.push('', ...pointers);
+
+  const links = (w.buttons?.links ?? []).filter((l) => l.url);
+
+  return el('div', { className: 'preview' }, [
+    el('div', { className: 'pv-msg' }, [
+      el('div', { className: 'pv-av', textContent: 'D' }),
+      el('div', {}, [
+        el('div', { className: 'pv-head' }, [
+          el('span', { className: 'pv-name', textContent: 'Daydream' }),
+          el('span', { className: 'pv-tag', textContent: 'App' }),
+          el('span', { className: 'pv-time', textContent: 'Today at 6:31 PM' }),
+        ]),
+        w.pingUser !== false ? el('div', { className: 'pv-text' }, [withMention(line)]) : el('div', { className: 'pv-text', textContent: line.replaceAll('{user}', 'lunaaa') }),
+        el('div', { className: 'pv-embed', style: `border-left-color:${accent}` }, [
+          el('div', { className: 'pv-author' }, [el('i'), document.createTextNode('lunaaa joined')]),
+          el('div', { className: 'pv-title', textContent: `Welcome to ${state.guild.name} 💜` }),
+          body.length ? el('div', { className: 'pv-desc' }, [withMention(body.join('\n'))]) : null,
+          el('div', { className: 'pv-fields' }, [
+            el('dl', { className: 'pv-field' }, [el('dt', { textContent: 'Member' }), el('dd', { textContent: "You're the 12,483rd member" })]),
+            el('dl', { className: 'pv-field' }, [el('dt', { textContent: 'Account created' }), el('dd', { textContent: '5 years ago' })]),
+          ]),
+          el('div', { className: 'pv-foot' }, [el('i'), document.createTextNode(draft.brand?.footerText || 'Daydream HQ')]),
+        ]),
+        links.length
+          ? el('div', { className: 'pv-btns' }, links.slice(0, 5).map((l) =>
+              el('div', { className: 'pv-btn', textContent: `${l.emoji || ''} ${l.label}`.trim() })))
+          : null,
+        (w.reactWith ?? []).length
+          ? el('div', { className: 'pv-reacts' }, w.reactWith.map((e) => el('span', { className: 'pv-react', textContent: `${e} 2` })))
+          : null,
+      ]),
+    ]),
+  ]);
+}
+
+// ── panels ────────────────────────────────────────────────────────────────
+function renderWelcome(root) {
+  const w = (draft.welcome ??= {});
+  w.goodbye ??= {};
+  const preview = el('div');
+  const repaint = () => preview.replaceChildren(welcomePreview());
+  repaint();
+
+  root.replaceChildren(
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Live preview' }), el('p', { textContent: 'Exactly what gets posted, updating as you edit.' })]),
+      preview,
+      el('div', { className: 'row' }, [
+        actionButton('Send me a real one', 'welcome-test'),
+        el('span', { className: 'hint', textContent: 'Posts in the welcome channel for real. Save your changes first.' }),
+      ]),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Channels' }), el('p', { textContent: 'The greeting goes in the first one. The rest just become links inside it.' })]),
+      el('div', { className: 'grid2' }, [
+        selectField({ label: 'Welcome channel', value: w.channelId, options: channelOptions(), live: repaint,
+          onChange: (v) => edit((d) => (d.welcome.channelId = v)) }),
+        selectField({ label: 'Rules channel', value: w.rulesChannelId, options: channelOptions(), live: repaint,
+          onChange: (v) => edit((d) => (d.welcome.rulesChannelId = v)) }),
+        selectField({ label: 'Intros channel', value: w.introsChannelId, options: channelOptions(), live: repaint,
+          onChange: (v) => edit((d) => (d.welcome.introsChannelId = v)) }),
+        selectField({ label: 'Roles channel', value: w.rolesChannelId, options: channelOptions(), live: repaint,
+          onChange: (v) => edit((d) => (d.welcome.rolesChannelId = v)) }),
+      ]),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Behaviour' })]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Greet new members', hint: 'The master switch for everything on this page', checked: w.enabled !== false,
+          onChange: (v) => edit((d) => (d.welcome.enabled = v)) }),
+        toggleField({ label: 'Ping the new member', hint: 'A real @mention, so they actually get a notification', checked: w.pingUser !== false, live: repaint,
+          onChange: (v) => edit((d) => (d.welcome.pingUser = v)) }),
+        toggleField({ label: 'Send a welcome DM', hint: 'Skipped silently if their DMs are closed', checked: Boolean(w.sendDm),
+          onChange: (v) => edit((d) => (d.welcome.sendDm = v)) }),
+        toggleField({ label: 'Post when somebody leaves', hint: 'Plain text, no ping', checked: Boolean(w.goodbye?.enabled),
+          onChange: (v) => edit((d) => ((d.welcome.goodbye ??= {}).enabled = v)) }),
+      ]),
+      el('div', { className: 'divider' }),
+      selectField({
+        label: 'Auto-role on join',
+        hint: 'My own role has to sit above this one in Server Settings → Roles',
+        value: w.autoRoleIds?.[0] ?? '', options: roleOptions(),
+        onChange: (v) => edit((d) => (d.welcome.autoRoleIds = v ? [v] : [])),
+      }),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', { textContent: 'Greeting lines' }),
+        el('p', { textContent: 'One per line — each member gets one at random. {user} is the mention, {count} the member number, {ordinal} makes it "12,483rd", {server} the server name.' }),
+      ]),
+      (() => {
+        const area = el('textarea', { className: 'mono', value: (w.greetings ?? []).join('\n'), placeholder: 'welcome {user}! 💜\n{user} is member #{count}' });
+        area.addEventListener('input', () => {
+          edit((d) => (d.welcome.greetings = area.value.split('\n').map((l) => l.trim()).filter(Boolean)));
+          repaint();
+        });
+        return area;
+      })(),
+    ])
+  );
+}
+
+function renderNotifications(root) {
+  const n = (draft.notifications ??= {});
+  n.accounts ??= [];
+
+  const cards = n.accounts.map((account, index) => {
+    const off = account.enabled === false;
+    return el('div', { className: `account${off ? ' account--off' : ''}` }, [
+      el('div', { className: 'account__head' }, [
+        el('span', { className: `pill${off ? ' pill--off' : ''}`, textContent: account.platform }),
+        el('span', { className: 'account__title', textContent: account.handle || 'not set yet' }),
+        el('span', { style: 'flex:1' }),
+        toggleField({
+          label: off ? 'Paused' : 'Active', checked: !off,
+          onChange: (v) => { edit((d) => (d.notifications.accounts[index].enabled = v)); renderActive(); },
+        }),
+      ]),
+      el('div', { className: 'account__body' }, [
+        el('div', { className: 'grid2' }, [
+          textField({
+            label: account.platform === 'youtube' ? 'Channel ID' : 'Handle',
+            hint: account.platform === 'youtube' ? 'Starts with UC — from youtube.com/account_advanced' : undefined,
+            mono: account.platform === 'youtube',
+            value: account.platform === 'youtube' ? account.channelId ?? account.handle : account.handle,
+            placeholder: account.platform === 'youtube' ? 'UCxxxxxxxxxxxxxxxxxxxxxx' : 'yourhandle',
+            onInput: (v) => edit((d) => {
+              d.notifications.accounts[index].handle = v;
+              if (account.platform === 'youtube') d.notifications.accounts[index].channelId = v;
+            }),
+          }),
+          selectField({ label: 'Post to', value: account.postToChannelId, options: channelOptions(), blank: '— the default channel —',
+            onChange: (v) => edit((d) => (d.notifications.accounts[index].postToChannelId = v)) }),
+          selectField({ label: 'Ping', value: account.mentionRoleId, options: roleOptions(), blank: '— nobody —',
+            onChange: (v) => edit((d) => (d.notifications.accounts[index].mentionRoleId = v)) }),
+          (() => {
+            const field = textField({ label: 'Message', hint: 'Placeholders: {roleMention} {author} {title} {url} {platform}',
+              value: account.template ?? '', placeholder: '🔔 {roleMention} new upload from {author}',
+              onInput: (v) => edit((d) => (d.notifications.accounts[index].template = v)) });
+            field.classList.add('wide');
+            return field;
+          })(),
+        ]),
+        el('div', { className: 'row' }, [
+          actionButton('Test this one', 'notify-test', { accountId: account.id }),
+          (() => {
+            const btn = el('button', { className: 'btn btn--danger', textContent: 'Remove' });
+            btn.addEventListener('click', () => { edit((d) => d.notifications.accounts.splice(index, 1)); renderActive(); });
+            return btn;
+          })(),
+        ]),
+      ]),
+    ]);
+  });
+
+  const platformSelect = el('select', { style: 'max-width:190px' });
+  for (const p of state.platforms) platformSelect.append(el('option', { value: p, textContent: p }));
+  const addBtn = el('button', { className: 'btn btn--primary', textContent: 'Add account' });
+  addBtn.addEventListener('click', () => {
+    const platform = platformSelect.value;
+    edit((d) => d.notifications.accounts.push({
+      id: `${platform}-${Date.now().toString(36)}`, platform, handle: '',
+      enabled: true, postToChannelId: '', mentionRoleId: '',
+    }));
+    renderActive();
+  });
+
+  root.replaceChildren(
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Watching' }), el('p', { textContent: 'Every account is polled on a timer. Anything new gets announced exactly once.' })]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Watch for new posts', hint: 'The master switch — off pauses every account below', checked: n.enabled !== false,
+          onChange: (v) => edit((d) => (d.notifications.enabled = v)) }),
+      ]),
+      selectField({ label: 'Default channel', hint: 'Used by any account that has no channel of its own',
+        value: n.defaultChannelId, options: channelOptions(),
+        onChange: (v) => edit((d) => (d.notifications.defaultChannelId = v)) }),
+      el('div', { className: 'row' }, [actionButton('Check every feed now', 'notify-check')]),
+    ]),
+    ...(cards.length ? cards : [el('div', { className: 'empty', textContent: 'Nothing watched yet — add your first account below.' })]),
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Add an account' })]),
+      el('div', { className: 'row' }, [platformSelect, addBtn]),
+    ])
+  );
+}
+
+function renderLinks(root) {
+  draft.socials ??= {};
+  const fields = [['youtube', 'YouTube'], ['tiktok', 'TikTok'], ['x', 'X'], ['instagram', 'Instagram'], ['twitch', 'Twitch']];
+  root.replaceChildren(
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Profiles' }), el('p', { textContent: 'Shown by /socials, with a button for each one.' })]),
+      el('div', { className: 'grid2' }, fields.map(([key, label]) =>
+        textField({ label, type: 'url', value: draft.socials[key] ?? '', placeholder: 'https://…',
+          onInput: (v) => edit((d) => (d.socials[key] = v)) })
+      )),
+      el('div', { className: 'divider' }),
+      textField({ label: 'Business email', type: 'email', value: draft.socials.business ?? '',
+        placeholder: 'business@yourdomain.com', onInput: (v) => edit((d) => (d.socials.business = v)) }),
+    ])
+  );
+}
+
+function renderLook(root) {
+  draft.brand ??= {};
+  const preview = el('div');
+  const repaint = () => preview.replaceChildren(welcomePreview());
+  repaint();
+
+  const hexInput = el('input', { type: 'text', className: 'mono', value: draft.brand.accent ?? '#A78BFA', placeholder: '#A78BFA' });
+  const PRESETS = [
+    ['#A78BFA', 'Lavender'], ['#C4B5FD', 'Lilac'], ['#7C5CFF', 'Violet'],
+    ['#F0ABFC', 'Orchid'], ['#8B5CF6', 'Amethyst'], ['#5865F2', 'Blurple'],
+  ];
+  const swatches = el('div', { className: 'swatches' }, PRESETS.map(([hex, name]) => {
+    const btn = el('button', { className: 'swatch', title: name, style: `background:${hex}`, ariaLabel: name });
+    btn.setAttribute('aria-pressed', String((draft.brand.accent ?? '').toLowerCase() === hex.toLowerCase()));
+    btn.addEventListener('click', () => { edit((d) => (d.brand.accent = hex)); renderActive(); });
+    return btn;
+  }));
+  hexInput.addEventListener('input', () => { edit((d) => (d.brand.accent = hexInput.value)); repaint(); });
+
+  root.replaceChildren(
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Accent bar' }), el('p', { textContent: 'The vertical stripe down the left of every embed. One value, everywhere.' })]),
+      swatches,
+      el('div', { style: 'max-width:200px' }, [hexInput]),
+      preview,
+    ]),
+    el('div', { className: 'card' }, [
+      el('header', {}, [el('h2', { textContent: 'Footer' })]),
+      textField({ label: 'Footer text', value: draft.brand.footerText ?? '', placeholder: 'Daydream HQ',
+        onInput: (v) => edit((d) => (d.brand.footerText = v)) }),
+      el('div', { className: 'toggles' }, [
+        toggleField({
+          label: 'Use each platform’s own colour',
+          hint: 'On, a YouTube post turns red and Twitch turns purple. Off keeps everything on your accent.',
+          checked: Boolean(draft.brand.usePlatformColors),
+          onChange: (v) => edit((d) => (d.brand.usePlatformColors = v)),
+        }),
+      ]),
+    ])
+  );
+}
+
+const PANELS = { welcome: renderWelcome, notifications: renderNotifications, links: renderLinks, look: renderLook };
+
+function renderActive() {
+  const tab = TABS.find((t) => t.id === activeTab);
+  $('#pageTitle').textContent = tab.title;
+  $('#pageBlurb').textContent = tab.blurb;
+  PANELS[activeTab]($('#panel'));
+  refreshSaveBar();
+}
+
+// ── actions ───────────────────────────────────────────────────────────────
+async function action(name, button, body = {}) {
+  const original = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Working…';
+  try {
+    const { message } = await api(`/api/action/${name}`, { method: 'POST', body: JSON.stringify(body) });
+    toast(message, 'success');
+  } catch (err) {
+    toast(err.message, 'error');
+  } finally {
+    button.disabled = false;
+    button.textContent = original;
+  }
+}
+
+async function save() {
+  const button = $('#save');
+  button.disabled = true;
+  button.textContent = 'Saving…';
+  try {
+    const { settings } = await api('/api/settings', { method: 'POST', body: JSON.stringify({ patch: draft }) });
+    state.settings = settings;
+    draft = clone(settings);
+    renderActive();
+    toast('Saved — the bot is already using it.', 'success');
+  } catch (err) {
+    toast(err.message, 'error');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Save changes';
+  }
+}
+
+// ── boot ──────────────────────────────────────────────────────────────────
+async function boot() {
+  const me = await api('/api/me');
+  if (!me.signedIn) { $('#login').hidden = false; return; }
+
+  state = await api('/api/state');
+  draft = clone(state.settings);
+
+  $('#app').hidden = false;
+  $('#guildName').textContent = state.guild.name;
+  $('#guildMeta').textContent = `${state.guild.memberCount.toLocaleString()} members`;
+  $('#statusLine').textContent = `online · ${state.status.ping}ms · ${state.status.watching} watched`;
+  if (state.guild.icon) $('#guildIcon').src = state.guild.icon;
+
+  const nav = $('#nav');
+  for (const tab of TABS) {
+    const button = el('button', { role: 'tab' }, [svg(ICONS[tab.id]), el('span', { textContent: tab.label })]);
+    button.setAttribute('aria-selected', String(tab.id === activeTab));
+    button.addEventListener('click', () => {
+      activeTab = tab.id;
+      for (const other of nav.children) other.setAttribute('aria-selected', String(other === button));
+      renderActive();
+      scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    nav.append(button);
+  }
+
+  $('#save').addEventListener('click', save);
+  $('#discard').addEventListener('click', () => { draft = clone(state.settings); renderActive(); toast('Changes discarded.'); });
+  $('#signOut').addEventListener('click', async () => { await api('/logout', { method: 'POST', body: '{}' }); location.reload(); });
+  addEventListener('beforeunload', (event) => { if (dirty()) event.preventDefault(); });
+
+  renderActive();
+}
+
+boot().catch((err) => {
+  document.body.innerHTML =
+    `<div class="login"><div class="login__card"><div class="mark">⚠️</div>
+     <h1>Couldn't load</h1><p>${err.message}</p>
+     <a class="btn btn--primary" href="/login" style="text-decoration:none;padding:11px 20px">Sign in again</a></div></div>`;
+});
+</script>
+</body>
+</html>
