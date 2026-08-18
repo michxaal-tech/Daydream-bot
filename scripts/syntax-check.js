@@ -13,6 +13,7 @@ import { buildWelcome } from '../src/features/welcome/render.js';
 import { renderAll } from '../src/features/notifications/render.js';
 import { platformIds, getPlatform } from '../src/features/notifications/platforms/index.js';
 import { parseOptions, renderPoll, pollButtons } from '../src/features/polls/index.js';
+import { missingPermissions, assertCanPost } from '../src/lib/brand.js';
 
 const checks = [];
 const check = (name, fn) => checks.push([name, fn]);
@@ -101,6 +102,20 @@ check('live posts use the deeper violet, not the default lavender', () => {
     kind: 'live', stats: { viewers: 5 },
   };
   assert.equal(renderAll(account, post).embeds[0].toJSON().color, 0x7c5cff);
+});
+
+check('a blocked channel names the exact permissions it is missing', () => {
+  const channel = { toString: () => '#polls', permissionsFor: () => ({ has: (flag) => flag === 2048n /* SendMessages only */ }) };
+  assert.deepEqual(missingPermissions(channel, {}), ['View Channel', 'Embed Links']);
+  assert.throws(() => assertCanPost(channel, {}), /View Channel.+Embed Links/s);
+
+  const open = { toString: () => '#general', permissionsFor: () => ({ has: () => true }) };
+  assert.deepEqual(missingPermissions(open, {}), []);
+  assert.doesNotThrow(() => assertCanPost(open, {}));
+
+  // No overwrite resolvable at all — treat as fully blocked, not as allowed.
+  const invisible = { toString: () => '#secret', permissionsFor: () => null };
+  assert.equal(missingPermissions(invisible, {}).length, 3);
 });
 
 check('poll options parse, including leading emoji', () => {

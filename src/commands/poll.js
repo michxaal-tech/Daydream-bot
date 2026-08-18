@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags, ChannelType } from 'discord.js';
-import { embed } from '../lib/brand.js';
+import { embed, assertCanPost } from '../lib/brand.js';
 import {
   createPoll,
   parseOptions,
@@ -90,10 +90,7 @@ export default {
       }
 
       const channel = interaction.options.getChannel('channel') ?? interaction.channel;
-      const me = await interaction.guild.members.fetchMe();
-      if (!channel.permissionsFor(me)?.has(PermissionFlagsBits.SendMessages)) {
-        throw new Error(`I can't post in ${channel}.`);
-      }
+      assertCanPost(channel, await interaction.guild.members.fetchMe());
 
       const duration = interaction.options.getInteger('duration');
       const { message } = await createPoll(channel, {

@@ -2,7 +2,7 @@
  * Every embed the bot sends goes through here, so the lavender accent bar on
  * the left edge is consistent across replies, welcomes and upload webhooks.
  */
-import { ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
+import { ButtonBuilder, ButtonStyle, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import { config } from './config.js';
 
 const hex = (value, fallback) => {
@@ -75,6 +75,33 @@ export function linkButton({ label, url, emoji }) {
   const safe = safeEmoji(emoji);
   if (safe) button.setEmoji(safe);
   return button;
+}
+
+/**
+ * "I can't post there" is useless on its own — Discord has three separate
+ * permissions that each break a rich message in a different way, and channel
+ * overrides mean a bot can hold one and not the others. Name the missing ones.
+ */
+const NEEDED = [
+  ['ViewChannel', PermissionFlagsBits.ViewChannel, 'View Channel'],
+  ['SendMessages', PermissionFlagsBits.SendMessages, 'Send Messages'],
+  ['EmbedLinks', PermissionFlagsBits.EmbedLinks, 'Embed Links'],
+];
+
+export function missingPermissions(channel, me) {
+  const held = channel.permissionsFor(me);
+  if (!held) return NEEDED.map(([, , label]) => label);
+  return NEEDED.filter(([, flag]) => !held.has(flag)).map(([, , label]) => label);
+}
+
+/** Throws with the fix spelled out, or returns quietly. */
+export function assertCanPost(channel, me) {
+  const missing = missingPermissions(channel, me);
+  if (!missing.length) return;
+  throw new Error(
+    `I'm missing **${missing.join('**, **')}** in ${channel}.\n` +
+      `Fix it in Discord: **Edit Channel → Permissions → Add my role** (or me), and allow ${missing.join(', ')}.`
+  );
 }
 
 export const PLATFORM_META = {
