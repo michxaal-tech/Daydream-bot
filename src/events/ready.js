@@ -12,6 +12,7 @@ import { snapshotInvites } from '../features/logging/index.js';
 import { maybePostRecap } from '../features/analytics/recap.js';
 import { prune } from '../features/analytics/index.js';
 import { runDue, postDailyPrompt } from '../features/scheduler/index.js';
+import { restoreTempbans } from '../features/moderation/punishments.js';
 
 const log = logger('bot');
 
@@ -35,6 +36,7 @@ export default {
     client.stopDashboard = startDashboard(client);
     restoreGiveaways(client);
     restoreReminders(client);
+    restoreTempbans(client);
 
     for (const guild of client.guilds.cache.values()) {
       await snapshotInvites(guild).catch(() => {});

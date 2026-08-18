@@ -307,5 +307,16 @@
     "channelId": "",
     "roleId": "",
     "template": "{user} just boosted the server. That genuinely helps \u2014 thank you."
+  },
+  "punishments": {
+    "//": "Created by /modsetup jail and /modsetup mutes \u2014 you shouldn't need to fill these in by hand.",
+    "jailRoleId": "",
+    "jailChannelId": "",
+    "mutedRoleId": "",
+    "imageMutedRoleId": "",
+    "reactionMutedRoleId": "",
+    "staffRoleIds": [],
+    "//invoke": "Per-action wording: { jail: { message: '\u2026', dm: '\u2026' } }. Tokens: {user} {moderator} {reason} {duration}",
+    "invoke": {}
   }
 }

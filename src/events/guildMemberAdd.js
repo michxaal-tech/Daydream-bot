@@ -4,12 +4,19 @@ import { handleJoin as screenJoin } from '../features/moderation/automod.js';
 import { restoreRoles } from '../features/profiles/index.js';
 import { whichInvite, memberJoined } from '../features/logging/index.js';
 import { recordJoin } from '../features/analytics/index.js';
+import { isHardBanned } from '../features/moderation/punishments.js';
 
 export default {
   name: Events.GuildMemberAdd,
   async execute(member) {
     // Work out the invite before anything else changes the counts.
     const invite = await whichInvite(member.guild).catch(() => null);
+
+    // A hard ban outlives someone else's unban.
+    if (isHardBanned(member.id)) {
+      await member.ban({ reason: 'hard ban — rejoined' }).catch(() => {});
+      return;
+    }
 
     recordJoin({ userId: member.id, inviteCode: invite?.code ?? null, inviterTag: invite?.inviterTag ?? null });
 

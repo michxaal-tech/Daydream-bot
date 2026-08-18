@@ -2,6 +2,7 @@ import { Events } from 'discord.js';
 import { config } from '../lib/config.js';
 import { embed } from '../lib/brand.js';
 import { handleMemberName } from '../features/triggers/index.js';
+import { enforceNick } from '../features/moderation/punishments.js';
 import { logger } from '../lib/logger.js';
 
 const log = logger('boosts');
@@ -9,6 +10,8 @@ const log = logger('boosts');
 export default {
   name: Events.GuildMemberUpdate,
   async execute(before, after) {
+    // A forced nickname wins over both the member and the dehoister.
+    if (await enforceNick(after).catch(() => false)) return;
     await handleMemberName(after).catch(() => {});
 
     const cfg = config.boosts ?? {};
