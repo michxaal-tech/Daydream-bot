@@ -10,6 +10,18 @@ if (!existsSync(CONFIG_PATH)) {
 
 export const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
 
+/** Adds the missing https://, drops a trailing slash, tolerates a stray path. */
+function normalizeBaseUrl(raw) {
+  const trimmed = String(raw).trim();
+  if (!trimmed) return '';
+  const withScheme = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  try {
+    return new URL(withScheme).origin;
+  } catch {
+    return withScheme.replace(/\/+$/, '');
+  }
+}
+
 export const env = {
   token: process.env.DISCORD_TOKEN,
   clientId: process.env.DISCORD_CLIENT_ID,
@@ -31,11 +43,15 @@ export const env = {
     enabled: (process.env.DASHBOARD_ENABLED ?? 'true') !== 'false',
     port: Number(process.env.PORT ?? 3000),
     clientSecret: process.env.DISCORD_CLIENT_SECRET || '',
-    /** Public origin, e.g. https://daydream-bot.up.railway.app — no trailing slash. */
-    baseUrl: (
-      process.env.DASHBOARD_URL ||
-      (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : '')
-    ).replace(/\/$/, ''),
+    /**
+     * Public origin, e.g. https://daydream-bot.up.railway.app.
+     * Normalised hard: a DASHBOARD_URL pasted without a scheme, or with a
+     * trailing slash, silently breaks OAuth with an "invalid redirect_uri" that
+     * points nowhere useful. Fix it here instead of making someone debug it.
+     */
+    baseUrl: normalizeBaseUrl(
+      process.env.DASHBOARD_URL || process.env.RAILWAY_PUBLIC_DOMAIN || ''
+    ),
   },
 };
 
