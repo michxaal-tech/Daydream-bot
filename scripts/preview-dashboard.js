@@ -56,4 +56,5 @@ app.post('/api/action/:name', (req, res) =>
 app.post('/logout', (_req, res) => res.json({ ok: true }));
 
 app.use(express.static(resolve('src/web/public')));
-app.listen(4321, () => console.log('dashboard preview → http://localhost:4321'));
+const port = Number(process.env.PREVIEW_PORT ?? 4321);
+app.listen(port, () => console.log(`dashboard preview → http://localhost:${port}`));
