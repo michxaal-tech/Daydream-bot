@@ -29,6 +29,11 @@ settings.roleMenus.panels = [
       { roleId: '22', label: 'Live', emoji: '🔴', description: 'streams' },
     ] },
 ];
+settings.analytics = { enabled: true, attributionWindowHours: 24 };
+settings.firstHour = { enabled: true, roleId: '23', windowMinutes: 60, announce: false, resetEachUpload: true };
+settings.liveTakeover = { enabled: false, renameChannelId: '6', liveName: '🔴-live-now', bannerChannelId: '7' };
+settings.recap = { enabled: true, channelId: '7', weekday: 0 };
+settings.shoutouts = { enabled: true, perPersonLimit: 1 };
 settings.economy = { enabled: true, currency: '🪙', dailyAmount: 100, streakBonus: 25, maxStreakBonusDays: 7,
   shop: [{ id: 'vip', name: 'VIP colour', price: 500, roleId: '23' }] };
 settings.birthdays = { enabled: true, channelId: '7', roleId: '23', template: "It's {users}' birthday today." };
@@ -155,6 +160,7 @@ app.post('/api/action/:name', (req, res) => {
     ];
     return res.json({ ok: true, message: 'Poll posted (preview).' });
   }
+  if (name === 'recap-preview') return res.json({ ok: true, message: 'Sent you the recap as a DM (preview).' });
   if (name === 'validate-feed') {
     return res.json({ ok: true, message: '✓ Daydream — latest: "i tried every viral food hack for 7 days"' });
   }

@@ -28,6 +28,7 @@ import {
   attribution, invitePerformance, superfans, recentJoins, recentUploads,
 } from '../features/analytics/index.js';
 import { pending as pendingShoutouts, markRead } from '../features/shoutouts/index.js';
+import { buildRecap } from '../features/analytics/recap.js';
 import { activeTests, closeTest } from '../features/abtest/index.js';
 import { SESSION_COOKIE, createSession, readSession, parseCookies, setCookie, clearCookie } from './session.js';
 
@@ -371,6 +372,14 @@ async function runAction(name, req, client) {
     assertCanPost(channel, await guild.members.fetchMe());
     await channel.send(renderPanel(panel));
     return `Panel posted in #${channel.name}.`;
+  }
+
+  if (name === 'recap-preview') {
+    // Sent to whoever asked, not the channel — a preview shouldn't announce itself.
+    const member = await guild.members.fetch(req.session.id).catch(() => null);
+    if (!member) throw new Error('Could not find you in the server.');
+    await member.send({ embeds: [buildRecap({ guildName: guild.name })] });
+    return 'Sent you the recap as a DM.';
   }
 
   if (name === 'shoutout-done') {

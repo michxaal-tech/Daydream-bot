@@ -1685,8 +1685,82 @@ function renderInsights(root) {
   const fans = i.superfans ?? [];
   const MEDALS = ['🥇', '🥈', '🥉'];
 
+  // Settings for everything on this tab, so the readouts below are reachable
+  // rather than just observable.
+  const d = draft;
+  d.analytics ??= {}; d.firstHour ??= {}; d.liveTakeover ??= {};
+  d.recap ??= {}; d.shoutouts ??= {};
+
+  const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    .map((name, n) => ({ id: String(n), name }));
+
   root.replaceChildren(
     healthCard(),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', { textContent: '⚡ First-hour club' }),
+        el('p', { textContent: 'React to an upload inside the window and get a role. Creates a race to be early, and tells you who reliably shows up.' }),
+      ]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Run the first-hour club', checked: Boolean(d.firstHour.enabled), onChange: (v) => edit((x) => (x.firstHour.enabled = v)) }),
+        toggleField({ label: 'Announce each claim in the channel', checked: Boolean(d.firstHour.announce), onChange: (v) => edit((x) => (x.firstHour.announce = v)) }),
+        toggleField({ label: 'Clear the role before each new drop', hint: 'So it always means "this upload"', checked: d.firstHour.resetEachUpload !== false, onChange: (v) => edit((x) => (x.firstHour.resetEachUpload = v)) }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        selectField({ label: 'Role to grant', value: d.firstHour.roleId, options: roleOptions(), onChange: (v) => edit((x) => (x.firstHour.roleId = v)) }),
+        textField({ label: 'Window (minutes)', value: String(d.firstHour.windowMinutes ?? 60), onInput: (v) => edit((x) => (x.firstHour.windowMinutes = Number(v) || 60)) }),
+      ]),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', { textContent: '🔴 Live takeover' }),
+        el('p', { textContent: 'When a stream starts the server visibly changes, and puts itself back when it ends.' }),
+      ]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Take the server over while live', checked: Boolean(d.liveTakeover.enabled), onChange: (v) => edit((x) => (x.liveTakeover.enabled = v)) }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        selectField({ label: 'Channel to rename', value: d.liveTakeover.renameChannelId, options: channelOptions(), blank: '— none —', onChange: (v) => edit((x) => (x.liveTakeover.renameChannelId = v)) }),
+        textField({ label: 'Rename it to', value: d.liveTakeover.liveName ?? '🔴-live-now', onInput: (v) => edit((x) => (x.liveTakeover.liveName = v)) }),
+        selectField({ label: 'Pin a banner in', value: d.liveTakeover.bannerChannelId, options: channelOptions(), blank: '— none —', onChange: (v) => edit((x) => (x.liveTakeover.bannerChannelId = v)) }),
+      ]),
+      el('span', { className: 'hint', textContent: 'Needs a Twitch or Kick account switched on under Notifications — that is what tells the bot you went live.' }),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', { textContent: '📅 Weekly recap' }),
+        el('p', { textContent: 'A digest of the week: drops and what they brought in, new members, top people, busiest hours.' }),
+      ]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Post a weekly recap', checked: Boolean(d.recap.enabled), onChange: (v) => edit((x) => (x.recap.enabled = v)) }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        selectField({ label: 'Post it in', value: d.recap.channelId, options: channelOptions(), onChange: (v) => edit((x) => (x.recap.channelId = v)) }),
+        selectField({ label: 'On', value: String(d.recap.weekday ?? 0), options: WEEKDAYS, blank: null, onChange: (v) => edit((x) => (x.recap.weekday = Number(v))) }),
+        textField({ label: 'Attribution window (hours)', hint: 'How long after an upload a join still counts', value: String(d.analytics.attributionWindowHours ?? 24), onInput: (v) => edit((x) => (x.analytics.attributionWindowHours = Number(v) || 24)) }),
+      ]),
+      (() => {
+        const btn = el('button', { className: 'btn', textContent: 'Preview this week' });
+        btn.addEventListener('click', () => action('recap-preview', btn));
+        return el('div', { className: 'row' }, [btn]);
+      })(),
+    ]),
+
+    el('div', { className: 'card' }, [
+      el('header', {}, [
+        el('h2', { textContent: '📣 Shoutout queue' }),
+        el('p', { textContent: 'Members submit with /creator shoutout submit; you read them off the list below.' }),
+      ]),
+      el('div', { className: 'toggles' }, [
+        toggleField({ label: 'Open the queue', checked: Boolean(d.shoutouts.enabled), onChange: (v) => edit((x) => (x.shoutouts.enabled = v)) }),
+      ]),
+      el('div', { className: 'grid2' }, [
+        textField({ label: 'How many each person may have waiting', value: String(d.shoutouts.perPersonLimit ?? 1), onInput: (v) => edit((x) => (x.shoutouts.perPersonLimit = Number(v) || 1)) }),
+      ]),
+    ]),
 
     el('div', { className: 'card' }, [
       el('header', {}, [
