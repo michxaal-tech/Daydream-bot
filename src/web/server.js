@@ -51,7 +51,9 @@ export function startDashboard(client) {
   // ── auth ────────────────────────────────────────────────────────────────
   app.get('/login', (req, res) => {
     if (!baseUrl()) {
-      return res.status(500).send('DASHBOARD_URL is not set, so OAuth has nowhere to come back to.');
+      return res
+        .status(500)
+        .send(denied('DASHBOARD_URL is not set, so OAuth has nowhere to come back to.'));
     }
     const state = randomBytes(16).toString('hex');
     setCookie(res, 'oauth_state', state, { maxAgeMs: 10 * 60 * 1000, secure: isSecure() });
@@ -102,7 +104,13 @@ export function startDashboard(client) {
       res.redirect('/');
     } catch (err) {
       log.error('oauth callback failed:', err.message);
-      res.status(500).send('Login failed. Check the bot logs.');
+      res.status(500).send(
+        denied(
+          `Login failed: ${escapeHtml(err.message)}<br><br>The redirect URI this bot uses is ` +
+            `<code>${escapeHtml(redirectUri())}</code> — it has to be registered, exactly, ` +
+            `under Developer Portal → OAuth2 → Redirects.`
+        )
+      );
     }
   });
 
@@ -190,7 +198,14 @@ export function startDashboard(client) {
 
   const server = app.listen(web.port, () => {
     log.info(`dashboard on port ${web.port}${baseUrl() ? ` — ${baseUrl()}` : ''}`);
-    if (!baseUrl()) log.warn('DASHBOARD_URL not set — login will fail until it is');
+    if (baseUrl()) {
+      // Discord rejects anything that isn't a byte-for-byte match, so print the
+      // exact string to paste into OAuth2 → Redirects rather than describing it.
+      log.info(`OAuth redirect URI — paste this into Developer Portal → OAuth2 → Redirects:`);
+      log.info(`    ${redirectUri()}`);
+    } else {
+      log.warn('DASHBOARD_URL not set and no Railway domain detected — login will fail until one exists');
+    }
   });
 
   return () => server.close();
@@ -268,6 +283,9 @@ async function discordGet(path, token) {
   if (!res.ok) throw new Error(`GET ${path} failed: HTTP ${res.status}`);
   return res.json();
 }
+
+const escapeHtml = (text) =>
+  String(text).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
 const denied = (reason) =>
   `<!doctype html><meta charset="utf-8"><title>No access</title>

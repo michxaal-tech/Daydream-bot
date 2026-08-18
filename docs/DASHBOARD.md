@@ -86,7 +86,7 @@ And once it's up:
 
 | What you see | What it is |
 |---|---|
-| Discord says "invalid redirect_uri" | The redirect in the portal doesn't exactly match `DASHBOARD_URL` + `/callback` |
+| Discord says "invalid redirect_uri" | The portal entry doesn't byte-for-byte match what the bot sends. The bot logs the exact string at startup — copy that. Or read it out of the address bar on Discord's error page: `redirect_uri=` in the query string, URL-decoded |
 | "Login failed: state mismatch" | Cookies were blocked, or the login sat unfinished for over 10 minutes. Start again at `/login` |
 | "You need the Manage Server permission" | Correct — grant yourself that role, or use an account that has it |
 | Signed out after every deploy | `SESSION_SECRET` isn't set, so it's regenerated on each boot |
