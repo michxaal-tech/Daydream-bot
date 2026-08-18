@@ -28,13 +28,29 @@ export const env = {
   dataDir: process.env.DATA_DIR || 'data',
 };
 
+const NAMES = { token: 'DISCORD_TOKEN', clientId: 'DISCORD_CLIENT_ID' };
+
 /** Fails fast with a readable message instead of a cryptic login error. */
 export function assertEnv() {
-  const missing = ['token', 'clientId'].filter((k) => !env[k]);
-  if (missing.length) {
-    throw new Error(
-      `Missing required env vars: ${missing.map((m) => (m === 'token' ? 'DISCORD_TOKEN' : 'DISCORD_CLIENT_ID')).join(', ')}. ` +
-        'Copy .env.example to .env and fill it in.'
-    );
-  }
+  const missing = Object.keys(NAMES).filter((k) => !env[k]);
+  if (!missing.length) return;
+
+  // Hosted or local? The fix is in a completely different place, so say which.
+  const hosted = Boolean(
+    process.env.RAILWAY_ENVIRONMENT_NAME ||
+      process.env.RENDER ||
+      process.env.FLY_APP_NAME ||
+      process.env.REPL_ID ||
+      process.env.DYNO ||
+      process.env.KUBERNETES_SERVICE_HOST
+  );
+
+  throw new Error(
+    `Missing required env vars: ${missing.map((m) => NAMES[m]).join(', ')}.\n` +
+      (hosted
+        ? '  Set them on the service itself (Railway: your service → Variables → Raw Editor),\n' +
+          '  then redeploy — variables added after a build started do not reach the running\n' +
+          '  container. Project-level shared variables must be referenced by the service to apply.'
+        : '  Copy .env.example to .env and fill it in.')
+  );
 }
