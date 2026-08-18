@@ -37,11 +37,14 @@
 html, body { height: 100%; }
 body {
   margin: 0;
-  background: var(--bg);
   color: var(--ink);
   font: 15px/1.5 var(--sans);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  /* a faint dot grid over the base colour — texture you feel more than see */
+  background:
+    radial-gradient(rgba(255,255,255,.022) 1px, transparent 1px) 0 0 / 26px 26px,
+    var(--bg);
 }
 /* two slow-drifting blooms — the room's ambient light */
 body::before, body::after {
@@ -175,8 +178,53 @@ button, input, select, textarea { font-family: inherit; }
 .linkish:hover { color: var(--lav); }
 
 /* ══ content ══════════════════════════════════════════════════════════════ */
-.content { padding: 34px 34px 132px; max-width: 920px; }
+.content { padding: 34px 34px 132px; max-width: 1320px; }
 @media (max-width: 640px) { .content { padding: 22px 18px 132px; } }
+
+/* main column + status rail. The rail only appears when there is genuinely
+   room for it; below that it drops under the panel rather than squeezing. */
+.workspace { display: grid; grid-template-columns: minmax(0, 1fr) 272px; gap: 22px; align-items: start; }
+@media (max-width: 1180px) { .workspace { grid-template-columns: minmax(0, 1fr); } }
+.rail { position: sticky; top: 24px; display: grid; gap: 14px; }
+@media (max-width: 1180px) { .rail { position: static; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); } }
+
+.rail-card {
+  position: relative;
+  border-radius: var(--r);
+  padding: 16px 17px;
+  display: grid; gap: 12px;
+  background: linear-gradient(168deg, rgba(28,24,40,.6), rgba(16,14,24,.55));
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+  border: 1px solid transparent;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 14px 34px -26px rgba(0,0,0,.9);
+  animation: rise .55s var(--spring) both;
+}
+.rail-card:nth-child(2) { animation-delay: .08s; }
+.rail-card:nth-child(3) { animation-delay: .16s; }
+.rail-card::after { border-radius: calc(var(--r) + 16px); }
+.rail-card h3 {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); font-family: var(--mono);
+}
+.stat { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.stat__label { font-size: 13px; color: var(--ink-soft); }
+.stat__value { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat__value--good { color: var(--good); }
+
+/* a live sparkline-ish bar for "how much is switched on" */
+.meter { height: 6px; border-radius: 99px; background: rgba(255,255,255,.06); overflow: hidden; }
+.meter i {
+  display: block; height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--lav-soft), var(--deep));
+  transition: width .9s var(--spring);
+  box-shadow: 0 0 14px rgba(167,139,250,.7);
+}
+.rail .btn { width: 100%; justify-content: center; }
+.dot-live {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--good); display: inline-block;
+  box-shadow: 0 0 0 0 rgba(82,224,160,.55); animation: ping 2.4s ease-out infinite;
+}
 
 .page-head { display: grid; gap: 6px; margin-bottom: 26px; }
 .page-head h1 { font-size: 1.8rem; font-weight: 800; }
@@ -188,51 +236,87 @@ button, input, select, textarea { font-family: inherit; }
 
 .card {
   position: relative;
-  background: var(--panel);
-  border: 1px solid var(--line);
+  /* frosted glass: the blooms behind the page show through, softly */
+  background: linear-gradient(168deg, rgba(30,26,44,.72), rgba(18,16,27,.66));
+  backdrop-filter: blur(22px) saturate(135%);
+  -webkit-backdrop-filter: blur(22px) saturate(135%);
+  border: 1px solid transparent;
   border-radius: var(--r-lg);
   padding: 22px;
   display: grid; gap: 18px;
   margin-bottom: 18px;
-  transition: border-color .3s var(--swift), transform .35s var(--spring);
+  /* a lit top edge and a grounded shadow — the two things that sell depth */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.055),
+    inset 0 -1px 0 rgba(0,0,0,.28),
+    0 18px 44px -28px rgba(0,0,0,.9);
+  transition: transform .45s var(--spring), box-shadow .45s var(--swift);
 }
-.card:hover { border-color: #322C44; }
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 -1px 0 rgba(0,0,0,.28),
+    0 26px 56px -28px rgba(0,0,0,1);
+}
 .card > header { display: grid; gap: 3px; }
 .card h2 { font-size: 1.04rem; font-weight: 700; }
 .card header p { margin: 0; color: var(--muted); font-size: 13.5px; }
 .divider { height: 1px; background: var(--line-soft); }
 
-/* travelling glow around every box */
+/* ── ambient edge light ───────────────────────────────────────────────────
+   Two layers, both deliberately soft. ::before is a hairline gradient border
+   that never moves — it just catches light along one diagonal, the way a real
+   pane does. ::after is a wide, heavily blurred wash that orbits slowly behind
+   the card. Earlier this was one bright arc chasing the border, which read as
+   a moving line rather than as light; spreading it over 120° and blurring it
+   28px turns it into a glow that drifts.                                    */
 @property --glow-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
 @keyframes glow-orbit { to { --glow-angle: 360deg; } }
-.card::before, .card::after, .account::before, .account::after, .poll-row::before, .poll-row::after {
+@keyframes glow-breathe { 50% { opacity: .78; } }
+
+.card::before, .account::before, .poll-row::before, .rail-card::before {
   content: "";
-  position: absolute;
+  position: absolute; inset: 0;
   border-radius: inherit;
-  background: conic-gradient(
-    from var(--glow-angle),
-    transparent 0 6%,
-    var(--lav-soft) 14%,
-    var(--lav) 19%,
-    var(--deep) 27%,
-    transparent 38% 100%
+  padding: 1px;
+  background: linear-gradient(
+    150deg,
+    rgba(196,181,253,.42),
+    rgba(255,255,255,.05) 38%,
+    rgba(255,255,255,.03) 62%,
+    rgba(124,92,255,.34)
   );
-  animation: glow-orbit 7s linear infinite;
-  pointer-events: none;
-}
-.card::after, .account::after, .poll-row::after { inset: -3px; filter: blur(13px); opacity: .7; z-index: -1; }
-.card::before, .account::before, .poll-row::before {
-  inset: 0; padding: 1px;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
           mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
 }
-.account::before, .account::after { animation-duration: 9s; }
-.poll-row::before, .poll-row::after { animation-duration: 11s; }
-.card:nth-child(2n)::before, .card:nth-child(2n)::after { animation-delay: -2.3s; }
-.card:nth-child(3n)::before, .card:nth-child(3n)::after { animation-delay: -4.6s; }
-.account:nth-child(2n)::before, .account:nth-child(2n)::after { animation-delay: -3s; }
-.poll-row:nth-child(2n)::before, .poll-row:nth-child(2n)::after { animation-delay: -5s; }
+
+.card::after, .account::after, .poll-row::after, .rail-card::after {
+  content: "";
+  position: absolute; inset: -16px;
+  border-radius: calc(var(--r-lg) + 16px);
+  background: conic-gradient(
+    from var(--glow-angle),
+    transparent 0 12%,
+    rgba(167,139,250,.34) 30%,
+    rgba(124,92,255,.30) 44%,
+    rgba(240,171,252,.16) 56%,
+    transparent 74% 100%
+  );
+  filter: blur(30px);
+  opacity: .5;
+  z-index: -1;
+  pointer-events: none;
+  animation: glow-orbit 22s linear infinite, glow-breathe 9s ease-in-out infinite;
+}
+/* out of phase, so the page never pulses as one block */
+.card:nth-child(2n)::after { animation-delay: -7s, -3s; }
+.card:nth-child(3n)::after { animation-delay: -14s, -6s; }
+.account::after, .poll-row::after { animation-duration: 28s, 11s; opacity: .38; }
+.account:nth-child(2n)::after, .poll-row:nth-child(2n)::after { animation-delay: -9s, -4s; }
+.rail-card::after { animation-duration: 26s, 10s; opacity: .34; }
 
 /* ══ fields ═══════════════════════════════════════════════════════════════ */
 .field { display: grid; gap: 7px; }
@@ -337,17 +421,21 @@ input.mono, textarea.mono { font-family: var(--mono); font-size: 13px; }
 /* ══ accounts / polls ═════════════════════════════════════════════════════ */
 .account, .poll-row {
   position: relative;
-  border: 1px solid var(--line);
+  border: 1px solid transparent;
   border-radius: var(--r);
-  background: var(--bg-2);
+  background: linear-gradient(168deg, rgba(26,23,38,.62), rgba(15,13,23,.58));
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 12px 30px -22px rgba(0,0,0,.9);
   margin-bottom: 14px;
-  transition: transform .35s var(--spring), border-color .3s;
+  transition: transform .45s var(--spring), box-shadow .45s var(--swift);
 }
-.account:hover, .poll-row:hover { transform: translateY(-2px); }
+.account:hover, .poll-row:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 20px 44px -24px rgba(0,0,0,1); }
+.account::after, .poll-row::after { border-radius: calc(var(--r) + 16px); }
 .account__head {
   display: flex; align-items: center; gap: 11px; flex-wrap: wrap;
-  padding: 14px 18px; background: var(--raised);
-  border-bottom: 1px solid var(--line);
+  padding: 14px 18px; background: rgba(255,255,255,.035);
+  border-bottom: 1px solid rgba(255,255,255,.05);
   border-radius: calc(var(--r) - 1px) calc(var(--r) - 1px) 0 0;
 }
 .account__title { font-weight: 700; font-size: 14.5px; }
@@ -469,7 +557,10 @@ input.mono, textarea.mono { font-family: var(--mono); font-size: 13px; }
       <h1 id="pageTitle">Welcome</h1>
       <p id="pageBlurb"></p>
     </div>
-    <div id="panel" class="stagger"></div>
+    <div class="workspace">
+      <div id="panel" class="stagger"></div>
+      <aside class="rail" id="rail" aria-label="Status"></aside>
+    </div>
   </div>
 
   <div class="savebar" id="savebar">
@@ -922,6 +1013,59 @@ function renderLook(root) {
 
 const PANELS = { welcome: renderWelcome, notifications: renderNotifications, polls: renderPolls, links: renderLinks, look: renderLook };
 
+const stat = (label, value, cls = '') =>
+  el('div', { className: 'stat' }, [
+    el('span', { className: 'stat__label', textContent: label }),
+    el('span', { className: `stat__value ${cls}`.trim(), textContent: String(value) }),
+  ]);
+
+const uptime = (ms) => {
+  const mins = Math.floor((ms ?? 0) / 60000);
+  if (mins < 60) return `${mins}m`;
+  const hours = Math.floor(mins / 60);
+  return hours < 48 ? `${hours}h ${mins % 60}m` : `${Math.floor(hours / 24)}d ${hours % 24}h`;
+};
+
+/** The right-hand rail: live numbers, not settings. Rebuilt on every render. */
+function renderRail() {
+  const accounts = draft.notifications?.accounts ?? [];
+  const active = accounts.filter((a) => a.enabled !== false).length;
+  const polls = state.polls ?? [];
+  const accent = /^#[0-9a-f]{6}$/i.test(draft.brand?.accent ?? '') ? draft.brand.accent : '#A78BFA';
+
+  $('#rail').replaceChildren(
+    el('div', { className: 'rail-card' }, [
+      el('h3', {}, [el('span', { className: 'dot-live' }), document.createTextNode(' Bot')]),
+      stat('Status', 'online', 'stat__value--good'),
+      stat('Latency', `${state.status.ping} ms`),
+      stat('Up for', uptime(state.status.uptimeMs)),
+      stat('Members', state.guild.memberCount.toLocaleString()),
+    ]),
+
+    el('div', { className: 'rail-card' }, [
+      el('h3', { textContent: 'Watching' }),
+      stat('Active accounts', `${active} / ${accounts.length}`),
+      el('div', { className: 'meter' }, [
+        el('i', { style: `width:${accounts.length ? (active / accounts.length) * 100 : 0}%` }),
+      ]),
+      stat('Polls running', polls.length),
+      polls.length
+        ? el('div', { className: 'hint', style: 'font-size:12.5px', textContent: `Next closes in ${relative(Math.min(...polls.map((p) => p.endsAt)))}` })
+        : null,
+    ]),
+
+    el('div', { className: 'rail-card' }, [
+      el('h3', { textContent: 'Quick actions' }),
+      actionButton('Check every feed', 'notify-check'),
+      actionButton('Test the welcome', 'welcome-test'),
+      el('div', { className: 'stat' }, [
+        el('span', { className: 'stat__label', textContent: 'Accent' }),
+        el('span', { style: `width:20px;height:20px;border-radius:6px;background:${accent};box-shadow:0 0 12px ${accent}66` }),
+      ]),
+    ])
+  );
+}
+
 /** Render the active panel, then restart the stagger so its cards fly in. */
 function renderActive() {
   const tab = TABS.find((t) => t.id === activeTab);
@@ -936,6 +1080,7 @@ function renderActive() {
   void panel.offsetWidth; // forces the animation to start over on new nodes
   panel.classList.add('stagger');
 
+  renderRail();
   refreshSaveBar();
 }
 
