@@ -13,7 +13,15 @@ Roughly 15 minutes end to end.
 
 ## 2. Invite it
 
-OAuth2 → URL Generator → scopes `bot` + `applications.commands`, permissions:
+Fastest route — paste your Application ID into this URL and open it:
+
+```
+https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=310043069504&scope=bot%20applications.commands
+```
+
+`310043069504` is exactly the permission set below and nothing else. To build it
+by hand instead: OAuth2 → URL Generator → scopes `bot` + `applications.commands`,
+permissions:
 
 | Permission | Needed for |
 |---|---|
