@@ -1,5 +1,9 @@
 # Message mockups
 
+> **Visual version:** open [`mockups/preview.html`](../mockups/preview.html) in a
+> browser for these same messages rendered as real Discord UI, lavender bars and
+> all. The ASCII versions below are the same payloads, readable in a terminal.
+
 Every payload below is generated from the real render code
 (`node scripts/generate-mockups.js` → `mockups/payloads/*.json`), so what you
 read here is byte-for-byte what Discord receives.

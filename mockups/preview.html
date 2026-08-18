@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daydream Message Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap">
+
+<style>
+/* ── page tokens: light is the base, dark redefines only values ───────────── */
+:root {
+  --paper:      #F5F4F8;
+  --card:       #FFFFFF;
+  --ink:        #17141F;
+  --ink-soft:   #423D52;
+  --muted:      #6B6779;
+  --rule:       #E4E1EC;
+  --rule-soft:  #EEECF4;
+  --violet:     #5B34D6;
+  --violet-dim: #EDE7FE;
+  --lav:        #A78BFA;
+  --deep:       #7C5CFF;
+  --shadow:     0 1px 2px rgba(23,20,31,.05), 0 12px 32px -18px rgba(23,20,31,.28);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:      #100E17;
+    --card:       #17151F;
+    --ink:        #EEEBF5;
+    --ink-soft:   #C3BED2;
+    --muted:      #8B85A0;
+    --rule:       #2A2637;
+    --rule-soft:  #221F2E;
+    --violet:     #B79CFF;
+    --violet-dim: #241C3C;
+    --shadow:     0 1px 2px rgba(0,0,0,.4), 0 14px 34px -20px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"] {
+  --paper:      #100E17;
+  --card:       #17151F;
+  --ink:        #EEEBF5;
+  --ink-soft:   #C3BED2;
+  --muted:      #8B85A0;
+  --rule:       #2A2637;
+  --rule-soft:  #221F2E;
+  --violet:     #B79CFF;
+  --violet-dim: #241C3C;
+  --shadow:     0 1px 2px rgba(0,0,0,.4), 0 14px 34px -20px rgba(0,0,0,.8);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--violet); }
+
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px 96px;
+}
+
+/* ── masthead ─────────────────────────────────────────────────────────────── */
+.mast {
+  padding: 72px 0 40px;
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  gap: 28px;
+}
+.mast__eyebrow {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mast__eyebrow::before {
+  content: "";
+  width: 3px;
+  height: 15px;
+  border-radius: 2px;
+  background: var(--lav);
+}
+h1 {
+  font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-size: clamp(2.5rem, 6.5vw, 4.6rem);
+  line-height: .96;
+  letter-spacing: -.035em;
+  margin: 0;
+  text-wrap: balance;
+  max-width: 15ch;
+}
+h1 em {
+  font-style: normal;
+  color: var(--violet);
+}
+.mast__lede {
+  max-width: 62ch;
+  font-size: 1.075rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+.mast__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.mast__meta span {
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 4px 11px;
+  background: var(--card);
+}
+
+/* ── two-column shell ─────────────────────────────────────────────────────── */
+.shell {
+  display: grid;
+  grid-template-columns: 216px minmax(0, 1fr);
+  gap: 56px;
+  padding-top: 48px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .shell { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+  .rail  { position: static; }
+}
+
+.rail { position: sticky; top: 28px; display: grid; gap: 30px; }
+.rail h2 {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 400;
+  margin: 0 0 12px;
+}
+.rail ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  border-left: 1px solid var(--rule);
+}
+.rail a {
+  display: block;
+  padding: 5px 0 5px 14px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 14px;
+}
+.rail a:hover, .rail a:focus-visible { color: var(--violet); border-left-color: var(--lav); }
+
+/* palette legend — the whole point of the page in four rows */
+.swatches { display: grid; gap: 9px; }
+.sw {
+  display: grid;
+  grid-template-columns: 4px 1fr;
+  gap: 11px;
+  align-items: center;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.sw i { display: block; height: 30px; border-radius: 2px; }
+.sw b { display: block; color: var(--ink); font-weight: 700; letter-spacing: -.01em; }
+
+/* ── specimen cards ───────────────────────────────────────────────────────── */
+.specs { display: grid; gap: 34px; }
+
+.spec {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  scroll-margin-top: 24px;
+}
+.spec__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 20px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.spec__title { display: grid; gap: 3px; }
+.trigger {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: .05em;
+  color: var(--violet);
+}
+.spec h3 {
+  font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.32rem;
+  letter-spacing: -.02em;
+  margin: 0;
+  line-height: 1.2;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 5px;
+  border: 1px solid var(--rule);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.chip--bot     { background: var(--violet-dim); border-color: transparent; color: var(--violet); }
+.chip--hook    { background: var(--violet); border-color: transparent; color: var(--card); }
+.chip--quiet   { opacity: .85; }
+
+.note {
+  margin: 0;
+  padding: 15px 24px 0;
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  max-width: 68ch;
+}
+.note code, .prose code {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: .86em;
+  background: var(--rule-soft);
+  padding: 1.5px 5px;
+  border-radius: 4px;
+}
+
+/* ── the Discord specimen: a fixed dark palette in both page themes ───────── */
+.discord {
+  --d-bg:      #313338;
+  --d-embed:   #2B2D31;
+  --d-text:    #DBDEE1;
+  --d-bright:  #F2F3F5;
+  --d-dim:     #949BA4;
+  --d-link:    #00A8FC;
+  --d-btn:     #4E5058;
+  --d-mention: rgba(167,139,250,.20);
+  --d-mentiontx:#C7B4FF;
+
+  margin: 18px 24px 24px;
+  padding: 18px 16px;
+  background: var(--d-bg);
+  border-radius: 9px;
+  color: var(--d-text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans", sans-serif;
+  font-size: 15px;
+  line-height: 1.375;
+  overflow-x: auto;
+}
+.discord + .discord { margin-top: -8px; }
+
+.chanbar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 0 14px 2px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  color: var(--d-dim);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.chanbar b { color: var(--d-bright); font-weight: 600; }
+
+.msg { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 16px; }
+.msg + .msg { margin-top: 18px; }
+
+.avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-weight: 700; font-size: 15px; color: #fff;
+  background: linear-gradient(150deg, #A78BFA, #6D46E8);
+}
+.avatar--user { background: linear-gradient(150deg, #F0ABFC, #A78BFA); color: #2B1B4D; }
+
+.msg__head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 3px; }
+.msg__name { color: var(--d-bright); font-weight: 600; font-size: 15px; }
+.tag {
+  background: #5865F2; color: #fff;
+  font-size: 10px; font-weight: 600; line-height: 1;
+  padding: 3px 4px 2px; border-radius: 3px;
+  text-transform: uppercase; letter-spacing: .02em;
+}
+.tag--hook { background: var(--deep); }
+.msg__time { color: var(--d-dim); font-size: 12px; }
+.msg__text { color: var(--d-text); margin-bottom: 6px; }
+.msg__text:last-child { margin-bottom: 0; }
+
+.mention {
+  background: var(--d-mention);
+  color: var(--d-mentiontx);
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 500;
+}
+.chanref { color: #C7B4FF; }
+
+/* the embed — the lavender bar is the whole subject of this page */
+.embed {
+  --bar: var(--lav);
+  position: relative;
+  max-width: 516px;
+  background: var(--d-embed);
+  border-radius: 4px;
+  border-left: 4px solid var(--bar);
+  padding: 12px 16px 16px;
+  display: grid;
+  gap: 8px;
+}
+.embed--live { --bar: var(--deep); }
+.embed__grid { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: start; }
+.embed__author { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: var(--d-bright); }
+.embed__author .dot { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(150deg,#F0ABFC,#A78BFA); flex: none; }
+.embed__title { color: var(--d-link); font-weight: 600; font-size: 15px; text-decoration: none; }
+.embed__title:hover { text-decoration: underline; }
+.embed__title--plain { color: var(--d-bright); }
+.embed__desc { font-size: 14px; color: var(--d-text); }
+.embed__desc b { color: var(--d-bright); }
+.embed__fields { display: flex; flex-wrap: wrap; gap: 8px 34px; }
+.embed__field { min-width: 92px; }
+.embed__field dt { font-size: 13.5px; font-weight: 600; color: var(--d-bright); margin: 0 0 2px; }
+.embed__field dd { margin: 0; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.embed__thumb {
+  width: 80px; height: 80px; border-radius: 4px; flex: none;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.045) 0 7px, transparent 7px 14px),
+    linear-gradient(150deg, #A78BFA, #6D46E8);
+}
+.embed__media {
+  border-radius: 4px;
+  aspect-ratio: 16 / 9;
+  display: grid; place-items: center;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  color: rgba(255,255,255,.62);
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.05) 0 9px, transparent 9px 18px),
+    linear-gradient(140deg, #5B34D6, #A78BFA 55%, #F0ABFC);
+}
+.embed__media--tall { aspect-ratio: 9 / 16; max-width: 190px; }
+.embed__footer { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--d-dim); }
+.embed__footer .fdot { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(150deg,#A78BFA,#6D46E8); }
+
+.btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.btn {
+  background: var(--d-btn); color: #fff;
+  font-size: 14px; font-weight: 500;
+  padding: 8px 16px; border-radius: 3px;
+  display: inline-flex; align-items: center; gap: 8px;
+  text-decoration: none;
+}
+.btn::after { content: "↗"; opacity: .6; font-size: 12px; }
+.btn--plain::after { content: none; }
+
+.reacts { display: flex; gap: 6px; margin-top: 8px; }
+.react {
+  background: rgba(167,139,250,.14);
+  border: 1px solid rgba(167,139,250,.45);
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-size: 13px;
+  color: var(--d-mentiontx);
+  font-variant-numeric: tabular-nums;
+}
+.thread {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 10px; font-size: 13px; color: var(--d-dim);
+}
+.thread b { color: var(--d-mentiontx); font-weight: 600; }
+.eph {
+  margin-top: 10px; font-size: 12px; color: var(--d-dim);
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* ── payload disclosure ───────────────────────────────────────────────────── */
+.payload { border-top: 1px solid var(--rule-soft); }
+.payload summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 12px 24px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.payload summary::-webkit-details-marker { display: none; }
+.payload summary::before { content: "+"; color: var(--violet); font-weight: 700; }
+.payload[open] summary::before { content: "–"; }
+.payload summary:hover { color: var(--violet); }
+.payload pre {
+  margin: 0;
+  padding: 0 24px 22px;
+  overflow-x: auto;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  tab-size: 2;
+}
+.payload .k { color: var(--violet); }
+.payload .s { color: var(--ink); }
+
+/* ── prose sections ───────────────────────────────────────────────────────── */
+.prose {
+  border-top: 1px solid var(--rule);
+  margin-top: 56px;
+  padding-top: 40px;
+  scroll-margin-top: 24px;
+}
+.prose h2 {
+  font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.65rem;
+  letter-spacing: -.025em;
+  margin: 0 0 8px;
+}
+.prose p { max-width: 66ch; color: var(--ink-soft); margin: 0 0 18px; }
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 12px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; min-width: 540px; }
+th, td { text-align: left; padding: 12px 18px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+thead th {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); font-weight: 400;
+  background: var(--rule-soft);
+}
+tbody tr:last-child td { border-bottom: none; }
+td b { color: var(--ink); }
+.yes { color: var(--violet); font-weight: 600; }
+.no  { color: var(--muted); }
+
+.foot {
+  margin-top: 44px;
+  padding-top: 22px;
+  border-top: 1px solid var(--rule);
+  font-size: 13.5px;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+}
+.foot code {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12.5px;
+}
+
+:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; border-radius: 3px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+  <header class="mast">
+    <div class="mast__eyebrow">Daydream bot · message specimens</div>
+    <h1>Every message the bot sends, <em>in lavender</em>.</h1>
+    <p class="mast__lede">
+      One accent colour runs down the left of every embed — welcomes, upload
+      alerts, command replies — so the server reads as one brand instead of a
+      pile of vendor reds. Each specimen below is rendered from the payload the
+      bot actually posts; open the panel under any of them to see the JSON.
+    </p>
+    <div class="mast__meta">
+      <span>#A78BFA default</span>
+      <span>#7C5CFF live</span>
+      <span>6 platforms</span>
+      <span>bot + webhook</span>
+    </div>
+  </header>
+
+  <div class="shell">
+
+    <nav class="rail" aria-label="Specimens">
+      <div>
+        <h2>Specimens</h2>
+        <ol>
+          <li><a href="#welcome">Welcome ping</a></li>
+          <li><a href="#dm">Welcome DM</a></li>
+          <li><a href="#youtube">YouTube upload</a></li>
+          <li><a href="#tiktok">TikTok post</a></li>
+          <li><a href="#x">X post</a></li>
+          <li><a href="#twitch">Twitch live</a></li>
+          <li><a href="#socials">/socials</a></li>
+          <li><a href="#notifylist">/notify list</a></li>
+          <li><a href="#goodbye">Goodbye</a></li>
+          <li><a href="#sender">Bot vs webhook</a></li>
+        </ol>
+      </div>
+      <div>
+        <h2>Accent bar</h2>
+        <div class="swatches">
+          <div class="sw"><i style="background:#A78BFA"></i><span><b>#A78BFA</b>lavender · default</span></div>
+          <div class="sw"><i style="background:#C4B5FD"></i><span><b>#C4B5FD</b>lilac · passive</span></div>
+          <div class="sw"><i style="background:#7C5CFF"></i><span><b>#7C5CFF</b>violet · live</span></div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="specs">
+
+      <!-- ── 1. WELCOME ─────────────────────────────────────────────────── -->
+      <article class="spec" id="welcome">
+        <div class="spec__head">
+          <div class="spec__title">
+            <span class="trigger">event · guildMemberAdd</span>
+            <h3>Welcome ping</h3>
+          </div>
+          <div class="chips">
+            <span class="chip">#welcome</span>
+            <span class="chip chip--bot">Bot</span>
+            <span class="chip">pings the member</span>
+          </div>
+        </div>
+        <p class="note">
+          The <span class="mention">@mention</span> sits in the message text above the embed, not
+          inside it — that is the only part Discord turns into a real notification. Greeting lines
+          rotate from a pool, so the same person always gets the same line and no two arrivals look
+          copy-pasted.
+        </p>
+
+        <div class="discord">
+          <div class="chanbar"># <b>welcome</b></div>
+          <div class="msg">
+            <div class="avatar">D</div>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Daydream</span>
+                <span class="tag">App</span>
+                <span class="msg__time">Today at 6:31 PM</span>
+              </div>
+              <div class="msg__text">look who showed up — welcome, <span class="mention">@lunaaa</span>!</div>
+
+              <div class="embed">
+                <div class="embed__grid">
+                  <div style="display:grid;gap:8px">
+                    <div class="embed__author"><span class="dot"></span>lunaaa joined</div>
+                    <div class="embed__title embed__title--plain">Welcome to Daydream HQ 💜</div>
+                    <div class="embed__desc">
+                      Hey <span class="mention">@lunaaa</span> — glad you made it.<br><br>
+                      📜 Read <span class="chanref">#rules</span><br>
+                      🎨 Grab your roles in <span class="chanref">#roles</span><br>
+                      👋 Say hi in <span class="chanref">#intros</span>
+                    </div>
+                    <div class="embed__fields">
+                      <dl class="embed__field"><dt>Member</dt><dd>You're the <b>12,483rd</b> member</dd></dl>
+                      <dl class="embed__field"><dt>Account created</dt><dd>5 years ago</dd></dl>
+                    </div>
+                  </div>
+                  <div class="embed__thumb" role="img" aria-label="Member avatar"></div>
+                </div>
+                <div class="embed__footer"><span class="fdot"></span>Daydream HQ · Today at 6:31 PM</div>
+              </div>
+
+              <div class="btns">
+                <a class="btn" href="#welcome">📺 YouTube</a>
+                <a class="btn" href="#welcome">🎵 TikTok</a>
+                <a class="btn" href="#welcome">𝕏 X</a>
+              </div>
+              <div class="reacts"><span class="react">💜 2</span><span class="react">👋 1</span></div>
+            </div>
+          </div>
+        </div>
+
+        <details class="payload">
+          <summary>Wire payload</summary>
+<pre><code>{
+  <span class="k">"content"</span>: <span class="s">"look who showed up — welcome, &lt;@284620194716532736&gt;!"</span>,
+  <span class="k">"allowedMentions"</span>: { <span class="k">"users"</span>: [<span class="s">"284620194716532736"</span>] },
+  <span class="k">"embeds"</span>: [{
+    <span class="k">"color"</span>: 10980346,
+    <span class="k">"author"</span>: { <span class="k">"name"</span>: <span class="s">"lunaaa joined"</span>, <span class="k">"icon_url"</span>: <span class="s">"…/avatar.png"</span> },
+    <span class="k">"title"</span>: <span class="s">"Welcome to Daydream HQ 💜"</span>,
+    <span class="k">"description"</span>: <span class="s">"Hey &lt;@284620194716532736&gt; — glad you made it.\n\n📜 Read &lt;#RULES&gt;…"</span>,
+    <span class="k">"thumbnail"</span>: { <span class="k">"url"</span>: <span class="s">"…/avatar.png?size=256"</span> },
+    <span class="k">"fields"</span>: [
+      { <span class="k">"name"</span>: <span class="s">"Member"</span>, <span class="k">"value"</span>: <span class="s">"You're the **12,483rd** member"</span>, <span class="k">"inline"</span>: true },
+      { <span class="k">"name"</span>: <span class="s">"Account created"</span>, <span class="k">"value"</span>: <span class="s">"&lt;t:1615713120:R&gt;"</span>, <span class="k">"inline"</span>: true }
+    ],
+    <span class="k">"footer"</span>: { <span class="k">"text"</span>: <span class="s">"Daydream HQ"</span> }
+  }],
+  <span class="k">"components"</span>: [{ <span class="k">"type"</span>: 1, <span class="k">"components"</span>: [
+    { <span class="k">"type"</span>: 2, <span class="k">"style"</span>: 5, <span class="k">"label"</span>: <span class="s">"YouTube"</span>, <span class="k">"url"</span>: <span class="s">"https://youtube.com/@yourhandle"</span> }
+  ]}]
+}
+
+// 10980346 === 0xA78BFA — the lavender bar</code></pre>
+        </details>
+      </article>
+
+      <!-- ── 2. WELCOME DM ──────────────────────────────────────────────── -->
+      <article class="spec" id="dm">
+        <div class="spec__head">
+          <div class="spec__title">
+            <span class="trigger">event · guildMemberAdd → DM</span>
+            <h3>Welcome DM</h3>
+          </div>
+          <div class="chips">
+            <span class="chip">direct message</span>
+            <span class="chip chip--bot">Bot</span>
+            <span class="chip chip--quiet">skipped if DMs closed</span>
+          </div>
+        </div>
+        <p class="note">
+          Lands a second after the public ping. No mention — you can't ping someone inside their own
+          DMs — so this one leads with their name instead.
+        </p>
+
+        <div class="discord">
+          <div class="chanbar">@ <b>Daydream</b></div>
+          <div class="msg">
+            <div class="avatar">D</div>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Daydream</span>
+                <span class="tag">App</span>
+                <span class="msg__time">Today at 6:31 PM</span>
+              </div>
+              <div class="embed">
+                <div class="embed__grid">
+                  <div style="display:grid;gap:8px">
+                    <div class="embed__title embed__title--plain">Welcome to Daydream HQ 💜</div>
+                    <div class="embed__desc">
+                      Hey <b>lunaaa</b> — thanks for joining.<br><br>
+                      A few things worth doing first:<br>
+                      • Skim the rules so nothing catches you out<br>
+                      • Pick up notification roles so you hear about uploads and streams<br>
+                      • Drop an intro — the server is a lot more fun once people know you
+                    </div>
+                  </div>
+                  <div class="embed__thumb" role="img" aria-label="Server icon"></div>
+                </div>
+                <div class="embed__footer"><span class="fdot"></span>Daydream HQ</div>
+              </div>
+              <div class="btns">
+                <a class="btn" href="#dm">📺 YouTube</a>
+                <a class="btn" href="#dm">🎵 TikTok</a>
+                <a class="btn" href="#dm">𝕏 X</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── 3. YOUTUBE ─────────────────────────────────────────────────── -->
+      <article class="spec" id="youtube">
+        <div class="spec__head">
+          <div class="spec__title">
+            <span class="trigger">poll · youtube atom feed</span>
+            <h3>YouTube upload</h3>
+          </div>
+          <div class="chips">
+            <span class="chip">#uploads</span>
+            <span class="chip chip--hook">Webhook</span>
+            <span class="chip">@YouTube Notifs</span>
+          </div>
+        </div>
+        <p class="note">
+          <b>Length</b> and <b>Views</b> appear only when a <code>YOUTUBE_API_KEY</code> is set; the
+          free RSS feed alone still gives title, description, thumbnail, link and timestamp. The
+          thread opens automatically so discussion doesn't bury the next drop.
+        </p>
+
+        <div class="discord">
+          <div class="chanbar"># <b>uploads</b></div>
+          <div class="msg">
+            <div class="avatar">D</div>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Daydream Uploads</span>
+                <span class="tag tag--hook">Webhook</span>
+                <span class="msg__time">Today at 6:02 PM</span>
+              </div>
+              <div class="msg__text">🔔 <span class="mention">@YouTube Notifs</span> new upload from <b>Daydream</b> — go watch it 👇</div>
+              <div class="embed">
+                <div class="embed__author"><span class="dot"></span>📺 Daydream · YouTube</div>
+                <a class="embed__title" href="#youtube">i tried every viral food hack for 7 days</a>
+                <div class="embed__desc">day 4 nearly ended me. full breakdown, receipts and the one hack that actually works.</div>
+                <div class="embed__fields">
+                  <dl class="embed__field"><dt>Length</dt><dd>14:22</dd></dl>
+                  <dl class="embed__field"><dt>Views</dt><dd>18.4K</dd></dl>
+                </div>
+                <div class="embed__media">thumbnail · 1280 × 720</div>
+                <div class="embed__footer"><span class="fdot"></span>Daydream HQ · Today at 6:02 PM</div>
+              </div>
+              <div class="btns">
+                <a class="btn" href="#youtube">Watch on YouTube</a>
+                <a class="btn" href="#youtube">Profile</a>
+              </div>
+              <div class="thread">💬 <b>i tried every viral food hack for 7 days</b> · 12 messages</div>
+            </div>
+          </div>
+        </div>
+
+        <details class="payload">
+          <summary>Wire payload</summary>
+<pre><code>{
+  <span class="k">"username"</span>: <span class="s">"Daydream Uploads"</span>,
+  <span class="k">"content"</span>: <span class="s">"🔔 &lt;@&amp;1140000000000000001&gt; new upload from **Daydream** — go watch it 👇"</span>,
+  <span class="k">"allowed_mentions"</span>: { <span class="k">"roles"</span>: [<span class="s">"1140000000000000001"</span>] },
+  <span class="k">"embeds"</span>: [{
+    <span class="k">"color"</span>: 10980346,
+    <span class="k">"author"</span>: { <span class="k">"name"</span>: <span class="s">"📺 Daydream · YouTube"</span>, <span class="k">"url"</span>: <span class="s">"https://youtube.com/@daydream"</span> },
+    <span class="k">"title"</span>: <span class="s">"i tried every viral food hack for 7 days"</span>,
+    <span class="k">"url"</span>: <span class="s">"https://www.youtube.com/watch?v=dQw4w9WgXcQ"</span>,
+    <span class="k">"description"</span>: <span class="s">"day 4 nearly ended me. full breakdown, receipts…"</span>,
+    <span class="k">"image"</span>: { <span class="k">"url"</span>: <span class="s">"https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg"</span> },
+    <span class="k">"fields"</span>: [
+      { <span class="k">"name"</span>: <span class="s">"Length"</span>, <span class="k">"value"</span>: <span class="s">"14:22"</span>, <span class="k">"inline"</span>: true },
+      { <span class="k">"name"</span>: <span class="s">"Views"</span>,  <span class="k">"value"</span>: <span class="s">"18.4K"</span>, <span class="k">"inline"</span>: true }
+    ],
+    <span class="k">"footer"</span>: { <span class="k">"text"</span>: <span class="s">"Daydream HQ"</span> },
+    <span class="k">"timestamp"</span>: <span class="s">"2026-08-18T17:02:00.000Z"</span>
+  }],
+  <span class="k">"components"</span>: [{ <span class="k">"type"</span>: 1, <span class="k">"components"</span>: [
+    { <span class="k">"type"</span>: 2, <span class="k">"style"</span>: 5, <span class="k">"label"</span>: <span class="s">"Watch on YouTube"</span>, <span class="k">"url"</span>: <span class="s">"https://www.youtube.com/watch?v=dQw4w9WgXcQ"</span> },
+    { <span class="k">"type"</span>: 2, <span class="k">"style"</span>: 5, <span class="k">"label"</span>: <span class="s">"Profile"</span>, <span class="k">"url"</span>: <span class="s">"https://youtube.com/@daydream"</span> }
+  ]}]
+}</code></pre>
+        </details>
+      </article>
+
+      <!-- ── 4. TIKTOK ──────────────────────────────────────────────────── -->
+      <article class="spec" id="tiktok">
+        <div class="spec__head">
+          <div class="spec__title">
+            <span class="trigger">poll · rss bridge</span>
+            <h3>TikTok post</h3>
+          </div>
+          <div class="chips">
+            <span class="chip">#shorts</span>
+            <span class="chip chip--hook">Webhook</span>
+            <span class="chip">@TikTok Notifs</span>
+          </div>
+        </div>
+        <p class="note">
+          Vertical cover art, so the embed image stays narrow instead of letterboxing a 9:16 frame
+          into a 16:9 slot.
+        </p>
+
+        <div class="discord">
+          <div class="chanbar"># <b>shorts</b></div>
+          <div class="msg">
+            <div class="avatar">D</div>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Daydream Uploads</span>
+                <span class="tag tag--hook">Webhook</span>
+                <span class="msg__time">Today at 4:40 PM</span>
+              </div>
+              <div class="msg__text">🎵 <span class="mention">@TikTok Notifs</span> <b>Daydream</b> just posted on TikTok</div>
+              <div class="embed">
+                <div class="embed__author"><span class="dot"></span>🎵 @daydream · TikTok</div>
+                <a class="embed__title" href="#tiktok">no because why did this actually work 😭 #fyp</a>
+                <div class="embed__desc">no because why did this actually work 😭 #fyp #dayinmylife</div>
+                <div class="embed__media embed__media--tall">cover · 9:16</div>
+                <div class="embed__footer"><span class="fdot"></span>Daydream HQ · Today at 4:40 PM</div>
+              </div>
+              <div class="btns">
+                <a class="btn" href="#tiktok">Watch on TikTok</a>
+                <a class="btn" href="#tiktok">Profile</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── 5. X ───────────────────────────────────────────────────────── -->
+      <article class="spec" id="x">
+        <div class="spec__head">
+          <div class="spec__title">
+            <span class="trigger">poll · api v2 (nitter fallback)</span>
+            <h3>X post</h3>
+          </div>
+          <div class="chips">
+            <span class="chip">#x-posts</span>
+            <span class="chip chip--hook">Webhook</span>
+            <span class="chip chip--quiet">replies &amp; reposts filtered</span>
+          </div>
+        </div>
+        <p class="note">
+          A text-only post collapses to two lines — no image slot left hanging. Likes and reposts
+          come from the official API; on the Nitter fallback those fields are simply absent rather
+          than shown as zero.
+        </p>
+
+        <div class="discord">
+          <div class="chanbar"># <b>x-posts</b></div>
+          <div class="msg">
+            <div class="avatar">D</div>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Daydream Uploads</span>
+                <span class="tag tag--hook">Webhook</span>
+                <span class="msg__time">Today at 6:06 PM</span>
+              </div>
+              <div class="msg__text">𝕏 <span class="mention">@X Notifs</span> <b>Daydream (@daydream)</b> posted</div>
+              <div class="embed">
+                <div class="embed__author"><span class="dot"></span>𝕏 Daydream (@daydream) · X</div>
+                <a class="embed__title" href="#x">new video is live. it took 3 weeks and one minor breakdown 🫠</a>
+                <div class="embed__fields">
+                  <dl class="embed__field"><dt>Likes</dt><dd>2.3K</dd></dl>
+                  <dl class="embed__field"><dt>Reposts</dt><dd>188</dd></dl>
+                </div>
+                <div class="embed__footer"><span class="fdot"></span>Daydream HQ · Today at 6:06 PM</div>
+              </div>
+              <div class="btns">
+                <a class="btn" href="#x">Watch on X</a>
+                <a class="btn" href="#x">Profile</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── 6. TWITCH ──────────────────────────────────────────────────── -->
+      <article class="spec" id="twitch">
+        <div class="spec__head">
+          <div class="spec__title">
+            <span class="trigger">poll · helix /streams</span>
+            <h3>Twitch live</h3>
+          </div>
+          <div class="chips">
+            <span class="chip">#live-now</span>
+            <span class="chip chip--bot">Bot</span>
+            <span class="chip">@Live Notifs</span>
+          </div>
+        </div>
+        <p class="note">
+          The one specimen that steps up to the deeper violet <code>#7C5CFF</code>, so a live alert
+          reads differently from an upload at a glance while staying in the same family. One
+          announcement per stream session — restarting a dropped stream posts again, refreshing the
+          page doesn't.
+        </p>
+
+        <div class="discord">
+          <div class="chanbar"># <b>live-now</b></div>
+          <div class="msg">
+            <div class="avatar">D</div>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Daydream</span>
+                <span class="tag">App</span>
+                <span class="msg__time">Today at 8:00 PM</span>
+              </div>
+              <div class="msg__text">🔴 <span class="mention">@Live Notifs</span> <b>Daydream</b> is LIVE</div>
+              <div class="embed embed--live">
+                <div class="embed__author"><span class="dot"></span>🔴 daydream · Twitch</div>
+                <a class="embed__title" href="#twitch">editing the new vid with you all + chill</a>
+                <div class="embed__desc">Playing <b>Just Chatting</b></div>
+                <div class="embed__fields">
+                  <dl class="embed__field"><dt>Watching</dt><dd>1K</dd></dl>
+                  <dl class="embed__field"><dt>Category</dt><dd>Just Chatting</dd></dl>
+                </div>
+                <div class="embed__media">stream preview · 1280 × 720</div>
+                <div class="embed__footer"><span class="fdot"></span>Daydream HQ · Today at 8:00 PM</div>
+              </div>
+              <div class="btns">
+                <a class="btn" href="#twitch">Watch the stream</a>
+                <a class="btn" href="#twitch">Profile</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── 7. /socials ────────────────────────────────────────────────── -->
+      <article class="spec" id="socials">
+        <div class="spec__head">
+          <div class="spec__title">
+            <span class="trigger">command · /socials</span>
+            <h3>Link card</h3>
+          </div>
+          <div class="chips">
+            <span class="chip">any channel</span>
+            <span class="chip chip--bot">Bot</span>
+            <span class="chip chip--quiet">everyone can run it</span>
+          </div>
+        </div>
+        <p class="note">
+          The reply people will run most. Links appear as text <em>and</em> buttons — the text is
+          copy-pasteable on mobile, the buttons are one tap.
+        </p>
+
+        <div class="discord">
+          <div class="chanbar"># <b>general</b></div>
+          <div class="msg">
+            <div class="avatar avatar--user">L</div>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name" style="color:#C7B4FF">lunaaa</span>
+                <span class="msg__time">Today at 7:12 PM</span>
+              </div>
+              <div class="msg__text" style="color:#949BA4">used <b style="color:#C7B4FF">/socials</b></div>
+            </div>
+          </div>
+          <div class="msg">
+            <div class="avatar">D</div>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Daydream</span>
+                <span class="tag">App</span>
+                <span class="msg__time">Today at 7:12 PM</span>
+              </div>
+              <div class="embed">
+                <div class="embed__title embed__title--plain">Daydream — everywhere else</div>
+                <div class="embed__desc">
+                  📺 <b>YouTube</b> → youtube.com/@daydream<br>
+                  🎵 <b>TikTok</b> → tiktok.com/@daydream<br>
+                  𝕏 <b>X</b> → x.com/daydream<br>
+                  📸 <b>Instagram</b> → instagram.com/daydream<br>
+                  🔴 <b>Twitch</b> → twitch.tv/daydream
+                </div>
+                <div class="embed__fields">
+                  <dl class="embed__field" style="min-width:220px"><dt>Business enquiries</dt><dd>business@daydream.tv</dd></dl>
+                </div>
+                <div class="embed__footer"><span class="fdot"></span>Daydream HQ</div>
+              </div>
+              <div class="btns">
+                <a class="btn" href="#socials">📺 YouTube</a>
+                <a class="btn" href="#socials">🎵 TikTok</a>
+                <a class="btn" href="#socials">𝕏 X</a>
+                <a class="btn" href="#socials">📸 Instagram</a>
+                <a class="btn" href="#socials">🔴 Twitch</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── 8. /notify list ────────────────────────────────────────────── -->
+      <article class="spec" id="notifylist">
+        <div class="spec__head">
+          <div class="spec__title">
+            <span class="trigger">command · /notify list</span>
+            <h3>Watch list</h3>
+          </div>
+          <div class="chips">
+            <span class="chip">#bot-config</span>
+            <span class="chip chip--bot">Bot</span>
+            <span class="chip">Manage Server only</span>
+          </div>
+        </div>
+        <p class="note">
+          Ephemeral — only the admin who ran it sees this, so channel and role wiring never leaks
+          into a public channel. Each row says where the alert posts and who it pings, because those
+          are the two things people get wrong.
+        </p>
+
+        <div class="discord">
+          <div class="chanbar"># <b>bot-config</b></div>
+          <div class="msg">
+            <div class="avatar">D</div>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Daydream</span>
+                <span class="tag">App</span>
+                <span class="msg__time">Today at 9:02 PM</span>
+              </div>
+              <div class="embed">
+                <div class="embed__title embed__title--plain">📡 Watched accounts</div>
+                <div class="embed__desc">
+                  ✅ 📺 <b>yt-main</b> · @daydream<br>
+                  &nbsp;&nbsp;└ <span class="chanref">#uploads</span> · <span class="mention">@YouTube Notifs</span><br>
+                  ✅ 🎵 <b>tiktok-main</b> · daydream<br>
+                  &nbsp;&nbsp;└ <span class="chanref">#shorts</span> · <span class="mention">@TikTok Notifs</span><br>
+                  ✅ 𝕏 <b>x-main</b> · daydream<br>
+                  &nbsp;&nbsp;└ via webhook · no ping<br>
+                  ⏸️ 🔴 <b>twitch-main</b> · daydream<br>
+                  &nbsp;&nbsp;└ <span class="chanref">#live-now</span> · <span class="mention">@Live Notifs</span>
+                </div>
+                <div class="embed__footer"><span class="fdot"></span>Daydream HQ</div>
+              </div>
+              <div class="eph">👁️ Only you can see this · <span style="color:#C7B4FF">Dismiss message</span></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── 9. GOODBYE ─────────────────────────────────────────────────── -->
+      <article class="spec" id="goodbye">
+        <div class="spec__head">
+          <div class="spec__title">
+            <span class="trigger">event · guildMemberRemove</span>
+            <h3>Goodbye line</h3>
+          </div>
+          <div class="chips">
+            <span class="chip">#welcome</span>
+            <span class="chip chip--bot">Bot</span>
+            <span class="chip chip--quiet">no embed · no ping</span>
+          </div>
+        </div>
+        <p class="note">
+          Deliberately plain. A leave doesn't deserve the same visual weight as an arrival, and
+          pinging someone who just left is a bad look.
+        </p>
+
+        <div class="discord">
+          <div class="chanbar"># <b>welcome</b></div>
+          <div class="msg">
+            <div class="avatar">D</div>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Daydream</span>
+                <span class="tag">App</span>
+                <span class="msg__time">Today at 9:14 PM</span>
+              </div>
+              <div class="msg__text"><b>lunaaa</b> drifted off. (12,482 left)</div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── PROSE: sender choice ───────────────────────────────────────── -->
+      <section class="prose" id="sender">
+        <h2>Bot or webhook?</h2>
+        <p>
+          Both send the identical embed. The difference is who appears to be talking, and what the
+          message can do afterwards.
+        </p>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr><th scope="col">&nbsp;</th><th scope="col">Bot message</th><th scope="col">Webhook</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>Sender</b></td>
+                <td>Your bot's name and avatar, <code>APP</code> tag</td>
+                <td>Anything — <b>Daydream Uploads</b>, or a per-platform name and avatar</td>
+              </tr>
+              <tr>
+                <td><b>Setup</b></td>
+                <td>Nothing extra</td>
+                <td>Create a webhook on the channel, paste the URL into the account</td>
+              </tr>
+              <tr>
+                <td><b>Auto-thread</b></td>
+                <td class="yes">Yes</td>
+                <td class="no">No</td>
+              </tr>
+              <tr>
+                <td><b>Crosspost to followers</b></td>
+                <td class="yes">Yes</td>
+                <td class="no">No</td>
+              </tr>
+              <tr>
+                <td><b>Rate limits</b></td>
+                <td>Shared with everything else the bot does</td>
+                <td>Its own bucket — better when five platforms fire at once</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:20px">
+          Rule of thumb: <b>#uploads</b> as a webhook for the branded sender, <b>#live-now</b> as the
+          bot so it can open a thread. Set <code>webhookUrl</code> on an account to switch; leave it
+          empty to post as the bot.
+        </p>
+      </section>
+
+      <!-- ── PROSE: pings ───────────────────────────────────────────────── -->
+      <section class="prose" id="pings">
+        <h2>Who gets pinged</h2>
+        <p>
+          Every specimen above pings a role, never <code>@everyone</code>. One role per platform
+          means someone who only cares about streams isn't woken by a TikTok — and people who are
+          never woken by the wrong thing don't mute the server.
+        </p>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr><th scope="col">Message</th><th scope="col">Pings</th><th scope="col">Why</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><b>Welcome</b></td><td>The joining member</td><td>Pulls them back into the tab they just left</td></tr>
+              <tr><td><b>YouTube / TikTok / X</b></td><td>That platform's notif role</td><td>Opt-in per platform, self-assigned from a role menu</td></tr>
+              <tr><td><b>Twitch / Kick live</b></td><td><b>@Live Notifs</b></td><td>Time-sensitive — a late ping is worthless</td></tr>
+              <tr><td><b>Command replies</b></td><td>Nobody</td><td>Admin replies are ephemeral; public ones stay quiet</td></tr>
+              <tr><td><b>Goodbye</b></td><td>Nobody</td><td>Obvious once you picture the alternative</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="foot">
+        <span>Rendered from the payloads in <code>mockups/payloads/</code></span>
+        <span>Regenerate with <code>npm run mockups</code></span>
+        <span>Accent set once in <code>config.json → brand.accent</code></span>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>
