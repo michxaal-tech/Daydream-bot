@@ -29,6 +29,16 @@ heatmap), who your most invested members are, and a weekly recap that writes
 itself. Plus a first-hour club, live takeover, thumbnail A/B tests and a
 shoutout queue.
 
+**Moderation toolkit** — jail with role restore, text/image/reaction mutes,
+temp/soft/hard bans, forced nicknames, staff stripping, a lockdown panic
+button, staff-role binding and per-action message customisation. `/modsetup`
+creates the roles and channel overwrites for you.
+
+**Access & automation** — a verification gate with an optional challenge,
+tickets as private threads with transcripts, scheduled and recurring posts, a
+daily prompt, catchphrase triggers, keyword alerts DM'd to you, voice XP,
+booster thank-yous and nickname dehoisting.
+
 Plus 25+ optional extras, every one off by default: a currency with daily
 streaks and a role shop, suggestions with voting, anonymous confessions,
 birthdays, AFK notices, sticky roles, the counting game, join-to-create voice
@@ -98,6 +108,9 @@ Then in Discord: `/welcome test` — it should ping you in `#welcome`.
 | `/insights radar\|attribution\|superfans\|invites\|recap` | Manage Server | The numbers |
 | `/creator ab start\|close` | Manage Server | Thumbnail A/B tests |
 | `/creator shoutout submit\|queue\|next` | Everyone / staff | The shoutout queue |
+| `/punish jail\|mute\|tempban\|softban\|hardban\|forcenick\|stripstaff` | Staff | The punishment toolkit |
+| `/modsetup jail\|mutes\|staff\|invoke\|show` | Manage Server | Creates the roles and wiring those need |
+| `/server verifypanel\|ticketpanel\|schedule\|lockdown` | Manage Server | Panels, scheduling, panic button |
 | `/latest <platform>` | Everyone | Newest post from a platform, on demand |
 | `/socials` | Everyone | All links in one embed with buttons |
 | `/ping` | Everyone | Latency + uptime |
@@ -126,6 +139,11 @@ src/
     levels/index.js            xp curve, rewards, leaderboard
     moderation/automod.js      content rules and the escalation ladder
     moderation/cases.js        numbered cases and the mod-log
+    moderation/punishments.js  jail, mutes, temp/soft/hard bans, forced nicks
+    verification/index.js      the gate and its challenge
+    tickets/index.js           private threads with transcripts
+    scheduler/index.js         scheduled + recurring posts, daily prompt
+    triggers/index.js          catchphrases, keyword alerts, dehoisting
     roles/index.js             self-assign role panels
     giveaways/index.js         entry, timers, the draw
     starboard/index.js         ⭐ threshold and the board post

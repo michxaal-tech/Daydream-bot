@@ -17,7 +17,7 @@ is written so you can hand it straight to a dev as a ticket.
 | 🟢 | **Auto-role on join** | Drops a `@Member` (or `@Unverified`) role automatically |
 | 🟢 | **Auto-reactions** | Bot reacts 💜 👋 so the welcome post already has social proof |
 | 🟢 | **Goodbye line** | Low-key leave message, no ping |
-| 🟡 | **Verification gate** | Button/captcha → role. Blocks raid bots before they see the server |
+| 🟢 | **Verification gate** | Button plus an optional two-number challenge, granting a role |
 | 🟡 | **Rules accept button** | "I agree" button grants access; logs who accepted and when |
 | 🟡 | **Onboarding quiz** | 3-question modal (where'd you find me / favourite video / timezone) → auto-assigns roles from answers |
 | ⚪ | **Invite attribution** | Tracks which invite link each member used — see which video/collab actually drives joins |
@@ -92,13 +92,13 @@ is written so you can hand it straight to a dev as a ticket.
 | | Feature | What it does |
 |---|---|---|
 | 🟢 | **Automod rules** | Invites, links, mass mentions, shouting, repeats and a word list |
-| 🟡 | **Raid mode** | Auto-lock joins when N accounts join in M seconds |
+| 🟢 | **Lockdown** | `/server lockdown` stops everyone posting server-wide, and logs itself as a case |
 | 🟢 | **New-account gate** | Accounts under X days are quarantined or bounced before the welcome fires |
 | 🟢 | **Warn / timeout / kick / ban** | Numbered cases, DM notice, mod-log embed, rank checks |
 | 🟢 | **Strike escalation** | Configurable warn → timeout → kick ladder, counted across cases |
 | ⚪ | **Scam-link scanner** | Checks URLs against a phishing list before they render |
 | ⚪ | **Impersonation watch** | Flags new members whose name/avatar mimics the creator or a mod |
-| ⚪ | **Slowmode autopilot** | Raises slowmode automatically when a channel spikes after an upload |
+| 🟢 | **Slowmode autopilot** | Raises and lifts itself with hysteresis, per channel |
 | ⚪ | **Ticket system** | Private support/business-enquiry threads with transcripts |
 | ⚪ | **Report button** | Right-click a message → report to mods |
 | 🟡 | **Mod-log everything** | Actions are logged today; edits, deletes and role changes are not yet |
@@ -159,9 +159,9 @@ is written so you can hand it straight to a dev as a ticket.
 
 1. **Done** — welcome, upload notifications, polls, role menus, levels, automod
    and moderation, giveaways, starboard, reminders, and a dashboard covering all of it.
-2. **Next** — verification gate (button/captcha before anyone sees the server),
-   daily streaks and a currency to spend, and a tickets flow for business enquiries.
-3. **Later** — membership tier sync, analytics digest, watch parties, AI persona channel.
+2. **Next** — membership tier sync (Patreon / YouTube members / Twitch subs),
+   watch parties with countdowns, and a public stats page.
+3. **Later** — an AI persona channel, comment-highlight relay, merch drop alerts.
 
 ## Channel layout this assumes
 
