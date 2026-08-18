@@ -87,7 +87,9 @@ And once it's up:
 | What you see | What it is |
 |---|---|
 | Discord says "invalid redirect_uri" | The portal entry doesn't byte-for-byte match what the bot sends. The bot logs the exact string at startup — copy that. Or read it out of the address bar on Discord's error page: `redirect_uri=` in the query string, URL-decoded |
-| "Login failed: state mismatch" | Cookies were blocked, or the login sat unfinished for over 10 minutes. Start again at `/login` |
+| "This login was started somewhere else" | You began at one domain and came back on another — usually after regenerating the Railway domain. Start again from the current one |
+| "The login cookie went missing" | The browser dropped the state cookie. Allow cookies for the site and start again |
+| "Discord refused the login" | The page names Discord's own reason — e.g. `consent_required` if the authorisation was dismissed |
 | "You need the Manage Server permission" | Correct — grant yourself that role, or use an account that has it |
 | Signed out after every deploy | `SESSION_SECRET` isn't set, so it's regenerated on each boot |
 | Settings revert after a deploy | No volume mounted at `DATA_DIR` |

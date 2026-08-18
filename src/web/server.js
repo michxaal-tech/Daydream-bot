@@ -80,18 +80,42 @@ export function startDashboard(client) {
       response_type: 'code',
       scope: 'identify guilds',
       state,
-      prompt: 'none',
     });
     res.redirect(`https://discord.com/oauth2/authorize?${params}`);
   });
 
   app.get('/callback', async (req, res) => {
     const cookies = parseCookies(req.headers.cookie);
-    const { code, state } = req.query;
+    const { code, state, error, error_description: errorDescription } = req.query;
 
-    // The state cookie is the CSRF guard on the login leg itself.
-    if (!code || !state || state !== cookies.oauth_state) {
-      return res.status(400).send('Login failed: state mismatch. Start again from /login.');
+    // Discord bounced us before we ever got a code — say so, don't blame state.
+    if (error) {
+      log.warn(`oauth denied by Discord: ${error} ${errorDescription ?? ''}`);
+      return res
+        .status(400)
+        .send(
+          denied(
+            `Discord refused the login: <code>${escapeHtml(String(error))}</code>` +
+              (errorDescription ? `<br>${escapeHtml(String(errorDescription))}` : '')
+          )
+        );
+    }
+    if (!code) {
+      return res.status(400).send(denied('Discord sent no authorisation code. Start again below.'));
+    }
+    // The state cookie is the CSRF guard on the login leg itself. It goes
+    // missing if the domain changed between /login and here, or if the browser
+    // dropped the cookie — both need a fresh start rather than a retry.
+    if (!state || state !== cookies.oauth_state) {
+      return res
+        .status(400)
+        .send(
+          denied(
+            cookies.oauth_state
+              ? 'This login was started somewhere else — most often a different domain. Start again below.'
+              : 'The login cookie went missing. If Safari is blocking cookies for this site, allow them, then start again below.'
+          )
+        );
     }
     clearCookie(res, 'oauth_state');
 
@@ -328,4 +352,4 @@ const denied = (reason) =>
   `<!doctype html><meta charset="utf-8"><title>No access</title>
    <body style="font:16px/1.6 system-ui;background:#12111A;color:#EEEBF5;padding:15vh 8vw">
    <h1 style="color:#A78BFA">No access</h1><p>${reason}</p>
-   <p><a style="color:#A78BFA" href="/login">Try a different account</a></p>`;
+   <p><a style="color:#A78BFA" href="/login">Start again</a></p>`;
