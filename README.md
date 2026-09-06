@@ -211,3 +211,8 @@ same feeds will double-post.
 In the Discord Developer Portal, enable the **Server Members Intent** under
 Bot → Privileged Gateway Intents, or `guildMemberAdd` never fires and the
 welcome feature stays silent.
+
+The moderation, ticket, voice and invite-tracking features need permissions
+beyond the original invite. Re-authorise with the link in
+[docs/SETUP.md](docs/SETUP.md) — an existing bot keeps its settings and simply
+gains what it was missing.

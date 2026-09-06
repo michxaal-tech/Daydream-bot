@@ -52,8 +52,11 @@ Paste your Application ID into this URL where it says `YOUR_CLIENT_ID`, then
 open it and pick your server:
 
 ```
-https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=310043069504&scope=bot%20applications.commands
+https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=1495605046390&scope=bot%20applications.commands
 ```
+
+If the bot is already in your server, opening this link again re-authorises it
+and grants any permissions it is missing — nothing is lost.
 
 If Discord answers **"Integration requires code grant"**, go back to the **Bot**
 page → **Authorization Flow** → switch **Requires OAuth2 Code Grant** *off* →

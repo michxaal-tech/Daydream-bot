@@ -20,21 +20,34 @@ Roughly 15 minutes end to end.
 Fastest route — paste your Application ID into this URL and open it:
 
 ```
-https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=310043069504&scope=bot%20applications.commands
+https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=1495605046390&scope=bot%20applications.commands
 ```
 
-`310043069504` is exactly the permission set below and nothing else. To build it
+`1495605046390` is exactly the permission set below and nothing else. To build it
 by hand instead: OAuth2 → URL Generator → scopes `bot` + `applications.commands`,
 permissions:
 
 | Permission | Needed for |
 |---|---|
 | View Channels, Send Messages, Embed Links, Attach Files | everything |
-| Add Reactions | welcome 💜 reactions |
-| Manage Roles | auto-role on join (bot's role must sit **above** the roles it grants) |
-| Create Public Threads, Send Messages in Threads | auto-thread on uploads |
-| Manage Webhooks | if you want the bot to create webhooks itself |
+| Read Message History | starboard, purge, ticket transcripts |
+| Add Reactions | welcome reactions, counting game |
+| Manage Roles | auto-role, role menus, level rewards, jail, mutes, verification (the bot's role must sit **above** every role it grants) |
+| Manage Messages | `/purge`, automod deletions, pinning the live banner |
+| Kick / Ban Members | `/mod kick`, `/mod ban`, tempban, softban, hardban, automod escalation |
+| Moderate Members | `/mod timeout` |
+| Manage Nicknames | `/punish forcenick`, nickname dehoisting |
+| Manage Channels | `/modsetup jail`, `/server lockdown`, temp voice rooms, counter channels, slowmode autopilot |
+| Manage Server | invite tracking (Discord only exposes invite uses to Manage Server) |
+| Move Members | moving someone into their new temp voice room |
+| Create Public / Private Threads, Send Messages in Threads, Manage Threads | auto-threading, tickets |
+| Manage Webhooks | posting upload alerts as a branded sender |
 | Mention @everyone, @here, All Roles | only if an account sets `mentionEveryone` |
+
+> **Already invited the bot?** Discord does not add new permissions to a bot
+> that is already in the server. Open the updated link above and re-authorise
+> it into the same server — that grants the missing ones without kicking it or
+> losing any settings.
 
 ## 3. Get the IDs
 
